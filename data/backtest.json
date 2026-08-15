@@ -1,0 +1,71 @@
+{
+  "forward_days": 10,
+  "total_samples": 900,
+  "groups": [
+    {
+      "label": "<45",
+      "count": 363,
+      "avg_return": 1.99,
+      "win_rate": 55.4
+    },
+    {
+      "label": "45-55",
+      "count": 146,
+      "avg_return": 1.01,
+      "win_rate": 48.6
+    },
+    {
+      "label": "55-65",
+      "count": 214,
+      "avg_return": 0.62,
+      "win_rate": 40.2
+    },
+    {
+      "label": "65-75",
+      "count": 164,
+      "avg_return": -0.55,
+      "win_rate": 36.6
+    },
+    {
+      "label": "≥75",
+      "count": 13,
+      "avg_return": 2.55,
+      "win_rate": 53.8
+    }
+  ],
+  "ic": -0.055,
+  "per_stock": [
+    {
+      "code": "000001",
+      "name": "平安银行",
+      "samples": 180,
+      "avg_fwd_return": 0.06
+    },
+    {
+      "code": "600036",
+      "name": "招商银行",
+      "samples": 180,
+      "avg_fwd_return": -0.19
+    },
+    {
+      "code": "600519",
+      "name": "贵州茅台",
+      "samples": 180,
+      "avg_fwd_return": -0.17
+    },
+    {
+      "code": "300750",
+      "name": "宁德时代",
+      "samples": 180,
+      "avg_fwd_return": 0.32
+    },
+    {
+      "code": "600664",
+      "name": "哈药股份",
+      "samples": 180,
+      "avg_fwd_return": 5.22
+    }
+  ],
+  "conclusion": "⚠️ 评分呈负相关（当前因子方向可能反了，追高不利）：IC=-0.055；低分组未来10日均收益 1.50%，高分组 1.00%",
+  "updated_at": "2026-08-15 16:30:10"
+}
