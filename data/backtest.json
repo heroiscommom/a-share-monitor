@@ -1,39 +1,39 @@
 {
   "forward_days": 10,
-  "total_samples": 900,
+  "total_samples": 1080,
   "groups": [
     {
       "label": "<45",
-      "count": 284,
-      "avg_return": 0.3,
-      "win_rate": 37.7
+      "count": 329,
+      "avg_return": 0.36,
+      "win_rate": 38.3
     },
     {
       "label": "45-55",
-      "count": 221,
-      "avg_return": 1.76,
-      "win_rate": 48.9
+      "count": 262,
+      "avg_return": 0.97,
+      "win_rate": 43.9
     },
     {
       "label": "55-65",
-      "count": 217,
-      "avg_return": 1.22,
-      "win_rate": 50.2
+      "count": 252,
+      "avg_return": 1.35,
+      "win_rate": 50.4
     },
     {
       "label": "65-75",
-      "count": 147,
-      "avg_return": 1.59,
-      "win_rate": 59.9
+      "count": 184,
+      "avg_return": 1.24,
+      "win_rate": 57.1
     },
     {
       "label": "≥75",
-      "count": 31,
-      "avg_return": -0.98,
-      "win_rate": 41.9
+      "count": 53,
+      "avg_return": -0.31,
+      "win_rate": 45.3
     }
   ],
-  "ic": -0.041,
+  "ic": -0.048,
   "per_stock": [
     {
       "code": "000001",
@@ -64,8 +64,14 @@
       "name": "哈药股份",
       "samples": 180,
       "avg_fwd_return": 5.22
+    },
+    {
+      "code": "002900",
+      "name": "哈三联",
+      "samples": 180,
+      "avg_fwd_return": -0.12
     }
   ],
-  "conclusion": "➖ 评分几乎无预测力：IC=-0.041；低分组未来10日均收益 1.03%，高分组 0.31%",
-  "updated_at": "2026-08-15 16:36:46"
+  "conclusion": "强势股（0.36%）跑赢超跌股（-0.31%），动量有效；线性 IC=-0.048",
+  "updated_at": "2026-08-15 16:57:13"
 }
