@@ -94,22 +94,32 @@ def group_stats(samples):
 
 
 def make_conclusion(groups, ic):
-    if ic is None:
-        return "样本不足，暂无法判断"
-    if ic > 0.05:
-        verdict = "✅ 评分对未来收益有正预测力"
-    elif ic < -0.05:
-        verdict = "⚠️ 评分呈负相关（当前因子方向可能反了，追高不利）"
-    else:
-        verdict = "➖ 评分几乎无预测力"
-    lows = [g for g in groups if g["label"] in ("<45", "45-55") and g["avg_return"] is not None]
-    highs = [g for g in groups if g["label"] in ("65-75", "≥75") and g["avg_return"] is not None]
-    extra = ""
-    if lows and highs:
-        low_avg = sum(g["avg_return"] for g in lows) / len(lows)
-        high_avg = sum(g["avg_return"] for g in highs) / len(highs)
-        extra = f"；低分组未来{FORWARD_DAYS}日均收益 {low_avg:.2f}%，高分组 {high_avg:.2f}%"
-    return f"{verdict}：IC={ic:.3f}{extra}"
+    def avg(label):
+        g = next((x for x in groups if x["label"] == label), None)
+        return g["avg_return"] if g and g["avg_return"] is not None else None
+
+    low = avg("<45")
+    mid = avg("55-65")
+    high = avg("≥75")
+
+    parts = []
+    if low is not None and high is not None and mid is not None:
+        # U型：两端都明显跑赢中间
+        if high > mid + 0.5 and low > mid + 0.5:
+            parts.append(f"U型关系：超跌股（{high:.2f}%）和强势股（{low:.2f}%）都跑赢中间档（{mid:.2f}%）")
+            if high >= low:
+                parts.append("其中「超跌」信号最强、胜率最高")
+            else:
+                parts.append("其中「强势」信号更强")
+        elif high > low + 0.5:
+            parts.append(f"超跌股（{high:.2f}%）跑赢强势股（{low:.2f}%），均值回归有效")
+        elif low > high + 0.5:
+            parts.append(f"强势股（{low:.2f}%）跑赢超跌股（{high:.2f}%），动量有效")
+        else:
+            parts.append(f"各组收益差异不大（{low:.2f}% ~ {high:.2f}%），评分区分度低")
+    if ic is not None:
+        parts.append(f"线性 IC={ic:.3f}")
+    return "；".join(parts) if parts else "样本不足，暂无法判断"
 
 
 def run():
