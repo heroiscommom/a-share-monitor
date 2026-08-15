@@ -260,13 +260,17 @@ function drawBacktestChart(groups) {
 
 async function loadBacktest() {
   try {
-    const b = await loadJSON('data/backtest.json');
+    let b = await loadJSON('data/pool_backtest.json').catch(() => null);
+    if (!b || !b.groups || !b.groups.length) {
+      b = await loadJSON('data/backtest.json').catch(() => null);
+    }
     if (!b || !b.groups || !b.groups.length) {
       $('#backtest-meta').textContent = '';
       $('#backtest-conclusion').textContent = '暂无回测数据';
       return;
     }
-    $('#backtest-meta').textContent = `持有 ${b.forward_days} 日 · 样本 ${b.total_samples} 个 · IC ${b.ic ?? '-'}`;
+    const poolInfo = b.pool_size ? `沪深300池 ${b.pool_size} 只 · ` : '';
+    $('#backtest-meta').textContent = `${poolInfo}持有 ${b.forward_days} 日 · 样本 ${b.total_samples} 个 · IC ${b.ic ?? '-'}`;
     $('#backtest-conclusion').textContent = b.conclusion || '';
     drawBacktestChart(b.groups);
   } catch (e) {

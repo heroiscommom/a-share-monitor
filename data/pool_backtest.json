@@ -1,0 +1,41 @@
+{
+  "pool_size": 300,
+  "valid_stocks": 296,
+  "forward_days": 10,
+  "total_samples": 52104,
+  "groups": [
+    {
+      "label": "<45",
+      "count": 22828,
+      "avg_return": 2.37,
+      "win_rate": 50.7
+    },
+    {
+      "label": "45-55",
+      "count": 7897,
+      "avg_return": 0.68,
+      "win_rate": 46.1
+    },
+    {
+      "label": "55-65",
+      "count": 8450,
+      "avg_return": 0.59,
+      "win_rate": 48.3
+    },
+    {
+      "label": "65-75",
+      "count": 7700,
+      "avg_return": 0.64,
+      "win_rate": 48.2
+    },
+    {
+      "label": "≥75",
+      "count": 5229,
+      "avg_return": 2.54,
+      "win_rate": 58.0
+    }
+  ],
+  "ic": -0.0551,
+  "conclusion": "⚠️ 评分呈负相关（当前因子方向可能反了，追高不利）：IC=-0.055；低分组未来10日均收益 1.53%，高分组 1.59%",
+  "updated_at": "2026-08-15 16:42:55"
+}

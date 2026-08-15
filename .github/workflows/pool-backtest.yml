@@ -1,0 +1,40 @@
+name: Pool Backtest
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'   # 每周一 06:00 UTC（14:00 北京时间）
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TZ: Asia/Shanghai
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run pool backtest
+        run: python3 pool_backtest.py
+
+      - name: Commit result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/pool_backtest.json data/pool_list.json
+          if git diff --cached --quiet; then
+            echo "无变更"
+          else
+            git commit -m "chore: 更新股票池回测结果"
+            git pull --rebase origin main 2>/dev/null || true
+            git push
+          fi
