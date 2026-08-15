@@ -61,6 +61,40 @@ def send_wechat(title, desp):
         return False
 
 
+def send_wecom(title, desp):
+    corpid = os.environ.get("WECOM_CORPID")
+    secret = os.environ.get("WECOM_SECRET")
+    agentid = os.environ.get("WECOM_AGENTID")
+    if not (corpid and secret and agentid):
+        print("[wecom] 未配置企业微信参数，跳过")
+        return False
+    try:
+        token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corpid}&corpsecret={secret}"
+        with urllib.request.urlopen(token_url, timeout=15) as r:
+            token_data = json.loads(r.read().decode("utf-8"))
+        access_token = token_data.get("access_token")
+        if not access_token:
+            print(f"[wecom] 获取token失败: {token_data}")
+            return False
+        msg = f"{title}\n\n{desp}"
+        send_url = f"https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={access_token}"
+        payload = json.dumps({
+            "touser": "@all", "msgtype": "text", "agentid": int(agentid),
+            "text": {"content": msg},
+        }).encode("utf-8")
+        req = urllib.request.Request(send_url, data=payload, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            resp = json.loads(r.read().decode("utf-8"))
+        if resp.get("errcode") == 0:
+            print("[wecom] 企业微信已推送")
+            return True
+        print(f"[wecom] 推送失败: {resp}")
+        return False
+    except Exception as e:
+        print(f"[wecom] 推送异常: {e}")
+        return False
+
+
 def demo_email():
     body = (
         "这是分级提醒的【演示邮件】，展示四级格式：\n\n"
@@ -75,7 +109,7 @@ def demo_email():
         "  [示例] 平安银行  日涨幅 +3.2%\n\n"
         "—— 今后 S/A 级实时推送，B/C 级每天收盘后一封日报汇总 ——"
     )
-    send_wechat("【紧急】 A股盯盘提醒（分级测试）", body)
+    send_wecom("【紧急】 A股盯盘提醒（分级测试）", body)
     send_email("【紧急】 A股盯盘提醒（分级测试）", body)
 
 
