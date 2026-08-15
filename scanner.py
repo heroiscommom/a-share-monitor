@@ -1,0 +1,169 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+全A股扫描器 —— 扫沪深300+中证500（约800只），找出「超跌 + 接近支撑位」的候选股。
+
+逻辑：量化评分 ≥ 70（超跌）且 价格在最近支撑位上方 0~3% 内 → 候选。
+候选分 = 量化评分 + 接近支撑的加分（越贴近支撑分越高）。
+
+数据源：股票池=新浪按市值排序；历史=腾讯前复权日K（缓存到 data/pool/）。
+"""
+
+import os
+import json
+import time
+import datetime
+import urllib.request
+
+import quant
+import support_resistance
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+POOL_DIR = os.path.join(BASE_DIR, "data", "pool")
+SCANNER_POOL = os.path.join(BASE_DIR, "data", "scanner_pool.json")
+SCANNER_OUT = os.path.join(BASE_DIR, "data", "scanner.json")
+
+POOL_SIZE = 800
+HISTORY_DAYS = 250
+MIN_HISTORY = 70
+SCORE_THRESHOLD = 70     # 超跌评分阈值
+SUPPORT_BAND = 3.0       # 价格距支撑位的最大距离%
+
+
+def http_get(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        return r.read().decode("utf-8", errors="replace")
+
+
+def load_json(path, default):
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, OSError):
+            pass
+    return default
+
+
+def save_json(path, obj):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=2)
+
+
+def fetch_pool_list(size=POOL_SIZE):
+    """从新浪按市值取前 N 只A股（沪深300+中证500近似）"""
+    stocks = []
+    page = 1
+    while len(stocks) < size and page <= 10:
+        url = ("https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/"
+               f"Market_Center.getHQNodeData?page={page}&num=100&sort=mktcap&asc=0&node=hs_a&symbol=&_s_r_a=page")
+        try:
+            data = json.loads(http_get(url))
+        except Exception:
+            break
+        if not data:
+            break
+        for item in data:
+            code = item.get("code", "")
+            symbol = item.get("symbol", "")
+            name = item.get("name", "")
+            if not code:
+                continue
+            market = "sh" if symbol.startswith("sh") else "sz"
+            stocks.append({"code": code, "market": market, "name": name})
+            if len(stocks) >= size:
+                break
+        page += 1
+    return stocks[:size]
+
+
+def history_path(code):
+    return os.path.join(POOL_DIR, f"{code}.json")
+
+
+def fetch_history(code, market, days=HISTORY_DAYS):
+    symbol = f"{market}{code}"
+    url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={symbol},day,,,{days},qfq"
+    data = json.loads(http_get(url))
+    node = (data.get("data") or {}).get(symbol) or {}
+    klines = node.get("qfqday") or node.get("day") or []
+    out = []
+    for k in klines:
+        if len(k) < 6:
+            continue
+        try:
+            out.append({"date": k[0], "open": float(k[1]), "close": float(k[2]),
+                        "high": float(k[3]), "low": float(k[4]), "volume": float(k[5])})
+        except (ValueError, IndexError):
+            continue
+    return out
+
+
+def scan():
+    pool = load_json(SCANNER_POOL, None)
+    if not pool or len(pool) < POOL_SIZE:
+        pool = fetch_pool_list(POOL_SIZE)
+        save_json(SCANNER_POOL, pool)
+    print(f"[scan] 股票池 {len(pool)} 只")
+
+    candidates = []
+    scanned = 0
+    for i, s in enumerate(pool):
+        hist = load_json(history_path(s["code"]), None)
+        if hist is None:
+            try:
+                hist = fetch_history(s["code"], s["market"])
+                if hist:
+                    save_json(history_path(s["code"]), hist)
+            except Exception:
+                hist = []
+            time.sleep(0.05)
+        if not hist or len(hist) < MIN_HISTORY:
+            continue
+        try:
+            _, fac = quant.compute_factors(hist)
+            score = quant.compute_score(fac)
+            sr = support_resistance.compute_levels(hist)
+        except Exception:
+            continue
+        scanned += 1
+        if score < SCORE_THRESHOLD or not sr["supports"]:
+            continue
+        price = hist[-1]["close"]
+        nearest = sr["supports"][0]
+        dist = (price - nearest["price"]) / price * 100  # 价格距支撑位距离%
+        if 0 <= dist <= SUPPORT_BAND:
+            bonus = (SUPPORT_BAND - dist) * 3
+            candidates.append({
+                "code": s["code"], "name": s["name"],
+                "score": score,
+                "signal": quant.signal_from_score(score)[0],
+                "price": round(price, 2),
+                "support": nearest["price"],
+                "support_strength": nearest["strength"],
+                "dist_to_support": round(dist, 2),
+                "candidate_score": round(score + bonus, 1),
+            })
+        if (i + 1) % 200 == 0:
+            print(f"  进度 {i + 1}/{len(pool)}，已扫 {scanned} 只，候选 {len(candidates)}")
+
+    candidates.sort(key=lambda x: -x["candidate_score"])
+    result = {
+        "updated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "pool_size": len(pool),
+        "scanned": scanned,
+        "criteria": f"评分≥{SCORE_THRESHOLD} 且 价格距支撑位 ≤{SUPPORT_BAND}%",
+        "candidates": candidates[:30],
+    }
+    save_json(SCANNER_OUT, result)
+    print(f"[scan] 扫描 {scanned} 只，候选 {len(candidates)} 只（取前30）")
+    return result
+
+
+if __name__ == "__main__":
+    r = scan()
+    print("\n=== 候选股 Top 10 ===")
+    for c in r["candidates"][:10]:
+        print(f"  {c['name']}({c['code']}) 评分{c['score']} 现价{c['price']} 支撑{c['support']} 距支撑{c['dist_to_support']}% 候选分{c['candidate_score']}")

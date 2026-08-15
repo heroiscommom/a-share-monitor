@@ -345,6 +345,29 @@ async function loadSectors() {
   }
 }
 
+async function loadScanner() {
+  try {
+    const d = await loadJSON('data/scanner.json');
+    const cands = d.candidates || [];
+    $('#scanner-meta').textContent = d.updated_at ? `${d.criteria || ''} · 扫描${d.scanned}只 · 更新于${d.updated_at}` : '';
+    if (!cands.length) {
+      $('#scanner-list').innerHTML = '<div class="empty">暂无候选（无超跌+接近支撑的股票）</div>';
+      return;
+    }
+    $('#scanner-list').innerHTML = cands.map((c) =>
+      `<div class="cand-row">` +
+      `<span class="cand-name">${c.name}<span class="cand-code">${c.code}</span></span>` +
+      `<span class="cand-cell">评分 ${c.score}</span>` +
+      `<span class="cand-cell">现价 ${c.price}</span>` +
+      `<span class="cand-cell">支撑 ${c.support}</span>` +
+      `<span class="cand-cell up">距支撑 ${c.dist_to_support}%</span>` +
+      `</div>`
+    ).join('');
+  } catch (e) {
+    $('#scanner-list').innerHTML = '<div class="empty">候选数据加载失败</div>';
+  }
+}
+
 async function init() {
   try {
     const snap = await loadJSON('data/snapshot.json');
@@ -381,6 +404,7 @@ async function init() {
     renderAlerts(al.items || []);
     loadBacktest();
     loadSectors();
+    loadScanner();
   } catch (e) {
     $('#updated').textContent = '加载失败：' + e.message;
   }

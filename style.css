@@ -116,6 +116,15 @@ tbody tr.active { background: rgba(58,122,254,0.16); }
 .sector-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); }
 .sector-row .s-pct { font-variant-numeric: tabular-nums; }
 @media (max-width: 860px) { .sector-list { grid-template-columns: 1fr; } }
+
+/* 扫描候选股 */
+.scanner-list { display: flex; flex-direction: column; gap: 6px; }
+.cand-row { display: flex; gap: 18px; align-items: baseline; padding: 8px 6px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.cand-name { font-weight: 600; min-width: 120px; }
+.cand-code { color: var(--muted); font-weight: 400; margin-left: 6px; font-size: 12px; }
+.cand-cell { color: var(--muted); font-variant-numeric: tabular-nums; }
+.cand-cell.up { color: var(--up); }
+.cand-row .empty { color: var(--muted); }
 @media (max-width: 860px) { .backtest-box { grid-template-columns: 1fr; } }
 
 footer { text-align: center; color: var(--muted); font-size: 12px; padding: 16px; }
