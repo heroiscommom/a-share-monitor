@@ -24,6 +24,7 @@ import urllib.request
 import quant
 import backtest
 import sector
+import support_resistance
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -386,6 +387,7 @@ def main():
     triggered = []
     quant_results = []
     money_results = []
+    sr_results = []
 
     for stock in watchlist:
         code = stock["code"]
@@ -401,6 +403,9 @@ def main():
         except Exception as e:
             print(f"[warn] {code} 拉取历史失败，用缓存: {e}")
             history = load_json(os.path.join(HISTORY_DIR, f"{code}.json"), [])
+
+        sr = support_resistance.compute_levels(history)
+        sr_results.append({"code": code, "name": stock["name"], "price": quote.get("price"), **sr})
 
         intraday = None
         try:
@@ -426,6 +431,21 @@ def main():
                 alerts.append(("moneyflow_in", f"💰 主力净流入 {mf['netamount'] / 10000:.0f} 万元"))
             elif mf["netamount"] <= -mf_th:
                 alerts.append(("moneyflow_out", f"💸 主力净流出 {abs(mf['netamount']) / 10000:.0f} 万元"))
+
+        # 支撑压力位提醒
+        if len(history) >= 2:
+            prev_close = history[-2]["close"]
+            close = history[-1]["close"]
+            for lvl in sr["resistances"]:
+                if prev_close < lvl["price"] <= close:
+                    alerts.append(("break_resistance", f"🚀 突破压力位 {lvl['price']}（{lvl['strength']}）"))
+            for lvl in sr["supports"]:
+                if prev_close > lvl["price"] >= close:
+                    alerts.append(("break_support", f"⚠️ 跌破支撑位 {lvl['price']}（{lvl['strength']}）"))
+            for lvl in sr["supports"] + sr["resistances"]:
+                if lvl["strength"] == "强" and 0.1 < abs(lvl["distance_pct"]) <= 1.5:
+                    kind = "支撑" if lvl["distance_pct"] < 0 else "压力"
+                    alerts.append((f"near_{kind}", f"👀 逼近{kind}位 {lvl['price']}（强）"))
 
         ind, fac = quant.compute_factors(history)
         score = quant.compute_score(fac)
@@ -461,6 +481,8 @@ def main():
             })
 
     save_json(os.path.join(DATA_DIR, "quant.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": quant_results})
+
+    save_json(os.path.join(DATA_DIR, "support_resistance.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": sr_results})
 
     if money_results:
         save_json(os.path.join(DATA_DIR, "moneyflow.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": money_results})
