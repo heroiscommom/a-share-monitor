@@ -8,6 +8,7 @@
 import os
 import sys
 import json
+import time
 import urllib.request
 import smtplib
 from email.mime.text import MIMEText
@@ -100,12 +101,14 @@ def main():
     else:
         b_items = [t for t in items if t.get("tier") == "B"]
         c_items = [t for t in items if t.get("tier") == "C"]
-        # 每条异动单独发一条短微信，保证手表能完整显示
-        for t in items:
+        # 每条异动单独发一条短微信，保证手表能完整显示（每条间隔3秒）
+        for i, t in enumerate(items):
             emoji = "🟡" if t.get("tier") == "B" else "⚪"
             title = f"{emoji} {t['name']} {t['message']}"
             desp = f"{t['time']} {t['name']}({t['code']}) {t['message']}"
             send_wechat(title, desp)
+            if i < len(items) - 1:
+                time.sleep(3)
         # 邮件保留完整长消息汇总
         lines = []
         if b_items:

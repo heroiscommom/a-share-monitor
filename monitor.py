@@ -19,6 +19,7 @@ import os
 import sys
 import json
 import datetime
+import time
 import urllib.request
 
 import quant
@@ -653,13 +654,15 @@ def main():
         prefix = "【紧急】" if has_S else "【重要】"
         s_items = [t for t in immediate if tier_for(t["rule"]) == "S"]
         a_items = [t for t in immediate if tier_for(t["rule"]) == "A"]
-        # 每个信号单独发一条短微信，保证手表/手环能完整显示
-        for t in immediate:
+        # 每个信号单独发一条短微信，保证手表/手环能完整显示（每条间隔3秒）
+        for i, t in enumerate(immediate):
             tier = tier_for(t["rule"])
             emoji = "🔴" if tier == "S" else "🟠"
             title = f"{emoji} {t['name']} {t['message']}"
             desp = f"{t['time']} {t['name']}({t['code']}) {t['message']}"
             send_wechat(title, desp)
+            if i < len(immediate) - 1:
+                time.sleep(3)
         # 邮件保留完整长消息汇总
         lines = []
         if s_items:
