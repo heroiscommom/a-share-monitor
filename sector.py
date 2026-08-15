@@ -13,6 +13,12 @@ import urllib.request
 
 HEADERS = {"User-Agent": "Mozilla/5.0", "Referer": "https://finance.sina.com.cn/"}
 
+# 申万一级按市值取前 N 只会漏掉小市值股票，这里手动补充已知自选股的板块
+SECTOR_OVERRIDES = {
+    "600664": "医药生物",
+    "002900": "医药生物",
+}
+
 
 def http_get(url):
     req = urllib.request.Request(url, headers=HEADERS)
@@ -21,28 +27,32 @@ def http_get(url):
 
 
 def fetch_sector_list():
-    """返回 [{name, node}] 新浪行业列表"""
+    """返回 [{name, node}] 申万一级行业列表（31个标准行业，覆盖所有A股）"""
     url = ("https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/"
            "Market_Center.getHQNodes")
     data = json.loads(http_get(url))
     industries = []
 
-    def walk(node):
+    def find(node, target):
         if not isinstance(node, list):
-            return
+            return None
         for i, item in enumerate(node):
-            if item == "新浪行业" and i + 1 < len(node) and isinstance(node[i + 1], list):
-                for ind in node[i + 1]:
-                    if isinstance(ind, list) and len(ind) >= 3 and ind[2]:
-                        industries.append({"name": ind[0], "node": ind[2]})
-            else:
-                walk(item)
+            if item == target and i + 1 < len(node):
+                return node[i + 1]
+            r = find(item, target)
+            if r is not None:
+                return r
+        return None
 
-    walk(data)
+    sw1 = find(data, "申万一级")
+    if isinstance(sw1, list):
+        for x in sw1:
+            if isinstance(x, list) and len(x) >= 3 and x[2]:
+                industries.append({"name": x[0], "node": x[2]})
     return industries
 
 
-def fetch_sector_stocks(node, num=25):
+def fetch_sector_stocks(node, num=40):
     """返回某行业按市值排序的前 num 只股票"""
     url = ("https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/"
            f"Market_Center.getHQNodeData?page=1&num={num}&sort=mktcap&asc=0&node={node}&symbol=&_s_r_a=page")
@@ -78,7 +88,7 @@ def aggregate(stocks):
     }
 
 
-def analyze_sectors(limit=40, threshold=2.0):
+def analyze_sectors(limit=100, threshold=2.0):
     """
     分析各行业板块，返回 (sectors, anomalies)
     sectors: 按涨跌幅排序的板块列表
@@ -86,8 +96,13 @@ def analyze_sectors(limit=40, threshold=2.0):
     """
     sectors = fetch_sector_list()
     results = []
+    stock_sector = {}  # 股票代码 -> 板块名
     for sec in sectors[:limit]:
         stocks = fetch_sector_stocks(sec["node"])
+        for st in stocks:
+            code = st.get("code")
+            if code and isinstance(code, str) and len(code) == 6:
+                stock_sector.setdefault(code, sec["name"])
         agg = aggregate(stocks)
         if not agg:
             continue
@@ -101,17 +116,18 @@ def analyze_sectors(limit=40, threshold=2.0):
         })
 
     results.sort(key=lambda x: x["avg_change"], reverse=True)
+    stock_sector.update(SECTOR_OVERRIDES)
     anomalies = [
         r for r in results
         if abs(r["avg_change"]) >= threshold
     ]
-    return results, anomalies
+    return results, anomalies, stock_sector
 
 
 if __name__ == "__main__":
     import datetime
-    sectors, anomalies = analyze_sectors()
-    print(f"板块 {len(sectors)} 个，异动 {len(anomalies)} 个\n")
+    sectors, anomalies, stock_sector = analyze_sectors()
+    print(f"板块 {len(sectors)} 个，异动 {len(anomalies)} 个，覆盖股票 {len(stock_sector)} 只\n")
     print("涨幅前5：")
     for s in sectors[:5]:
         print(f"  {s['name']:>8} {s['avg_change']:>6.2f}%  (涨{s['up']}/跌{s['down']})")

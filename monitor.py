@@ -465,30 +465,52 @@ def main():
     if money_results:
         save_json(os.path.join(DATA_DIR, "moneyflow.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": money_results})
 
-    # 板块分析
-    try:
-        sectors, sector_anomalies = sector.analyze_sectors(threshold=rules.get("sector_threshold", 2.0))
-        save_json(os.path.join(DATA_DIR, "sectors.json"), {
-            "updated_at": now.strftime("%Y-%m-%d %H:%M:%S"),
-            "sectors": sectors,
-            "anomalies": sector_anomalies,
-        })
-        for sa in sector_anomalies:
-            dedup_key = f"sector:{sa['name']}"
-            if not is_duplicate(state, dedup_key, "daily", now, force):
-                state[dedup_key] = now.isoformat()
-                emoji = "📈" if sa["avg_change"] > 0 else "📉"
-                triggered.append({
-                    "time": now.strftime("%Y-%m-%d %H:%M:%S"),
-                    "code": "板块",
-                    "name": sa["name"],
-                    "rule": "sector_anomaly",
-                    "message": f"{emoji} 板块异动：{sa['name']} {sa['avg_change']:+.2f}%",
-                    "price": None,
-                    "change_pct": sa["avg_change"],
-                })
-    except Exception as e:
-        print(f"[warn] 板块分析失败: {e}")
+    # 板块分析（30分钟缓存，避免频繁拉取新浪）
+    stock_sector = {}
+    sector_anomalies = []
+    sectors = []
+    sector_data = load_json(os.path.join(DATA_DIR, "sectors.json"), None)
+    need_sector_fetch = True
+    if sector_data and sector_data.get("fetched_ts"):
+        try:
+            if now.timestamp() - float(sector_data["fetched_ts"]) < 1800:
+                sectors = sector_data.get("sectors", [])
+                sector_anomalies = sector_data.get("anomalies", [])
+                stock_sector = sector_data.get("stock_sector", {})
+                need_sector_fetch = False
+        except (ValueError, TypeError):
+            pass
+    if need_sector_fetch:
+        try:
+            sectors, sector_anomalies, stock_sector = sector.analyze_sectors(threshold=rules.get("sector_threshold", 2.0))
+            save_json(os.path.join(DATA_DIR, "sectors.json"), {
+                "updated_at": now.strftime("%Y-%m-%d %H:%M:%S"),
+                "fetched_ts": now.timestamp(),
+                "sectors": sectors,
+                "anomalies": sector_anomalies,
+                "stock_sector": stock_sector,
+            })
+        except Exception as e:
+            print(f"[warn] 板块分析失败: {e}")
+
+    for sa in sector_anomalies:
+        dedup_key = f"sector:{sa['name']}"
+        if not is_duplicate(state, dedup_key, "daily", now, force):
+            state[dedup_key] = now.isoformat()
+            emoji = "📈" if sa["avg_change"] > 0 else "📉"
+            related = [s["name"] for s in watchlist if stock_sector.get(s["code"]) == sa["name"]]
+            msg = f"{emoji} 板块异动：{sa['name']} {sa['avg_change']:+.2f}%"
+            if related:
+                msg += f"（自选：{'、'.join(related)}）"
+            triggered.append({
+                "time": now.strftime("%Y-%m-%d %H:%M:%S"),
+                "code": "板块",
+                "name": sa["name"],
+                "rule": "sector_anomaly",
+                "message": msg,
+                "price": None,
+                "change_pct": sa["avg_change"],
+            })
 
     # 回测
     try:

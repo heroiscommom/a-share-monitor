@@ -70,6 +70,7 @@ async function loadChart(q) {
 
 function drawFundamental(q) {
   const parts = [];
+  if (q.sector) parts.push(`板块 ${q.sector}`);
   if (q.pe != null) parts.push(`PE ${q.pe}`);
   if (q.pb != null) parts.push(`PB ${q.pb}`);
   if (q.total_mktcap != null) parts.push(`市值 ${q.total_mktcap}亿`);
@@ -343,15 +344,18 @@ async function init() {
     const snap = await loadJSON('data/snapshot.json');
     const quantData = await loadJSON('data/quant.json').catch(() => null);
     const mfData = await loadJSON('data/moneyflow.json').catch(() => null);
+    const sectorData = await loadJSON('data/sectors.json').catch(() => null);
     const quantMap = {};
     ((quantData && quantData.stocks) || []).forEach((s) => { quantMap[s.code] = s; });
     const mfMap = {};
     ((mfData && mfData.stocks) || []).forEach((s) => { mfMap[s.code] = s; });
+    const sectorMap = (sectorData && sectorData.stock_sector) || {};
     (snap.quotes || []).forEach((q) => {
       const s = quantMap[q.code];
       if (s) { q.score = s.score; q.signal = s.signal; q.signal_key = s.signal_key; q.factors = s.factors; }
       const m = mfMap[q.code];
       if (m) { q.netamount = m.netamount; q.r0_net = m.r0_net; }
+      q.sector = sectorMap[q.code] || '';
     });
     $('#updated').textContent = snap.updated_at
       ? '更新于 ' + snap.updated_at
