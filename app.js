@@ -3,6 +3,8 @@ const $ = (sel) => document.querySelector(sel);
 
 let chart = null;
 let activeCode = null;
+let chartMode = 'intraday';
+let activeStock = null;
 
 async function loadJSON(url) {
   const r = await fetch(url, { cache: 'no-store' });
@@ -41,18 +43,88 @@ function renderWatchlist(quotes) {
 }
 
 async function loadChart(q) {
+  activeStock = q;
   activeCode = q.code;
-  $('#chart-title').textContent = `${q.name || q.code} (${q.code}) 走势`;
+  if (chartMode === 'intraday') await loadIntraday(q);
+  else await loadDaily(q);
+}
+
+async function loadIntraday(q) {
+  try {
+    const d = await loadJSON(`data/intraday/${q.code}.json`);
+    if (d && d.minutes && d.minutes.length) {
+      $('#chart-title').textContent = `${q.name || q.code} (${q.code}) · 分时 ${d.date || ''}`;
+      drawIntradayChart(q, d);
+    } else {
+      $('#chart').innerHTML = '<div class="empty">暂无分时数据</div>';
+    }
+  } catch (e) {
+    $('#chart').innerHTML = '<div class="empty">暂无分时数据</div>';
+  }
+}
+
+async function loadDaily(q) {
   try {
     const hist = await loadJSON(`data/history/${q.code}.json`);
-    if (hist && hist.length) drawChart(q, hist);
-    else $('#chart').innerHTML = '<div class="empty">暂无历史数据，等待首次采集</div>';
+    if (hist && hist.length) {
+      $('#chart-title').textContent = `${q.name || q.code} (${q.code}) · 日K`;
+      drawDailyChart(q, hist);
+    } else {
+      $('#chart').innerHTML = '<div class="empty">暂无历史数据，等待首次采集</div>';
+    }
   } catch (e) {
     $('#chart').innerHTML = '<div class="empty">暂无历史数据，等待首次采集</div>';
   }
 }
 
-function drawChart(q, hist) {
+function drawIntradayChart(q, d) {
+  if (!chart) chart = echarts.init($('#chart'));
+  const mins = d.minutes || [];
+  const times = mins.map((m) => m.t);
+  const prices = mins.map((m) => m.p);
+  const avgs = mins.map((m) => m.avg);
+  const vols = mins.map((m) => m.v);
+  const pc = d.prev_close;
+  const volColors = mins.map((m) => (m.p >= pc ? '#ef232a' : '#14b143'));
+
+  const priceSeries = {
+    name: '价格', type: 'line', data: prices, showSymbol: false,
+    lineStyle: { width: 1.5, color: '#ffffff' },
+  };
+  if (pc != null) {
+    priceSeries.markLine = {
+      symbol: 'none', silent: true, label: { show: false },
+      lineStyle: { type: 'dashed', color: '#5a6478' },
+      data: [{ yAxis: pc }],
+    };
+  }
+
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    grid: [
+      { left: 64, right: 24, top: 24, height: '58%' },
+      { left: 64, right: 24, top: '76%', height: '14%' },
+    ],
+    xAxis: [
+      { type: 'category', data: times, boundaryGap: false,
+        axisLine: { lineStyle: { color: '#3a4155' } },
+        axisLabel: { color: '#8b96ad', interval: 29 } },
+      { type: 'category', data: times, gridIndex: 1, axisLabel: { show: false }, axisLine: { show: false }, axisTick: { show: false } },
+    ],
+    yAxis: [
+      { type: 'value', scale: true, axisLabel: { color: '#8b96ad' }, splitLine: { lineStyle: { color: '#232c42' } } },
+      { type: 'value', gridIndex: 1, axisLabel: { show: false }, splitLine: { show: false } },
+    ],
+    series: [
+      priceSeries,
+      { name: '均价', type: 'line', data: avgs, showSymbol: false, lineStyle: { width: 1, color: '#f5a623' } },
+      { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vols, itemStyle: { color: (p) => volColors[p.dataIndex] } },
+    ],
+  });
+}
+
+function drawDailyChart(q, hist) {
   if (!$('#chart')) return;
   if (!chart) chart = echarts.init($('#chart'));
 
@@ -210,3 +282,12 @@ $('#modal-close').addEventListener('click', closeManage);
 $('#add-btn').addEventListener('click', addStock);
 $('#add-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') addStock(); });
 $('#modal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeManage(); });
+
+function switchMode(mode) {
+  chartMode = mode;
+  $('#btn-intraday').classList.toggle('active', mode === 'intraday');
+  $('#btn-daily').classList.toggle('active', mode === 'daily');
+  if (activeStock) loadChart(activeStock);
+}
+$('#btn-intraday').addEventListener('click', () => switchMode('intraday'));
+$('#btn-daily').addEventListener('click', () => switchMode('daily'));

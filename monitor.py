@@ -29,6 +29,7 @@ CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 SNAPSHOT_PATH = os.path.join(DATA_DIR, "snapshot.json")
 ALERTS_PATH = os.path.join(DATA_DIR, "alerts.json")
 STATE_PATH = os.path.join(DATA_DIR, "state.json")
+INTRADAY_DIR = os.path.join(DATA_DIR, "intraday")
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
@@ -110,6 +111,40 @@ def fetch_history(code, market, days=60):
             "volume": _to_float(k[5]),
         })
     return out
+
+
+def fetch_intraday(code, market):
+    """拉取当日分时数据（腾讯），返回 {date, prev_close, minutes:[{t,p,avg,v}]}"""
+    symbol = f"{market}{code}"
+    url = f"https://web.ifzq.gtimg.cn/appstock/app/minute/query?code={symbol}"
+    data = json.loads(http_get(url))
+    node = (data.get("data") or {}).get(symbol) or {}
+    inner = node.get("data") or {}
+    date = inner.get("date", "")
+    raw = inner.get("data") or []
+    qt = (node.get("qt") or {}).get(symbol) or []
+    prev_close = _to_float(qt[4]) if len(qt) > 4 else None
+
+    minutes = []
+    prev_vol = 0.0
+    for m in raw:
+        parts = m.split()
+        if len(parts) < 4:
+            continue
+        price = _to_float(parts[1])
+        cum_vol = _to_float(parts[2]) or 0.0
+        cum_amt = _to_float(parts[3])
+        avg = None
+        if cum_vol > 0 and cum_amt is not None:
+            avg = cum_amt / (cum_vol * 100)
+        minutes.append({
+            "t": f"{parts[0][:2]}:{parts[0][2:]}",
+            "p": price,
+            "avg": round(avg, 3) if avg is not None else None,
+            "v": round(cum_vol - prev_vol),
+        })
+        prev_vol = cum_vol
+    return {"date": date, "prev_close": prev_close, "minutes": minutes}
 
 
 def load_json(path, default):
@@ -266,6 +301,12 @@ def main():
         except Exception as e:
             print(f"[warn] {code} 拉取历史失败，用缓存: {e}")
             history = load_json(os.path.join(HISTORY_DIR, f"{code}.json"), [])
+
+        try:
+            intraday = fetch_intraday(code, stock["market"])
+            save_json(os.path.join(INTRADAY_DIR, f"{code}.json"), intraday)
+        except Exception as e:
+            print(f"[warn] {code} 拉取分时失败: {e}")
 
         for rule_key, msg in detect_alerts(quote, history, rules):
             dedup_key = f"{code}:{rule_key}"

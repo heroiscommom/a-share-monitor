@@ -109,6 +109,13 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 16px
 .m-remove { background: transparent; color: var(--up); border: 1px solid var(--up); padding: 4px 12px; font-size: 12px; border-radius: 6px; cursor: pointer; }
 .m-remove:hover { background: rgba(239,35,42,0.1); }
 
+/* 图表标题 + 切换按钮 */
+.chart-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.chart-head h2 { margin: 0; font-size: 15px; color: var(--muted); font-weight: 600; }
+.chart-toggle { display: flex; gap: 4px; }
+.chart-toggle button { padding: 4px 12px; border-radius: 6px; border: 1px solid var(--panel-border); background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; }
+.chart-toggle button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
 @media (max-width: 860px) {
   main { grid-template-columns: 1fr; }
   .panel:nth-child(3) { grid-column: 1; }
