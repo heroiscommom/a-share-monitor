@@ -7,6 +7,7 @@ let chartMode = 'intraday';
 let activeStock = null;
 let radarChart = null;
 let backtestChart = null;
+let thresholdChart = null;
 
 const FACTOR_LABELS = { rsi: '超卖', drawdown: '超跌', deviation: '偏离', position: '低位', volume: '量能', volatility: '稳定' };
 const SIGNAL_CLASS = { strong: 's-strong', bullish: 's-bullish', neutral: 's-neutral', bearish: 's-bearish', weak: 's-weak' };
@@ -258,6 +259,23 @@ function drawBacktestChart(groups) {
   }, true);
 }
 
+function drawThresholdChart(thresholds) {
+  if (!thresholdChart) thresholdChart = echarts.init($('#threshold-chart'));
+  const labels = thresholds.map((t) => `≥${t.threshold}`);
+  const win = thresholds.map((t) => t.win_rate);
+  thresholdChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', formatter: (p) => {
+      const t = thresholds[p[0].dataIndex];
+      return `评分≥${t.threshold}：胜率 ${t.win_rate}%，平均 ${t.avg_return}%，样本 ${t.count}`;
+    } },
+    grid: { left: 50, right: 20, top: 20, bottom: 32 },
+    xAxis: { type: 'category', data: labels, axisLabel: { color: '#8b96ad' }, axisLine: { lineStyle: { color: '#3a4155' } } },
+    yAxis: { type: 'value', name: '胜率%', min: 45, max: 75, axisLabel: { color: '#8b96ad' }, splitLine: { lineStyle: { color: '#232c42' } } },
+    series: [{ type: 'line', data: win, smooth: true, showSymbol: true, lineStyle: { color: '#ef232a', width: 2 }, itemStyle: { color: '#ef232a' }, areaStyle: { opacity: 0.08 } }],
+  }, true);
+}
+
 async function loadBacktest() {
   try {
     let b = await loadJSON('data/pool_backtest.json').catch(() => null);
@@ -273,6 +291,7 @@ async function loadBacktest() {
     $('#backtest-meta').textContent = `${poolInfo}持有 ${b.forward_days} 日 · 样本 ${b.total_samples} 个 · IC ${b.ic ?? '-'}`;
     $('#backtest-conclusion').textContent = b.conclusion || '';
     drawBacktestChart(b.groups);
+    if (b.thresholds && b.thresholds.length) drawThresholdChart(b.thresholds);
   } catch (e) {
     $('#backtest-conclusion').textContent = '回测数据加载失败';
   }
@@ -305,7 +324,7 @@ async function init() {
   }
 }
 
-window.addEventListener('resize', () => { chart && chart.resize(); radarChart && radarChart.resize(); backtestChart && backtestChart.resize(); });
+window.addEventListener('resize', () => { chart && chart.resize(); radarChart && radarChart.resize(); backtestChart && backtestChart.resize(); thresholdChart && thresholdChart.resize(); });
 init();
 
 // ===== 自选股管理 =====

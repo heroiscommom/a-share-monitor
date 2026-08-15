@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-量化因子计算引擎（均值回归版 v2）—— 基于日K历史计算 6 维因子，加权得出 0-100 评分。
+量化因子计算引擎（均值回归版 v2）—— 6 维因子，加权得出 0-100 评分。
 
-v1 回测结论：追涨型因子（趋势/动量/高位）IC = -0.055（负相关），追高不利。
-v2 改为均值回归型：超跌、超卖、低位 → 分高；追高、超买 → 分低。
+回测验证（300只/5.2万样本）：
+  - 追涨型因子（v1）IC 负，弃用
+  - 均值回归型（v2）：「超跌」信号有效，胜率随阈值单调上升
+  - v3 加布林带/连跌因子反而稀释信号，已回退 v2
 
-因子（各维度 0-100）：
-  rsi        超卖    RSI 越低越超卖，分越高
-  drawdown   超跌    20日涨幅反向（跌越多分越高）
-  deviation  偏离    价格相对20日均线负偏离越大分越高
-  position   低位    距60日区间低点越近分越高
-  volume     量能    缩量（抛压衰竭）分越高
-  volatility 稳定    波动率越低分越高
+因子（各维度 0-100，越高越超跌/越有机会）：
+  rsi         超卖    RSI 越低分越高
+  drawdown    超跌    20日涨幅反向（跌越多分越高）
+  deviation   偏离    价格相对20日均线负偏离越大分越高
+  position    低位    距60日区间低点越近分越高
+  volume      量能    缩量（抛压衰竭）分越高
+  volatility  稳定    波动率越低分越高
 """
 
 
@@ -58,6 +60,10 @@ WEIGHTS = {
     "volatility": 0.05,
 }
 
+# 超跌机会阈值（回测：≥82 胜率约 64%，≥85 约 71%）
+BUY_THRESHOLD = 82
+RISK_THRESHOLD = 32
+
 
 def compute_factors(history):
     """返回 (indicators, factors)，factors 各维度 0-100"""
@@ -68,7 +74,7 @@ def compute_factors(history):
     n = len(closes)
     ind, fac = {}, {}
 
-    # 1. RSI 超卖（越低分越高）
+    # 1. RSI 超卖
     rsi = calc_rsi(closes)
     if rsi is not None:
         ind["rsi"] = round(rsi, 1)
@@ -95,7 +101,7 @@ def compute_factors(history):
     else:
         fac["drawdown"] = 50
 
-    # 3. 均线偏离：价格相对 20 日均线，负偏离分高
+    # 3. 均线偏离：价格相对20日均线，负偏离分高
     ma20 = sma(closes, 20)
     if ma20:
         dev = (closes[-1] / ma20 - 1) * 100
@@ -104,7 +110,7 @@ def compute_factors(history):
     else:
         fac["deviation"] = 50
 
-    # 4. 低位：距 60 日区间低点越近分越高
+    # 4. 低位：距60日区间低点越近分越高
     if n >= 20:
         window = 60 if n >= 60 else n
         h = max(highs[-window:])
@@ -140,13 +146,13 @@ def compute_score(factors):
     return round(sum(factors[k] * w for k, w in WEIGHTS.items()), 1)
 
 
-def signal_from_score(score):
-    if score >= 75:
+def signal_from_score(score, buy_threshold=BUY_THRESHOLD, risk_threshold=RISK_THRESHOLD):
+    if score >= buy_threshold:
         return "超跌机会", "strong"
     if score >= 62:
         return "偏多", "bullish"
     if score >= 45:
         return "中性", "neutral"
-    if score >= 32:
+    if score >= risk_threshold:
         return "偏空", "bearish"
     return "高位风险", "weak"

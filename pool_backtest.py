@@ -111,6 +111,18 @@ def fetch_history(code, market, days=HISTORY_DAYS):
     return out
 
 
+def threshold_table(samples):
+    rows = []
+    for th in [50, 55, 60, 65, 70, 75, 78, 80, 82, 85, 88, 90]:
+        g = [s for s in samples if s["score"] >= th]
+        if not g:
+            continue
+        win = sum(1 for s in g if s["fwd_return"] > 0) / len(g) * 100
+        avg = sum(s["fwd_return"] for s in g) / len(g)
+        rows.append({"threshold": th, "count": len(g), "win_rate": round(win, 1), "avg_return": round(avg, 2)})
+    return rows
+
+
 def main():
     # 1. 股票池
     pool = load_json(POOL_LIST_PATH, None)
@@ -156,6 +168,7 @@ def main():
             "total_samples": len(all_samples),
             "groups": groups,
             "ic": ic,
+            "thresholds": threshold_table(all_samples),
             "conclusion": backtest.make_conclusion(groups, ic),
         }
     result["updated_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
