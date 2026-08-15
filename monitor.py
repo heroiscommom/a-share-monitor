@@ -35,6 +35,7 @@ CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 SNAPSHOT_PATH = os.path.join(DATA_DIR, "snapshot.json")
 ALERTS_PATH = os.path.join(DATA_DIR, "alerts.json")
 STATE_PATH = os.path.join(DATA_DIR, "state.json")
+DIGEST_PATH = os.path.join(DATA_DIR, "digest.json")
 INTRADAY_DIR = os.path.join(DATA_DIR, "intraday")
 INTRADAY_COOLDOWN_MINUTES = 30
 
@@ -338,6 +339,23 @@ def is_duplicate(state, dedup_key, rule_type, now, force):
     return last_dt.date() == now.date()
 
 
+# 提醒重要性分级：S=核心(回测验证) A=重要 B=预警 C=参考
+ALERT_TIERS = {
+    "quant_strong": "S", "quant_weak": "S",
+    "break_support": "A", "break_resistance": "A",
+    "break_high": "A", "break_low": "A",
+    "moneyflow_in": "A", "moneyflow_out": "A",
+    "sector_anomaly": "B",
+    "near_支撑": "B", "near_压力": "B",
+    "rsi_overbought": "B", "rsi_oversold": "B",
+    "intraday_spike_up": "B", "intraday_spike_down": "B",
+}
+
+
+def tier_for(rule_key):
+    return ALERT_TIERS.get(rule_key, "C")
+
+
 def send_email(subject, body):
     """QQ 邮箱 SMTP 发信，凭据从环境变量读取"""
     user = os.environ.get("SMTP_USER")
@@ -593,15 +611,37 @@ def main():
 
     save_json(STATE_PATH, state)
 
-    # 打印 + 发信
-    print(f"[done] 更新 {len(snapshot['quotes'])} 只，触发 {len(triggered)} 条异动")
-    if triggered:
-        lines = [f"{t['time']}  {t['name']}({t['code']})  {t['message']}" for t in triggered]
-        body = "你的自选股出现异动：\n\n" + "\n".join(lines)
+    # 分级推送：S/A 立即发（紧急/重要），B/C 进日报
+    immediate = [t for t in triggered if tier_for(t["rule"]) in ("S", "A")]
+    digest_items = [dict(t, tier=tier_for(t["rule"])) for t in triggered if tier_for(t["rule"]) in ("B", "C")]
+
+    if digest_items:
+        digest = load_json(DIGEST_PATH, {"items": []})
+        merged = digest.get("items", []) + digest_items
+        seen = {}
+        for it in merged:
+            seen[f"{it.get('code')}:{it.get('rule')}"] = it
+        digest["items"] = list(seen.values())[-500:]
+        save_json(DIGEST_PATH, digest)
+
+    print(f"[done] 更新 {len(snapshot['quotes'])} 只，触发 {len(triggered)} 条（S/A {len(immediate)}，日报 {len(digest_items)}）")
+    if immediate:
+        has_S = any(tier_for(t["rule"]) == "S" for t in immediate)
+        prefix = "【紧急】" if has_S else "【重要】"
+        s_items = [t for t in immediate if tier_for(t["rule"]) == "S"]
+        a_items = [t for t in immediate if tier_for(t["rule"]) == "A"]
+        lines = []
+        if s_items:
+            lines.append("🔴 核心信号（S级）：")
+            lines += [f"  {t['time']}  {t['name']}({t['code']})  {t['message']}" for t in s_items]
+        if a_items:
+            lines.append("🟠 重要信号（A级）：")
+            lines += [f"  {t['time']}  {t['name']}({t['code']})  {t['message']}" for t in a_items]
+        body = "你的自选股出现重要信号：\n\n" + "\n".join(lines)
         print(body)
-        send_email(f"[盯盘提醒] {len(triggered)} 只自选股异动", body)
+        send_email(f"{prefix} A股盯盘提醒", body)
     else:
-        print("本次无触发")
+        print("本次无 S/A 级信号（B/C 已进日报）")
 
 
 if __name__ == "__main__":
