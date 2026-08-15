@@ -38,6 +38,28 @@ def send_email(subject, body):
         return False
 
 
+def send_wechat(title, desp):
+    key = os.environ.get("SERVERCHAN_KEY")
+    if not key:
+        print("[wechat] 未配置 SERVERCHAN_KEY，跳过")
+        return False
+    import urllib.parse
+    url = f"https://sctapi.ftqq.com/{key}.send"
+    data = urllib.parse.urlencode({"title": title, "desp": desp}).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            resp = json.loads(r.read().decode("utf-8"))
+        if resp.get("code") == 0:
+            print("[wechat] 微信已推送")
+            return True
+        print(f"[wechat] 推送失败: {resp}")
+        return False
+    except Exception as e:
+        print(f"[wechat] 推送异常: {e}")
+        return False
+
+
 def demo_email():
     body = (
         "这是分级提醒的【演示邮件】，展示四级格式：\n\n"
@@ -52,6 +74,7 @@ def demo_email():
         "  [示例] 平安银行  日涨幅 +3.2%\n\n"
         "—— 今后 S/A 级实时推送，B/C 级每天收盘后一封日报汇总 ——"
     )
+    send_wechat("【紧急】 A股盯盘提醒（分级测试）", body)
     send_email("【紧急】 A股盯盘提醒（分级测试）", body)
 
 

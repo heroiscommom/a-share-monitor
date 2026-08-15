@@ -384,6 +384,29 @@ def send_email(subject, body):
         return False
 
 
+def send_wechat(title, desp):
+    """Server酱 微信推送，凭据从环境变量 SERVERCHAN_KEY 读取"""
+    key = os.environ.get("SERVERCHAN_KEY")
+    if not key:
+        print("[wechat] 未配置 SERVERCHAN_KEY，跳过")
+        return False
+    import urllib.parse
+    url = f"https://sctapi.ftqq.com/{key}.send"
+    data = urllib.parse.urlencode({"title": title, "desp": desp}).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            resp = json.loads(r.read().decode("utf-8"))
+        if resp.get("code") == 0:
+            print("[wechat] 微信已推送")
+            return True
+        print(f"[wechat] 推送失败: {resp}")
+        return False
+    except Exception as e:
+        print(f"[wechat] 推送异常: {e}")
+        return False
+
+
 def main():
     force = "--force" in sys.argv
     config = load_json(CONFIG_PATH, {})
@@ -639,6 +662,7 @@ def main():
             lines += [f"  {t['time']}  {t['name']}({t['code']})  {t['message']}" for t in a_items]
         body = "你的自选股出现重要信号：\n\n" + "\n".join(lines)
         print(body)
+        send_wechat(f"{prefix} A股盯盘提醒", body)
         send_email(f"{prefix} A股盯盘提醒", body)
     else:
         print("本次无 S/A 级信号（B/C 已进日报）")
