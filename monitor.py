@@ -653,6 +653,14 @@ def main():
         prefix = "【紧急】" if has_S else "【重要】"
         s_items = [t for t in immediate if tier_for(t["rule"]) == "S"]
         a_items = [t for t in immediate if tier_for(t["rule"]) == "A"]
+        # 每个信号单独发一条短微信，保证手表/手环能完整显示
+        for t in immediate:
+            tier = tier_for(t["rule"])
+            emoji = "🔴" if tier == "S" else "🟠"
+            title = f"{emoji} {t['name']} {t['message']}"
+            desp = f"{t['time']} {t['name']}({t['code']}) {t['message']}"
+            send_wechat(title, desp)
+        # 邮件保留完整长消息汇总
         lines = []
         if s_items:
             lines.append("🔴 核心信号（S级）：")
@@ -662,7 +670,6 @@ def main():
             lines += [f"  {t['time']}  {t['name']}({t['code']})  {t['message']}" for t in a_items]
         body = "你的自选股出现重要信号：\n\n" + "\n".join(lines)
         print(body)
-        send_wechat(f"{prefix} A股盯盘提醒", body)
         send_email(f"{prefix} A股盯盘提醒", body)
     else:
         print("本次无 S/A 级信号（B/C 已进日报）")

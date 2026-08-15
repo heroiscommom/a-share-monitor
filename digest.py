@@ -95,11 +95,18 @@ def main():
 
     if not items:
         body = "今日无 B/C 级异动，一切平静。\n\n（S/A 级信号会实时推送，此日报仅汇总 B/C 级）"
-        send_wechat("【日报】 A股盯盘异动汇总（今日无预警）", body)
+        send_wechat("【日报】今日无预警", "今日无 B/C 级异动，一切平静。")
         send_email("【日报】 A股盯盘异动汇总（今日无预警）", body)
     else:
         b_items = [t for t in items if t.get("tier") == "B"]
         c_items = [t for t in items if t.get("tier") == "C"]
+        # 每条异动单独发一条短微信，保证手表能完整显示
+        for t in items:
+            emoji = "🟡" if t.get("tier") == "B" else "⚪"
+            title = f"{emoji} {t['name']} {t['message']}"
+            desp = f"{t['time']} {t['name']}({t['code']}) {t['message']}"
+            send_wechat(title, desp)
+        # 邮件保留完整长消息汇总
         lines = []
         if b_items:
             lines.append("🟡 预警（B级）：")
@@ -108,7 +115,6 @@ def main():
             lines.append("⚪ 参考（C级）：")
             lines += [f"  {t['time']}  {t['name']}({t['code']})  {t['message']}" for t in c_items]
         body = f"今日 B/C 级异动汇总（{len(items)} 条）：\n\n" + "\n".join(lines)
-        send_wechat(f"【日报】 A股盯盘异动汇总（{len(items)} 条）", body)
         send_email(f"【日报】 A股盯盘异动汇总（{len(items)} 条）", body)
 
     # 清空日报
