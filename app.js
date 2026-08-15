@@ -8,6 +8,7 @@ let activeStock = null;
 let radarChart = null;
 let backtestChart = null;
 let thresholdChart = null;
+let sectorHeatChart = null;
 
 const FACTOR_LABELS = { rsi: '超卖', drawdown: '超跌', deviation: '偏离', position: '低位', volume: '量能', volatility: '稳定' };
 const SIGNAL_CLASS = { strong: 's-strong', bullish: 's-bullish', neutral: 's-neutral', bearish: 's-bearish', weak: 's-weak' };
@@ -326,6 +327,37 @@ function sectorRow(s) {
   return `<div class="sector-row"><span class="s-name">${s.name}</span><span class="s-pct ${cls}">${s.avg_change > 0 ? '+' : ''}${s.avg_change}%</span></div>`;
 }
 
+function heatColor(pct, maxAbs) {
+  const t = Math.min(Math.abs(pct) / maxAbs, 1);
+  const a = 0.2 + t * 0.8;
+  return pct >= 0 ? `rgba(239, 35, 42, ${a.toFixed(2)})` : `rgba(20, 177, 67, ${a.toFixed(2)})`;
+}
+
+function drawSectorHeatmap(sectors) {
+  if (!sectorHeatChart) sectorHeatChart = echarts.init($('#sector-heatmap'));
+  const maxAbs = Math.max(...sectors.map((s) => Math.abs(s.avg_change)), 0.5);
+  const data = sectors.map((s) => ({
+    name: s.name,
+    value: 1,
+    change: s.avg_change,
+    up: s.up,
+    down: s.down,
+    itemStyle: { color: heatColor(s.avg_change, maxAbs), borderColor: '#0f1420', borderWidth: 1, gapWidth: 1 },
+  }));
+  sectorHeatChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { formatter: (p) => `${p.name}：${p.data.change > 0 ? '+' : ''}${p.data.change}%（涨${p.data.up} 跌${p.data.down}）` },
+    series: [{
+      type: 'treemap',
+      roam: false,
+      nodeClick: false,
+      breadcrumb: { show: false },
+      label: { show: true, formatter: (p) => `${p.name}\n${p.data.change > 0 ? '+' : ''}${p.data.change}%`, color: '#fff', fontSize: 11, lineHeight: 15 },
+      data,
+    }],
+  }, true);
+}
+
 async function loadSectors() {
   try {
     const d = await loadJSON('data/sectors.json');
@@ -335,13 +367,9 @@ async function loadSectors() {
     $('#sector-anomalies').innerHTML = anomalies.length
       ? anomalies.map((a) => `<span class="sector-anom ${a.avg_change > 0 ? 'up' : 'down'}">${a.avg_change > 0 ? '📈' : '📉'} ${a.name} ${a.avg_change > 0 ? '+' : ''}${a.avg_change}%</span>`).join(' ')
       : '<span class="empty">暂无板块异动</span>';
-    const top = secs.slice(0, 12);
-    const bottom = secs.slice(-12).reverse();
-    $('#sector-list').innerHTML =
-      '<div class="sector-col"><div class="sector-col-title up">涨幅榜</div>' + top.map(sectorRow).join('') + '</div>' +
-      '<div class="sector-col"><div class="sector-col-title down">跌幅榜</div>' + bottom.map(sectorRow).join('') + '</div>';
+    if (secs.length) drawSectorHeatmap(secs);
   } catch (e) {
-    $('#sector-list').innerHTML = '<div class="empty">板块数据加载失败</div>';
+    $('#sector-heatmap').innerHTML = '<div class="empty">板块数据加载失败</div>';
   }
 }
 
@@ -410,7 +438,7 @@ async function init() {
   }
 }
 
-window.addEventListener('resize', () => { chart && chart.resize(); radarChart && radarChart.resize(); backtestChart && backtestChart.resize(); thresholdChart && thresholdChart.resize(); });
+window.addEventListener('resize', () => { chart && chart.resize(); radarChart && radarChart.resize(); backtestChart && backtestChart.resize(); thresholdChart && thresholdChart.resize(); sectorHeatChart && sectorHeatChart.resize(); });
 init();
 
 // ===== 自选股管理 =====
