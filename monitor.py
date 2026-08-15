@@ -25,6 +25,7 @@ import quant
 import backtest
 import sector
 import support_resistance
+import signals
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -388,6 +389,7 @@ def main():
     quant_results = []
     money_results = []
     sr_results = []
+    sig_results = []
 
     for stock in watchlist:
         code = stock["code"]
@@ -414,6 +416,9 @@ def main():
         except Exception as e:
             print(f"[warn] {code} 拉取分时失败: {e}")
             intraday = load_json(os.path.join(INTRADAY_DIR, f"{code}.json"), None)
+
+        sig = signals.compute_signals(history, intraday)
+        sig_results.append({"code": code, "name": stock["name"], "price": quote.get("price"), **sig})
 
         alerts = detect_alerts(quote, history, rules)
         alerts += detect_intraday_alerts(intraday, rules)
@@ -446,6 +451,18 @@ def main():
                 if lvl["strength"] == "强" and 0.1 < abs(lvl["distance_pct"]) <= 1.5:
                     kind = "支撑" if lvl["distance_pct"] < 0 else "压力"
                     alerts.append((f"near_{kind}", f"👀 逼近{kind}位 {lvl['price']}（强）"))
+
+        # 分时买点/卖点提醒
+        if intraday and intraday.get("minutes"):
+            ip = [m.get("p") for m in intraday["minutes"] if m.get("p") is not None]
+            cur = quote.get("price")
+            if ip and cur:
+                day_high = max(ip)
+                day_low = min(ip)
+                if day_low and (cur - day_low) / day_low * 100 <= 1.0:
+                    alerts.append(("intraday_buy_low", f"🟢 分时买点：接近日内低点 {day_low:.2f}"))
+                if day_high and (day_high - cur) / cur * 100 <= 1.0:
+                    alerts.append(("intraday_sell_high", f"🔴 分时卖点：接近日内高点 {day_high:.2f}"))
 
         ind, fac = quant.compute_factors(history)
         score = quant.compute_score(fac)
@@ -483,6 +500,7 @@ def main():
     save_json(os.path.join(DATA_DIR, "quant.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": quant_results})
 
     save_json(os.path.join(DATA_DIR, "support_resistance.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": sr_results})
+    save_json(os.path.join(DATA_DIR, "signals.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": sig_results})
 
     if money_results:
         save_json(os.path.join(DATA_DIR, "moneyflow.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": money_results})

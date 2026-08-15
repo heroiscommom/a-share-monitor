@@ -72,8 +72,10 @@ async function loadChart(q) {
 function drawFundamental(q) {
   const parts = [];
   if (q.sector) parts.push(`板块 ${q.sector}`);
-  if (q.supports && q.supports.length) parts.push(`支撑 ${q.supports[0].price}`);
-  if (q.resistances && q.resistances.length) parts.push(`压力 ${q.resistances[0].price}`);
+  const buy = (q.daily_buy && q.daily_buy.length) ? q.daily_buy[0].price : ((q.supports && q.supports[0]) ? q.supports[0].price : null);
+  const sell = (q.daily_sell && q.daily_sell.length) ? q.daily_sell[0].price : ((q.resistances && q.resistances[0]) ? q.resistances[0].price : null);
+  if (buy != null) parts.push(`买点 ${buy}`);
+  if (sell != null) parts.push(`卖点 ${sell}`);
   if (q.pe != null) parts.push(`PE ${q.pe}`);
   if (q.pb != null) parts.push(`PB ${q.pb}`);
   if (q.total_mktcap != null) parts.push(`市值 ${q.total_mktcap}亿`);
@@ -206,8 +208,8 @@ function drawDailyChart(q, hist) {
   const closes = hist.map((h) => h.close);
   const volumes = hist.map((h) => h.volume);
   const srLines = [];
-  (q.resistances || []).forEach((r) => srLines.push({ yAxis: r.price, lineStyle: { color: '#ef232a', type: 'dashed', width: 1 }, label: { formatter: `压${r.price}`, color: '#ef232a', position: 'insideEndTop', fontSize: 10 } }));
-  (q.supports || []).forEach((s) => srLines.push({ yAxis: s.price, lineStyle: { color: '#14b143', type: 'dashed', width: 1 }, label: { formatter: `撑${s.price}`, color: '#14b143', position: 'insideEndBottom', fontSize: 10 } }));
+  (q.resistances || []).forEach((r) => srLines.push({ yAxis: r.price, lineStyle: { color: '#ef232a', type: 'dashed', width: 1 }, label: { formatter: `卖${r.price}`, color: '#ef232a', position: 'insideEndTop', fontSize: 10 } }));
+  (q.supports || []).forEach((s) => srLines.push({ yAxis: s.price, lineStyle: { color: '#14b143', type: 'dashed', width: 1 }, label: { formatter: `买${s.price}`, color: '#14b143', position: 'insideEndBottom', fontSize: 10 } }));
 
   chart.setOption({
     backgroundColor: 'transparent',
@@ -403,6 +405,7 @@ async function init() {
     const mfData = await loadJSON('data/moneyflow.json').catch(() => null);
     const sectorData = await loadJSON('data/sectors.json').catch(() => null);
     const srData = await loadJSON('data/support_resistance.json').catch(() => null);
+    const sigData = await loadJSON('data/signals.json').catch(() => null);
     const quantMap = {};
     ((quantData && quantData.stocks) || []).forEach((s) => { quantMap[s.code] = s; });
     const mfMap = {};
@@ -410,6 +413,8 @@ async function init() {
     const sectorMap = (sectorData && sectorData.stock_sector) || {};
     const srMap = {};
     ((srData && srData.stocks) || []).forEach((s) => { srMap[s.code] = s; });
+    const sigMap = {};
+    ((sigData && sigData.stocks) || []).forEach((s) => { sigMap[s.code] = s; });
     (snap.quotes || []).forEach((q) => {
       const s = quantMap[q.code];
       if (s) { q.score = s.score; q.signal = s.signal; q.signal_key = s.signal_key; q.factors = s.factors; }
@@ -418,6 +423,8 @@ async function init() {
       q.sector = sectorMap[q.code] || '';
       const sr = srMap[q.code];
       if (sr) { q.supports = sr.supports; q.resistances = sr.resistances; }
+      const sg = sigMap[q.code];
+      if (sg) { q.daily_buy = sg.daily_buy; q.daily_sell = sg.daily_sell; q.intraday_buy = sg.intraday_buy; q.intraday_sell = sg.intraday_sell; }
     });
     $('#updated').textContent = snap.updated_at
       ? '更新于 ' + snap.updated_at
