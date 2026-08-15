@@ -8,7 +8,7 @@ let activeStock = null;
 let radarChart = null;
 let backtestChart = null;
 
-const FACTOR_LABELS = { momentum: '动量', trend: '趋势', rsi: '强弱', volume: '量能', volatility: '稳定', position: '位置' };
+const FACTOR_LABELS = { rsi: '超卖', drawdown: '超跌', deviation: '偏离', position: '低位', volume: '量能', volatility: '稳定' };
 const SIGNAL_CLASS = { strong: 's-strong', bullish: 's-bullish', neutral: 's-neutral', bearish: 's-bearish', weak: 's-weak' };
 
 async function loadJSON(url) {

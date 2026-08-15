@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-量化因子计算引擎 —— 基于日K历史计算 6 维因子，加权得出 0-100 综合评分与信号。
+量化因子计算引擎（均值回归版 v2）—— 基于日K历史计算 6 维因子，加权得出 0-100 评分。
 
-因子（各维度归一化到 0-100）：
-  动量 momentum   20日涨幅
-  趋势 trend      均线多头/空头排列
-  强弱 rsi        RSI(14)
-  量能 volume     5日均量 / 20日均量
-  稳定 volatility 20日收益率标准差（越低越稳）
-  位置 position   60日区间位置
+v1 回测结论：追涨型因子（趋势/动量/高位）IC = -0.055（负相关），追高不利。
+v2 改为均值回归型：超跌、超卖、低位 → 分高；追高、超买 → 分低。
+
+因子（各维度 0-100）：
+  rsi        超卖    RSI 越低越超卖，分越高
+  drawdown   超跌    20日涨幅反向（跌越多分越高）
+  deviation  偏离    价格相对20日均线负偏离越大分越高
+  position   低位    距60日区间低点越近分越高
+  volume     量能    缩量（抛压衰竭）分越高
+  volatility 稳定    波动率越低分越高
 """
 
 
@@ -47,12 +50,12 @@ def calc_rsi(closes, period=14):
 
 
 WEIGHTS = {
-    "momentum": 0.20,
-    "trend": 0.25,
-    "rsi": 0.15,
-    "volume": 0.15,
-    "volatility": 0.10,
+    "rsi": 0.25,
+    "drawdown": 0.25,
+    "deviation": 0.20,
     "position": 0.15,
+    "volume": 0.10,
+    "volatility": 0.05,
 }
 
 
@@ -65,60 +68,63 @@ def compute_factors(history):
     n = len(closes)
     ind, fac = {}, {}
 
-    # 1. 动量：20日涨幅
-    if n >= 21:
-        mom20 = (closes[-1] / closes[-21] - 1) * 100
-        ind["mom20"] = round(mom20, 2)
-        fac["momentum"] = round(clamp((mom20 + 20) / 40 * 100))
-    else:
-        fac["momentum"] = 50
-
-    # 2. 趋势：均线排列
-    ma5, ma10, ma20 = sma(closes, 5), sma(closes, 10), sma(closes, 20)
-    if ma5 and ma10 and ma20:
-        ind["ma5"] = round(ma5, 2)
-        ind["ma20"] = round(ma20, 2)
-        c = closes[-1]
-        if c > ma5 > ma10 > ma20:
-            fac["trend"] = 90
-        elif c > ma20:
-            fac["trend"] = 70
-        elif c < ma5 < ma10 < ma20:
-            fac["trend"] = 10
-        elif c < ma20:
-            fac["trend"] = 30
-        else:
-            fac["trend"] = 50
-    else:
-        fac["trend"] = 50
-
-    # 3. RSI 强弱
+    # 1. RSI 超卖（越低分越高）
     rsi = calc_rsi(closes)
     if rsi is not None:
         ind["rsi"] = round(rsi, 1)
         if rsi < 30:
-            fac["rsi"] = 40
-        elif rsi < 45:
-            fac["rsi"] = 55
-        elif rsi <= 60:
+            fac["rsi"] = 90
+        elif rsi < 40:
             fac["rsi"] = 75
-        elif rsi <= 70:
+        elif rsi < 50:
             fac["rsi"] = 60
+        elif rsi < 60:
+            fac["rsi"] = 45
+        elif rsi < 70:
+            fac["rsi"] = 30
         else:
-            fac["rsi"] = 35
+            fac["rsi"] = 15
     else:
         fac["rsi"] = 50
 
-    # 4. 量能：5日均量 / 20日均量
+    # 2. 超跌：20日涨幅反向
+    if n >= 21:
+        mom20 = (closes[-1] / closes[-21] - 1) * 100
+        ind["mom20"] = round(mom20, 2)
+        fac["drawdown"] = round(clamp((20 - mom20) / 40 * 100))
+    else:
+        fac["drawdown"] = 50
+
+    # 3. 均线偏离：价格相对 20 日均线，负偏离分高
+    ma20 = sma(closes, 20)
+    if ma20:
+        dev = (closes[-1] / ma20 - 1) * 100
+        ind["deviation"] = round(dev, 2)
+        fac["deviation"] = round(clamp(50 - dev * 5))
+    else:
+        fac["deviation"] = 50
+
+    # 4. 低位：距 60 日区间低点越近分越高
+    if n >= 20:
+        window = 60 if n >= 60 else n
+        h = max(highs[-window:])
+        l = min(lows[-window:])
+        pos = (closes[-1] - l) / (h - l) if h > l else 0.5
+        ind["pos60"] = round(pos * 100, 1)
+        fac["position"] = round(clamp((1 - pos) * 100))
+    else:
+        fac["position"] = 50
+
+    # 5. 量能：缩量（抛压衰竭）分高
     vol5, vol20 = sma(volumes, 5), sma(volumes, 20)
     if vol5 and vol20 and vol20 > 0:
         vr = vol5 / vol20
         ind["vol_ratio"] = round(vr, 2)
-        fac["volume"] = round(clamp(vr * 50))
+        fac["volume"] = round(clamp((1.2 - vr) * 100))
     else:
         fac["volume"] = 50
 
-    # 5. 波动率（稳定性）：20日收益率标准差，越低越稳
+    # 6. 稳定：波动率越低分越高
     if n >= 21:
         rets = [closes[i] / closes[i - 1] - 1 for i in range(n - 20, n)]
         vol = std(rets) * 100
@@ -126,17 +132,6 @@ def compute_factors(history):
         fac["volatility"] = round(clamp((3 - vol) / 2.5 * 100))
     else:
         fac["volatility"] = 50
-
-    # 6. 位置：60日区间位置
-    if n >= 20:
-        window = 60 if n >= 60 else n
-        h = max(highs[-window:])
-        l = min(lows[-window:])
-        pos = (closes[-1] - l) / (h - l) * 100 if h > l else 50
-        ind["pos60"] = round(pos, 1)
-        fac["position"] = round(clamp(pos))
-    else:
-        fac["position"] = 50
 
     return ind, fac
 
@@ -147,11 +142,11 @@ def compute_score(factors):
 
 def signal_from_score(score):
     if score >= 75:
-        return "强势", "strong"
+        return "超跌机会", "strong"
     if score >= 62:
         return "偏多", "bullish"
     if score >= 45:
         return "中性", "neutral"
     if score >= 32:
         return "偏空", "bearish"
-    return "弱势", "weak"
+    return "高位风险", "weak"

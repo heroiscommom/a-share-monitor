@@ -397,9 +397,9 @@ def main():
             "indicators": ind,
         })
         if sig_key == "strong":
-            alerts.append(("quant_strong", f"📈 量化评分 {score:.0f} 分，强势信号"))
+            alerts.append(("quant_strong", f"🟢 超跌反弹机会（评分 {score:.0f} 分）"))
         elif sig_key == "weak":
-            alerts.append(("quant_weak", f"📉 量化评分 {score:.0f} 分，弱势信号"))
+            alerts.append(("quant_weak", f"🔴 高位回调风险（评分 {score:.0f} 分）"))
 
         for rule_key, msg in alerts:
             rule_type = "intraday" if rule_key.startswith("intraday_") else "daily"
