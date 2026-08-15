@@ -1,6 +1,22 @@
-# 📈 A股盯盘助手
+# 📈 A股量化盯盘平台
 
-自动盯住你的自选股，出现异动时发 **QQ 邮箱**提醒，并提供一个 **可视化看板**。整套跑在 GitHub 上，**零服务器、零成本**。
+一套跑在 GitHub 上的 **A股量化盯盘 + 辅助决策** 系统：自动盯自选股、量化评分、支撑压力位、买卖点、全A股扫描、板块热力图，异动时发 **QQ 邮箱**提醒。**零服务器、零成本、纯免费接口。**
+
+> ⚠️ 仅供学习研究，不构成投资建议。
+
+## 功能总览
+
+| 功能 | 说明 |
+|------|------|
+| 📊 盯盘看板 | 自选股实时行情、分时/日K图（ECharts） |
+| 🔔 异动提醒 | 涨跌幅/量比/RSI/新高新低/分时急拉急跌/资金流/板块异动 |
+| 🧮 量化评分 | 均值回归模型（6因子加权 0-100 分）+ 信号（超跌机会/高位风险等） |
+| 📐 支撑压力位 | 三种方法（N日高低点+摆动点+筹码密集区）自动识别关键价位 |
+| 💰 买卖点 | 日线买点=支撑位、卖点=压力位；分时买点=均价线/低点、卖点=高点 |
+| 🔍 全A股扫描 | 每日扫沪深300+中证500（约800只），找「超跌+接近支撑」候选 |
+| 🧭 板块分析 | 申万一级31行业，热力图 + 异动自动关联自选股 |
+| 🔬 回测 | 300股池滚动回测 + 胜率曲线，检验因子有效性 |
+| 💹 基本面/资金流 | PE/PB/市值/换手率 + 主力资金净流入 |
 
 ## 架构
 
@@ -9,34 +25,47 @@
 │                同一个 GitHub 仓库                    │
 ├───────────────────────┬─────────────────────────────┤
 │  GitHub Actions（后端） │   GitHub Pages（前端）      │
-│  ├ 定时拉行情(腾讯接口)  │  ├ 自选股列表 + 涨跌幅       │
-│  ├ 异动检测            │  ├ K线走势图(ECharts)        │
-│  ├ QQ邮箱发提醒         │  └ 异动记录                  │
-│  └ 写 data/*.json 提交  │  └ 读 data/*.json 渲染       │
+│  ├ 定时拉行情/历史      │  ├ 看板（行情+图表+评分）     │
+│  ├ 量化因子/评分        │  ├ 支撑压力/买卖点标注        │
+│  ├ 支撑压力/买卖点      │  ├ 板块热力图 + 候选股        │
+│  ├ 回测/扫描           │  ├ 回测报告 + 胜率曲线        │
+│  ├ QQ邮箱发提醒         │  └ 读 data/*.json 渲染       │
+│  └ 写 data/*.json 提交  │                             │
 └───────────────────────┴─────────────────────────────┘
-
-cron定时 → 拉数据 → 检测异动 → 发邮件 → 数据commit回仓库 → Pages读取渲染
 ```
 
-- **后端**：GitHub Actions 定时任务（cron），纯 Python 标准库，无需 pip 装包
-- **数据源**：腾讯免费行情接口（实时 + 前复权日K），无需注册、无需 token
-- **提醒**：QQ 邮箱 SMTP（授权码），凭据存在 GitHub Secrets，不落盘
-- **前端**：原生 HTML + ECharts，读仓库里的 `data/*.json`
+**核心思路**：GitHub Pages 是纯静态托管（不能跑后端/定时/发邮件），所以后端全交给 GitHub Actions，把结果写成 `data/*.json` commit 回仓库，前端读这些 JSON 渲染。
+
+## 数据源（全部免费，无需 token）
+
+| 数据 | 来源 |
+|------|------|
+| 行情/日K/分时 | 腾讯（`qt.gtimg.cn` / `web.ifzq.gtimg.cn`） |
+| 基本面（PE/PB/市值/换手） | 腾讯行情字段 |
+| 主力资金流 | 新浪（`MoneyFlow`） |
+| 股票池/板块分类 | 新浪（`Market_Center` / 申万一级） |
 
 ## 目录结构
 
 ```
 a-share-monitor/
-├── .github/workflows/monitor.yml   # 定时任务配置
-├── monitor.py                      # 核心脚本（抓数据/检测/发信/落盘）
-├── config.json                     # 自选股 + 异动规则
-├── index.html / app.js / style.css # 可视化前端
-├── data/
-│   ├── snapshot.json               # 最新行情快照（前端读）
-│   ├── alerts.json                 # 异动记录（前端读）
-│   ├── state.json                  # 去重状态
-│   └── history/600000.json ...     # 每只股票的日K历史
-└── README.md
+├── .github/workflows/
+│   ├── monitor.yml            # 盯盘+评分+提醒（每5分钟，交易时段）
+│   ├── manage-watchlist.yml   # 页面自选股管理（Issue 触发）
+│   ├── pool-backtest.yml      # 300股池回测（每周一）
+│   └── scanner.yml            # 全A股扫描（每天收盘后）
+├── monitor.py                 # 主脚本（抓数据/检测/评分/发信/落盘）
+├── quant.py                   # 量化因子引擎（6因子加权评分）
+├── support_resistance.py      # 支撑位/压力位计算
+├── signals.py                 # 买卖点引擎（日线+分时）
+├── sector.py                  # 板块分析（申万一级 + 异动）
+├── backtest.py                # 滚动回测引擎
+├── pool_backtest.py           # 300股池回测
+├── scanner.py                 # 全A股扫描器
+├── manage_watchlist.py        # Issue 命令解析（/add /remove）
+├── config.json                # 自选股 + 所有规则
+├── index.html / app.js / style.css  # 前端
+└── data/                      # 所有数据（快照/评分/信号/板块/回测...）
 ```
 
 ## 快速部署（5 步）
@@ -44,104 +73,126 @@ a-share-monitor/
 ### 第 1 步：把代码传到 GitHub
 
 ```bash
-# 在项目目录下
 git init
 git add .
-git commit -m "init: A股盯盘助手"
+git commit -m "init"
 git branch -M main
 git remote add origin https://github.com/<你的用户名>/<仓库名>.git
 git push -u origin main
 ```
 
-> 也可以在 GitHub 网页「New repository」后，把本地目录 push 上去。
-
 ### 第 2 步：开启 GitHub Pages
 
-1. 仓库 → **Settings** → **Pages**
-2. **Source** 选 `Deploy from a branch`
-3. **Branch** 选 `main`、目录选 `/ (root)` → **Save**
+仓库 → **Settings** → **Pages** → **Source** 选 `Deploy from a branch` → **Branch** 选 `main`、目录 `/ (root)` → **Save**
 
-> ⚠️ 免费版 GitHub Pages **只支持公开仓库**。若仓库是 private，要么设为 public，要么改用其他托管（见文末 FAQ）。
+> ⚠️ 免费版 GitHub Pages **只支持公开仓库**。
 
-等 1-2 分钟后，访问 `https://<你的用户名>.github.io/<仓库名>/` 就能看到看板。
+等 1-2 分钟，访问 `https://<用户名>.github.io/<仓库名>/`。
 
-### 第 3 步：开启 QQ 邮箱 SMTP 并拿到授权码
+### 第 3 步：开启 QQ 邮箱 SMTP
 
-1. 登录 [mail.qq.com](https://mail.qq.com) → **设置** → **账户**
-2. 找到「POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务」，开启 **SMTP 服务**
-3. 按提示验证后，会生成一个 **16 位授权码**（**不是 QQ 密码**），复制保存
+登录 [mail.qq.com](https://mail.qq.com) → **设置** → **账户** → 开启 **SMTP 服务**，生成 **16 位授权码**（不是 QQ 密码）。
 
 ### 第 4 步：把邮箱凭据存进 Secrets
 
-仓库 → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**，添加三个：
+仓库 → **Settings** → **Secrets and variables** → **Actions** → 添加：
 
 | Name | Value |
 |------|-------|
-| `SMTP_USER` | 你的 QQ 邮箱，如 `123456@qq.com` |
-| `SMTP_PASS` | 第 3 步拿到的 **授权码** |
-| `SMTP_TO` | 收件邮箱（可以和上面相同） |
+| `SMTP_USER` | QQ 邮箱，如 `123456@qq.com` |
+| `SMTP_PASS` | 第 3 步的授权码 |
+| `SMTP_TO` | 收件邮箱（可同 SMTP_USER） |
 
-### 第 5 步：触发第一次运行
+### 第 5 步：触发首次运行
 
-仓库 → **Actions** → 左侧 **Stock Monitor** → **Run workflow** → **Run workflow**（手动触发一次）。
-
-跑完后回到 `data/` 目录，能看到 `snapshot.json` 已更新、`history/` 下生成了历史文件，看板也就有数据了。
+Actions → **Stock Monitor** → **Run workflow** 手动触发一次。之后定时任务自动跑。
 
 ---
 
-## 配置说明
+## 配置说明（config.json）
 
-### 自选股（config.json → watchlist）
+### 自选股（watchlist）
 
 ```json
-{ "code": "600000", "market": "sh", "name": "浦发银行" }
+{ "code": "600036", "market": "sh", "name": "招商银行" }
 ```
 
-- `market`：沪市 `sh`、深市 `sz`、北交所 `bj`
-- `code`：6 位股票代码
-- `name`：显示名称（随便起，纯展示用）
+- `market`：沪 `sh`、深 `sz`、北 `bj`
+- 也可以直接在**网页上**「⚙️ 管理自选股」添加/移除（会生成 Issue，机器人自动改配置）
 
-### 异动规则（config.json → rules）
+### 异动规则（rules）
 
-| 规则 | 默认值 | 含义 |
-|------|--------|------|
-| `change_pct` | 3.0 | 单日涨跌幅 ≥ 3%（涨/跌都触发） |
-| `break_high_days` | 20 | 突破 20 日新高 |
-| `break_low_days` | 20 | 跌破 20 日新低 |
-| `volume_ratio` | 2.0 | 量比 ≥ 2（放量） |
-| `rsi_overbought` | 70 | RSI(14) ≥ 70 超买 |
-| `rsi_oversold` | 30 | RSI(14) ≤ 30 超卖 |
-| `history_days` | 60 | 拉取多少天日K用于计算 |
+| 规则 | 默认 | 含义 |
+|------|------|------|
+| `change_pct` | 3.0 | 单日涨跌幅 ≥ 3% |
+| `break_high_days` / `break_low_days` | 20 | 突破20日新高/新低 |
+| `volume_ratio` | 2.0 | 量比 ≥ 2 |
+| `rsi_overbought` / `rsi_oversold` | 70 / 30 | RSI 超买/超卖 |
+| `intraday_spike_pct` / `_minutes` | 1.5 / 5 | 分时急拉急跌（N分钟内涨跌≥X%） |
+| `intraday_volume_ratio` | 5 | 分时放量倍数 |
+| `moneyflow_threshold` | 50000000 | 主力净流入/流出超5000万提醒 |
+| `sector_threshold` | 2.0 | 板块涨跌幅超2%异动提醒 |
 
-> 改完 `config.json` 直接 push，下次定时任务自动生效。
+### 量化评分阈值（quant.py 顶部）
 
-### 去重机制
-
-同一只股票的**同一条规则**，**每天只提醒一次**（避免 10 分钟一轮刷爆邮箱）。跨天自动重置。
-
----
-
-## 定时说明
-
-- 工作流 cron 设为**北京时间交易时段**：9:30–11:30、13:00–15:00，周一至周五，每 10 分钟一次
-- GitHub Actions 的 cron 用 **UTC 时区**，配置里已换算好（减 8 小时）
-- **节假日照常跑但无害**：休市时数据静止、且去重机制防止重复提醒
-
-### ⚠️ 两个要注意的点
-
-1. **60 天休眠**：GitHub 会停止「60 天无任何提交」的仓库的定时任务。长时间不碰的话，随便手动触发一次（Run workflow）就能恢复。
-2. **定时可能延迟**：GitHub 不保证 cron 精确到分，繁忙时可能晚 5-15 分钟，属正常现象。
+- `BUY_THRESHOLD = 82`：评分 ≥82 =「超跌机会」信号（回测胜率约 64%）
+- `RISK_THRESHOLD = 32`：评分 ≤32 =「高位风险」信号
 
 ---
 
-## 本地运行测试
+## 量化模型说明
+
+### 评分模型（均值回归 v2）
+
+6 个因子（各归一化 0-100，加权求和）：
+
+| 因子 | 权重 | 含义 |
+|------|------|------|
+| RSI 超卖 | 25% | RSI 越低分越高 |
+| 超跌（20日跌幅反向） | 25% | 跌越多分越高 |
+| 均线偏离 | 20% | 价格低于均线越多分越高 |
+| 低位（60日区间） | 15% | 越接近区间低点分越高 |
+| 缩量 | 10% | 抛压衰竭 |
+| 低波动 | 5% | 越稳分越高 |
+
+信号分级：≥82 超跌机会 / 62-82 偏多 / 45-62 中性 / 32-45 偏空 / <32 高位风险
+
+### 回测结论（300股池 · 5.2万样本）
+
+- 评分与未来10日收益呈 **U 型关系**：超跌股（≥75）和强势股（<45）都跑赢中间档
+- 「超跌」信号胜率随阈值单调上升：≥75 胜率58% → ≥82 胜率64% → ≥85 胜率71%
+- 线性 IC ≈ 0（连续评分无线性预测力），但**极端超跌是真实信号**
+
+### 支撑压力位 / 买卖点
+
+- **三种方法交叉验证**：N日高低点 + 摆动点（局部极值）+ 筹码密集区（60天成交量分布）
+- 来源越多，价位标注越「强」（强/中/弱）
+- **日线买点 = 支撑位，日线卖点 = 压力位**
+- **分时买点 = 分时均价线 + 日内低点，分时卖点 = 日内高点 + 均价线上方**
+
+---
+
+## 定时任务
+
+| Workflow | 频率 | 说明 |
+|----------|------|------|
+| Stock Monitor | 每5分钟（交易时段 9:30-15:00 周一~五） | 盯盘+评分+买卖点+提醒 |
+| Stock Scanner | 每天 16:00（收盘后） | 全A股扫描候选股 |
+| Pool Backtest | 每周一 | 300股池回测 + 胜率曲线 |
+| Manage Watchlist | Issue 打开时 | 页面自选股增删 |
+
+> GitHub Actions cron 用 UTC，配置里已换算。节假日照常跑但无害（休市数据静止+去重防刷屏）。
+
+---
+
+## 本地运行
 
 ```bash
-# 直接跑（无邮箱凭据时会自动跳过发信）
-python3 monitor.py
-
-# 忽略当天去重，方便反复调试（会重复触发告警）
-python3 monitor.py --force
+python3 monitor.py            # 正常跑（跳过发信若无邮箱凭据）
+python3 monitor.py --force    # 忽略去重，方便调试
+python3 backtest.py           # 单独跑回测
+python3 scanner.py            # 单独跑扫描（首次约5分钟拉800只）
+python3 signals.py            # 单独看买卖点
 ```
 
 只依赖 Python 标准库，3.x 即可，无需 `pip install`。
@@ -150,18 +201,21 @@ python3 monitor.py --force
 
 ## FAQ
 
-**Q：GitHub Pages 必须是公开仓库，不想公开怎么办？**
-A：代码和行情数据本身不含敏感信息，公开也无妨；邮箱凭据在 Secrets 里，不会泄露。若坚持私有，可改用 Cloudflare Pages / Vercel 托管前端（静态，同样免费），Actions 照常跑。
+**Q：免费版 Pages 必须是公开仓库？**
+A：是的。代码和行情数据不含敏感信息，邮箱凭据在 Secrets 里。坚持私有可换 Cloudflare Pages / Vercel。
 
-**Q：想换成微信/Telegram 推送？**
-A：把 `send_email()` 函数替换成对应推送接口即可。QQ 邮箱也可以在微信里收「QQ邮箱提醒」公众号通知。
+**Q：换微信/Telegram 推送？**
+A：改 `monitor.py` 里的 `send_email()`。QQ 邮箱也可在微信收「QQ邮箱提醒」通知。
 
 **Q：ECharts 加载慢？**
-A：`index.html` 里用的是 jsdelivr CDN，国内可换成 `https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js`。
+A：`index.html` 里是 jsdelivr CDN，国内可换 `https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js`。
 
-**Q：能盯港股/美股吗？**
-A：能。腾讯接口同样支持港股（`hk` 前缀，如 `hk00700`）和美股（`us` 前缀，如 `usAAPL`）。只需改 `config.json` 的 `market` 和 `code`，检测逻辑通用。
+**Q：能盯港股/美股？**
+A：能。腾讯接口支持港股 `hk`、美股 `us` 前缀，改 config 即可。
+
+**Q：买卖点准吗？**
+A：买卖点是技术面参考价位，不是必胜信号。建议结合量化评分（超跌机会/高位风险）一起看——「超跌 + 跌到强支撑位」才是更强的买点。
 
 ## 免责声明
 
-本项目仅供学习参考，**不构成投资建议**。数据来自公开接口，可能存在延迟或误差。据此操作，风险自负。
+本项目仅供学习研究，**不构成投资建议**。数据来自公开免费接口，可能存在延迟或误差。量化模型基于历史回测，不代表未来收益。据此操作，风险自负。
