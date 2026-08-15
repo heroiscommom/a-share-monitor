@@ -23,6 +23,7 @@ import urllib.request
 
 import quant
 import backtest
+import sector
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -85,6 +86,11 @@ def fetch_quotes(watchlist):
             "high": _to_float(parts[33]),
             "low": _to_float(parts[34]),
             "amount": amount_wan * 10000 if amount_wan is not None else None,  # 元
+            "turnover_rate": _to_float(parts[38]) if len(parts) > 38 else None,  # 换手率%
+            "pe": _to_float(parts[39]) if len(parts) > 39 else None,            # 市盈率
+            "float_mktcap": _to_float(parts[44]) if len(parts) > 44 else None,  # 流通市值(亿)
+            "total_mktcap": _to_float(parts[45]) if len(parts) > 45 else None,  # 总市值(亿)
+            "pb": _to_float(parts[46]) if len(parts) > 46 else None,            # 市净率
         }
     return quotes
 
@@ -149,6 +155,28 @@ def fetch_intraday(code, market):
         })
         prev_vol = cum_vol
     return {"date": date, "prev_close": prev_close, "minutes": minutes}
+
+
+def fetch_moneyflow(code, market):
+    """新浪主力资金流，返回 {date, netamount(元), r0_net(元), turnover, change_pct} 或 None"""
+    symbol = f"{market}{code}"
+    url = ("https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/"
+           f"MoneyFlow.ssl_qsfx_zjlrqs?page=1&num=1&sort=opendate&asc=0&daima={symbol}")
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "Mozilla/5.0", "Referer": "https://finance.sina.com.cn/",
+    })
+    with urllib.request.urlopen(req, timeout=15) as r:
+        data = json.loads(r.read().decode("utf-8", errors="replace"))
+    if not data or not isinstance(data, list):
+        return None
+    d = data[0]
+    cr = d.get("changeratio")
+    return {
+        "date": d.get("opendate"),
+        "netamount": _to_float(d.get("netamount")),       # 主力净流入(元)
+        "r0_net": _to_float(d.get("r0_net")),             # 特大单净流入(元)
+        "change_pct": round(cr * 100, 2) if isinstance(cr, (int, float)) else None,
+    }
 
 
 def load_json(path, default):
@@ -357,6 +385,7 @@ def main():
     alerts_log = load_json(ALERTS_PATH, {"updated_at": "", "items": []})
     triggered = []
     quant_results = []
+    money_results = []
 
     for stock in watchlist:
         code = stock["code"]
@@ -383,6 +412,20 @@ def main():
 
         alerts = detect_alerts(quote, history, rules)
         alerts += detect_intraday_alerts(intraday, rules)
+
+        mf = None
+        try:
+            mf = fetch_moneyflow(code, stock["market"])
+            if mf:
+                money_results.append({"code": code, "name": stock["name"], **mf})
+        except Exception as e:
+            print(f"[warn] {code} 资金流失败: {e}")
+        mf_th = rules.get("moneyflow_threshold", 50000000)
+        if mf and mf.get("netamount") is not None:
+            if mf["netamount"] >= mf_th:
+                alerts.append(("moneyflow_in", f"💰 主力净流入 {mf['netamount'] / 10000:.0f} 万元"))
+            elif mf["netamount"] <= -mf_th:
+                alerts.append(("moneyflow_out", f"💸 主力净流出 {abs(mf['netamount']) / 10000:.0f} 万元"))
 
         ind, fac = quant.compute_factors(history)
         score = quant.compute_score(fac)
@@ -419,6 +462,34 @@ def main():
 
     save_json(os.path.join(DATA_DIR, "quant.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": quant_results})
 
+    if money_results:
+        save_json(os.path.join(DATA_DIR, "moneyflow.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": money_results})
+
+    # 板块分析
+    try:
+        sectors, sector_anomalies = sector.analyze_sectors(threshold=rules.get("sector_threshold", 2.0))
+        save_json(os.path.join(DATA_DIR, "sectors.json"), {
+            "updated_at": now.strftime("%Y-%m-%d %H:%M:%S"),
+            "sectors": sectors,
+            "anomalies": sector_anomalies,
+        })
+        for sa in sector_anomalies:
+            dedup_key = f"sector:{sa['name']}"
+            if not is_duplicate(state, dedup_key, "daily", now, force):
+                state[dedup_key] = now.isoformat()
+                emoji = "📈" if sa["avg_change"] > 0 else "📉"
+                triggered.append({
+                    "time": now.strftime("%Y-%m-%d %H:%M:%S"),
+                    "code": "板块",
+                    "name": sa["name"],
+                    "rule": "sector_anomaly",
+                    "message": f"{emoji} 板块异动：{sa['name']} {sa['avg_change']:+.2f}%",
+                    "price": None,
+                    "change_pct": sa["avg_change"],
+                })
+    except Exception as e:
+        print(f"[warn] 板块分析失败: {e}")
+
     # 回测
     try:
         bt = backtest.run()
@@ -443,6 +514,11 @@ def main():
             "low": q.get("low"),
             "open": q.get("open"),
             "prev_close": q.get("prev_close"),
+            "turnover_rate": q.get("turnover_rate"),
+            "pe": q.get("pe"),
+            "pb": q.get("pb"),
+            "float_mktcap": q.get("float_mktcap"),
+            "total_mktcap": q.get("total_mktcap"),
         })
     save_json(SNAPSHOT_PATH, snapshot)
 

@@ -68,6 +68,21 @@ async function loadChart(q) {
   else await loadDaily(q);
 }
 
+function drawFundamental(q) {
+  const parts = [];
+  if (q.pe != null) parts.push(`PE ${q.pe}`);
+  if (q.pb != null) parts.push(`PB ${q.pb}`);
+  if (q.total_mktcap != null) parts.push(`市值 ${q.total_mktcap}亿`);
+  if (q.turnover_rate != null) parts.push(`换手 ${q.turnover_rate}%`);
+  let mf = '';
+  if (q.netamount != null) {
+    const w = Math.abs(q.netamount / 10000).toFixed(0);
+    const cls = q.netamount >= 0 ? 'up' : 'down';
+    mf = `<span class="${cls}">主力净${q.netamount >= 0 ? '流入' : '流出'} ${w}万</span>`;
+  }
+  $('#fundamental-bar').innerHTML = parts.join(' · ') + (mf ? ' · ' + mf : '');
+}
+
 function drawFactor(q) {
   $('#factor-title').textContent = `${q.name || q.code} (${q.code}) 量化因子`;
   if (q.score != null) {
@@ -101,6 +116,7 @@ function drawFactor(q) {
       }],
     }],
   }, true);
+  drawFundamental(q);
 }
 
 async function loadIntraday(q) {
@@ -233,9 +249,10 @@ function renderAlerts(items) {
   }
   items.forEach((a) => {
     const li = document.createElement('li');
+    const codeLabel = a.code ? `(${a.code})` : '';
     li.innerHTML =
       `<span class="time">${a.time}</span>` +
-      `<span class="stock">${a.name}(${a.code})</span>` +
+      `<span class="stock">${a.name}${codeLabel}</span>` +
       `<span class="msg">${a.message}</span>`;
     ul.appendChild(li);
   });
@@ -297,15 +314,44 @@ async function loadBacktest() {
   }
 }
 
+function sectorRow(s) {
+  const cls = s.avg_change > 0 ? 'up' : 'down';
+  return `<div class="sector-row"><span class="s-name">${s.name}</span><span class="s-pct ${cls}">${s.avg_change > 0 ? '+' : ''}${s.avg_change}%</span></div>`;
+}
+
+async function loadSectors() {
+  try {
+    const d = await loadJSON('data/sectors.json');
+    const secs = d.sectors || [];
+    const anomalies = d.anomalies || [];
+    $('#sector-meta').textContent = d.updated_at ? '更新于 ' + d.updated_at : '';
+    $('#sector-anomalies').innerHTML = anomalies.length
+      ? anomalies.map((a) => `<span class="sector-anom ${a.avg_change > 0 ? 'up' : 'down'}">${a.avg_change > 0 ? '📈' : '📉'} ${a.name} ${a.avg_change > 0 ? '+' : ''}${a.avg_change}%</span>`).join(' ')
+      : '<span class="empty">暂无板块异动</span>';
+    const top = secs.slice(0, 12);
+    const bottom = secs.slice(-12).reverse();
+    $('#sector-list').innerHTML =
+      '<div class="sector-col"><div class="sector-col-title up">涨幅榜</div>' + top.map(sectorRow).join('') + '</div>' +
+      '<div class="sector-col"><div class="sector-col-title down">跌幅榜</div>' + bottom.map(sectorRow).join('') + '</div>';
+  } catch (e) {
+    $('#sector-list').innerHTML = '<div class="empty">板块数据加载失败</div>';
+  }
+}
+
 async function init() {
   try {
     const snap = await loadJSON('data/snapshot.json');
     const quantData = await loadJSON('data/quant.json').catch(() => null);
+    const mfData = await loadJSON('data/moneyflow.json').catch(() => null);
     const quantMap = {};
     ((quantData && quantData.stocks) || []).forEach((s) => { quantMap[s.code] = s; });
+    const mfMap = {};
+    ((mfData && mfData.stocks) || []).forEach((s) => { mfMap[s.code] = s; });
     (snap.quotes || []).forEach((q) => {
       const s = quantMap[q.code];
       if (s) { q.score = s.score; q.signal = s.signal; q.signal_key = s.signal_key; q.factors = s.factors; }
+      const m = mfMap[q.code];
+      if (m) { q.netamount = m.netamount; q.r0_net = m.r0_net; }
     });
     $('#updated').textContent = snap.updated_at
       ? '更新于 ' + snap.updated_at
@@ -319,6 +365,7 @@ async function init() {
     const al = await loadJSON('data/alerts.json');
     renderAlerts(al.items || []);
     loadBacktest();
+    loadSectors();
   } catch (e) {
     $('#updated').textContent = '加载失败：' + e.message;
   }
