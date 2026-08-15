@@ -17,6 +17,15 @@ function fmt(n, d = 2) {
   return Number(n).toFixed(d);
 }
 
+function showChartEmpty(msg) {
+  if (!chart) chart = echarts.init($('#chart'));
+  chart.clear();
+  chart.setOption({
+    backgroundColor: 'transparent',
+    graphic: { type: 'text', left: 'center', top: 'middle', style: { text: msg, fill: '#8b96ad', fontSize: 14 } },
+  }, true);
+}
+
 function renderWatchlist(quotes) {
   const tbody = $('tbody');
   tbody.innerHTML = '';
@@ -56,10 +65,10 @@ async function loadIntraday(q) {
       $('#chart-title').textContent = `${q.name || q.code} (${q.code}) · 分时 ${d.date || ''}`;
       drawIntradayChart(q, d);
     } else {
-      $('#chart').innerHTML = '<div class="empty">暂无分时数据</div>';
+      showChartEmpty('暂无分时数据');
     }
   } catch (e) {
-    $('#chart').innerHTML = '<div class="empty">暂无分时数据</div>';
+    showChartEmpty('暂无分时数据');
   }
 }
 
@@ -70,10 +79,10 @@ async function loadDaily(q) {
       $('#chart-title').textContent = `${q.name || q.code} (${q.code}) · 日K`;
       drawDailyChart(q, hist);
     } else {
-      $('#chart').innerHTML = '<div class="empty">暂无历史数据，等待首次采集</div>';
+      showChartEmpty('暂无历史数据');
     }
   } catch (e) {
-    $('#chart').innerHTML = '<div class="empty">暂无历史数据，等待首次采集</div>';
+    showChartEmpty('暂无历史数据');
   }
 }
 
@@ -121,7 +130,7 @@ function drawIntradayChart(q, d) {
       { name: '均价', type: 'line', data: avgs, showSymbol: false, lineStyle: { width: 1, color: '#f5a623' } },
       { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vols, itemStyle: { color: (p) => volColors[p.dataIndex] } },
     ],
-  });
+  }, true);
 }
 
 function drawDailyChart(q, hist) {
@@ -167,7 +176,7 @@ function drawDailyChart(q, hist) {
         itemStyle: { color: '#5a6478' },
       },
     ],
-  });
+  }, true);
 }
 
 function renderAlerts(items) {

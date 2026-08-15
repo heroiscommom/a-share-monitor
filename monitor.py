@@ -30,6 +30,7 @@ SNAPSHOT_PATH = os.path.join(DATA_DIR, "snapshot.json")
 ALERTS_PATH = os.path.join(DATA_DIR, "alerts.json")
 STATE_PATH = os.path.join(DATA_DIR, "state.json")
 INTRADAY_DIR = os.path.join(DATA_DIR, "intraday")
+INTRADAY_COOLDOWN_MINUTES = 30
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
@@ -238,6 +239,72 @@ def detect_alerts(quote, history, rules):
     return alerts
 
 
+def detect_intraday_alerts(intraday, rules):
+    """检测分时（盘中）异动，返回 [(规则key, 描述), ...]"""
+    if not intraday:
+        return []
+    minutes = intraday.get("minutes") or []
+    if len(minutes) < 3:
+        return []
+    alerts = []
+    last = minutes[-1]
+    last_price = last.get("p")
+
+    # 1. 盘中急拉/急跌：最近 N 分钟涨跌幅
+    n = int(rules.get("intraday_spike_minutes", 5))
+    pct = rules.get("intraday_spike_pct")
+    if pct and last_price is not None and len(minutes) > n:
+        base_price = minutes[-1 - n].get("p")
+        if base_price:
+            change = (last_price - base_price) / base_price * 100
+            if change >= pct:
+                alerts.append(("intraday_spike_up", f"⚡ 盘中急拉：{n}分钟涨 {change:.2f}%（阈值 {pct}%）"))
+            elif change <= -pct:
+                alerts.append(("intraday_spike_down", f"🌊 盘中急跌：{n}分钟跌 {abs(change):.2f}%（阈值 {pct}%）"))
+
+    # 2. 盘中放量
+    vr = rules.get("intraday_volume_ratio")
+    vm = int(rules.get("intraday_volume_minutes", 5))
+    if vr and len(minutes) > vm:
+        cur_vol = last.get("v") or 0
+        prev_vols = [m.get("v") or 0 for m in minutes[-1 - vm:-1]]
+        avg = sum(prev_vols) / len(prev_vols) if prev_vols else 0
+        if avg > 0 and cur_vol >= vr * avg:
+            alerts.append(("intraday_volume", f"📊 盘中放量：单分钟量 {cur_vol:.0f} 手，为前{vm}分钟均量 {avg:.0f} 的 {cur_vol / avg:.1f} 倍（阈值 {vr}）"))
+
+    # 3. 突破日内新高/新低
+    if rules.get("intraday_break_high_low") and last_price is not None:
+        prev_prices = [m.get("p") for m in minutes[:-1] if m.get("p") is not None]
+        if prev_prices:
+            day_high = max(prev_prices)
+            day_low = min(prev_prices)
+            if last_price > day_high:
+                alerts.append(("intraday_break_high", f"🚀 突破日内新高 {day_high:.2f}"))
+            elif last_price < day_low:
+                alerts.append(("intraday_break_low", f"⚠️ 跌破日内新低 {day_low:.2f}"))
+
+    return alerts
+
+
+def is_duplicate(state, dedup_key, rule_type, now, force):
+    """日线规则按天去重；分时规则按冷却时间（30分钟）去重"""
+    if force:
+        return False
+    last = state.get(dedup_key)
+    if not last:
+        return False
+    try:
+        last_dt = datetime.datetime.fromisoformat(str(last))
+    except (ValueError, TypeError):
+        try:
+            last_dt = datetime.datetime.strptime(str(last), "%Y-%m-%d")
+        except (ValueError, TypeError):
+            return False
+    if rule_type == "intraday":
+        return (now - last_dt).total_seconds() < INTRADAY_COOLDOWN_MINUTES * 60
+    return last_dt.date() == now.date()
+
+
 def send_email(subject, body):
     """QQ 邮箱 SMTP 发信，凭据从环境变量读取"""
     user = os.environ.get("SMTP_USER")
@@ -302,17 +369,23 @@ def main():
             print(f"[warn] {code} 拉取历史失败，用缓存: {e}")
             history = load_json(os.path.join(HISTORY_DIR, f"{code}.json"), [])
 
+        intraday = None
         try:
             intraday = fetch_intraday(code, stock["market"])
             save_json(os.path.join(INTRADAY_DIR, f"{code}.json"), intraday)
         except Exception as e:
             print(f"[warn] {code} 拉取分时失败: {e}")
+            intraday = load_json(os.path.join(INTRADAY_DIR, f"{code}.json"), None)
 
-        for rule_key, msg in detect_alerts(quote, history, rules):
+        alerts = detect_alerts(quote, history, rules)
+        alerts += detect_intraday_alerts(intraday, rules)
+
+        for rule_key, msg in alerts:
+            rule_type = "intraday" if rule_key.startswith("intraday_") else "daily"
             dedup_key = f"{code}:{rule_key}"
-            if not force and state.get(dedup_key) == today:
-                continue  # 今天已提醒过，去重
-            state[dedup_key] = today
+            if is_duplicate(state, dedup_key, rule_type, now, force):
+                continue
+            state[dedup_key] = now.isoformat()
             triggered.append({
                 "time": now.strftime("%Y-%m-%d %H:%M:%S"),
                 "code": code,
