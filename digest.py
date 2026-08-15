@@ -44,6 +44,7 @@ def send_wechat(title, desp):
         print("[wechat] 未配置 SERVERCHAN_KEY，跳过")
         return False
     import urllib.parse
+    import urllib.request
     url = f"https://sctapi.ftqq.com/{key}.send"
     data = urllib.parse.urlencode({"title": title, "desp": desp}).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers={"User-Agent": "Mozilla/5.0"})
