@@ -35,7 +35,6 @@ jobs:
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_TO: ${{ secrets.SMTP_TO }}
           SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
-          WECOM_WEBHOOK_KEY: ${{ secrets.WECOM_WEBHOOK_KEY }}
         run: python monitor.py
 
       - name: Commit data

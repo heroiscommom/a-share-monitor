@@ -1,6 +1,6 @@
 # 📈 A股量化盯盘平台
 
-一套跑在 GitHub 上的 **A股量化盯盘 + 辅助决策** 系统：自动盯自选股、量化评分、支撑压力位、买卖点、全A股扫描、板块热力图，异动时发 **QQ 邮箱**提醒。**零服务器、零成本、纯免费接口。**
+一套跑在 GitHub 上的 **A股量化盯盘 + 辅助决策** 系统：自动盯自选股、量化评分、支撑压力位、买卖点、全A股扫描、板块热力图，异动时发 **Server酱微信 + QQ 邮箱**提醒。**零服务器、零成本、纯免费接口。**
 
 > ⚠️ 仅供学习研究，不构成投资建议。
 
@@ -29,7 +29,7 @@
 │  ├ 量化因子/评分        │  ├ 支撑压力/买卖点标注        │
 │  ├ 支撑压力/买卖点      │  ├ 板块热力图 + 候选股        │
 │  ├ 回测/扫描           │  ├ 回测报告 + 胜率曲线        │
-│  ├ QQ邮箱发提醒         │  └ 读 data/*.json 渲染       │
+│  ├ 微信+邮箱发提醒       │  └ 读 data/*.json 渲染       │
 │  └ 写 data/*.json 提交  │                             │
 └───────────────────────┴─────────────────────────────┘
 ```
@@ -89,16 +89,23 @@ git push -u origin main
 
 等 1-2 分钟，访问 `https://<用户名>.github.io/<仓库名>/`。
 
-### 第 3 步：开启 QQ 邮箱 SMTP
+### 第 3 步：配置推送通道
+
+**Server酱微信推送**（推荐，实时到微信）：
+
+登录 [sct.ftqq.com](https://sct.ftqq.com) → 微信扫码绑定 → 复制你的 **SendKey**（形如 `sctp...`）。
+
+**QQ 邮箱**：
 
 登录 [mail.qq.com](https://mail.qq.com) → **设置** → **账户** → 开启 **SMTP 服务**，生成 **16 位授权码**（不是 QQ 密码）。
 
-### 第 4 步：把邮箱凭据存进 Secrets
+### 第 4 步：把凭据存进 Secrets
 
 仓库 → **Settings** → **Secrets and variables** → **Actions** → 添加：
 
 | Name | Value |
 |------|-------|
+| `SERVERCHAN_KEY` | Server酱 SendKey（微信推送） |
 | `SMTP_USER` | QQ 邮箱，如 `123456@qq.com` |
 | `SMTP_PASS` | 第 3 步的授权码 |
 | `SMTP_TO` | 收件邮箱（可同 SMTP_USER） |
@@ -205,7 +212,7 @@ python3 signals.py            # 单独看买卖点
 A：是的。代码和行情数据不含敏感信息，邮箱凭据在 Secrets 里。坚持私有可换 Cloudflare Pages / Vercel。
 
 **Q：换微信/Telegram 推送？**
-A：改 `monitor.py` 里的 `send_email()`。QQ 邮箱也可在微信收「QQ邮箱提醒」通知。
+A：改 `monitor.py` 里的 `send_wechat()`（Server酱）或 `send_email()`。Server酱直接推送到微信，QQ 邮箱也可在微信收「QQ邮箱提醒」通知。
 
 **Q：ECharts 加载慢？**
 A：`index.html` 里是 jsdelivr CDN，国内可换 `https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js`。
