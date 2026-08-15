@@ -444,6 +444,29 @@ def send_wecom(title, desp):
         return False
 
 
+def send_webhook(title, desp):
+    """企业微信群机器人 webhook 推送（无IP限制）"""
+    key = os.environ.get("WECOM_WEBHOOK_KEY")
+    if not key:
+        print("[webhook] 未配置 WECOM_WEBHOOK_KEY，跳过")
+        return False
+    msg = f"{title}\n\n{desp}"
+    url = f"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={key}"
+    payload = json.dumps({"msgtype": "text", "text": {"content": msg}}).encode("utf-8")
+    req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            resp = json.loads(r.read().decode("utf-8"))
+        if resp.get("errcode") == 0:
+            print("[webhook] 企业微信已推送")
+            return True
+        print(f"[webhook] 推送失败: {resp}")
+        return False
+    except Exception as e:
+        print(f"[webhook] 推送异常: {e}")
+        return False
+
+
 def main():
     force = "--force" in sys.argv
     config = load_json(CONFIG_PATH, {})
@@ -699,7 +722,7 @@ def main():
             lines += [f"  {t['time']}  {t['name']}({t['code']})  {t['message']}" for t in a_items]
         body = "你的自选股出现重要信号：\n\n" + "\n".join(lines)
         print(body)
-        send_wecom(f"{prefix} A股盯盘提醒", body)
+        send_webhook(f"{prefix} A股盯盘提醒", body)
         send_email(f"{prefix} A股盯盘提醒", body)
     else:
         print("本次无 S/A 级信号（B/C 已进日报）")

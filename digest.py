@@ -96,6 +96,28 @@ def send_wecom(title, desp):
         return False
 
 
+def send_webhook(title, desp):
+    key = os.environ.get("WECOM_WEBHOOK_KEY")
+    if not key:
+        print("[webhook] 未配置 WECOM_WEBHOOK_KEY，跳过")
+        return False
+    msg = f"{title}\n\n{desp}"
+    url = f"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={key}"
+    payload = json.dumps({"msgtype": "text", "text": {"content": msg}}).encode("utf-8")
+    req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            resp = json.loads(r.read().decode("utf-8"))
+        if resp.get("errcode") == 0:
+            print("[webhook] 企业微信已推送")
+            return True
+        print(f"[webhook] 推送失败: {resp}")
+        return False
+    except Exception as e:
+        print(f"[webhook] 推送异常: {e}")
+        return False
+
+
 def demo_email():
     body = (
         "这是分级提醒的【演示邮件】，展示四级格式：\n\n"
@@ -110,7 +132,7 @@ def demo_email():
         "  [示例] 平安银行  日涨幅 +3.2%\n\n"
         "—— 今后 S/A 级实时推送，B/C 级每天收盘后一封日报汇总 ——"
     )
-    send_wecom("【紧急】 A股盯盘提醒（分级测试）", body)
+    send_webhook("【紧急】 A股盯盘提醒（分级测试）", body)
     send_email("【紧急】 A股盯盘提醒（分级测试）", body)
 
 
