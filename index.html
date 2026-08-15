@@ -21,7 +21,7 @@
       <h2>自选股</h2>
       <table id="watchlist">
         <thead>
-          <tr><th>代码</th><th>名称</th><th>最新价</th><th>涨跌幅</th><th>成交量(手)</th></tr>
+          <tr><th>代码</th><th>名称</th><th>最新价</th><th>涨跌幅</th><th>评分</th><th>信号</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -38,7 +38,15 @@
       <div id="chart"></div>
     </section>
 
-    <section class="panel">
+    <section class="panel full">
+      <div class="chart-head">
+        <h2 id="factor-title">量化因子</h2>
+        <div id="factor-score" class="factor-score"></div>
+      </div>
+      <div id="factor-radar" class="factor-radar"></div>
+    </section>
+
+    <section class="panel full">
       <h2>异动记录</h2>
       <ul id="alerts"></ul>
     </section>

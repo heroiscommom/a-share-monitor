@@ -78,8 +78,21 @@ tbody tr.active { background: rgba(58,122,254,0.16); }
 #alerts .msg { color: var(--text); }
 #alerts li.empty, .empty { color: var(--muted); }
 
-/* 布局：第三块跨两列 */
-.panel:nth-child(3) { grid-column: 1 / -1; }
+/* 布局：标记 .full 的 panel 跨两列 */
+.panel.full { grid-column: 1 / -1; }
+
+/* 量化评分 */
+.factor-radar { height: 260px; width: 100%; }
+.factor-score { display: flex; align-items: center; gap: 8px; }
+.score-big { font-size: 22px; font-weight: 700; color: var(--accent); }
+
+/* 信号徽章 */
+.sig { padding: 2px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap; }
+.s-strong { background: rgba(239,35,42,0.15); color: var(--up); }
+.s-bullish { background: rgba(239,35,42,0.08); color: #ff8a8f; }
+.s-neutral { background: rgba(139,150,173,0.15); color: var(--muted); }
+.s-bearish { background: rgba(20,177,67,0.08); color: #4fd17e; }
+.s-weak { background: rgba(20,177,67,0.15); color: var(--down); }
 
 footer { text-align: center; color: var(--muted); font-size: 12px; padding: 16px; }
 
@@ -118,5 +131,5 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 16px
 
 @media (max-width: 860px) {
   main { grid-template-columns: 1fr; }
-  .panel:nth-child(3) { grid-column: 1; }
+  .panel.full { grid-column: 1; }
 }

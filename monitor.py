@@ -21,6 +21,8 @@ import json
 import datetime
 import urllib.request
 
+import quant
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 HISTORY_DIR = os.path.join(DATA_DIR, "history")
@@ -353,6 +355,7 @@ def main():
     state = load_json(STATE_PATH, {})
     alerts_log = load_json(ALERTS_PATH, {"updated_at": "", "items": []})
     triggered = []
+    quant_results = []
 
     for stock in watchlist:
         code = stock["code"]
@@ -380,6 +383,23 @@ def main():
         alerts = detect_alerts(quote, history, rules)
         alerts += detect_intraday_alerts(intraday, rules)
 
+        ind, fac = quant.compute_factors(history)
+        score = quant.compute_score(fac)
+        signal, sig_key = quant.signal_from_score(score)
+        quant_results.append({
+            "code": code,
+            "name": stock["name"],
+            "score": score,
+            "signal": signal,
+            "signal_key": sig_key,
+            "factors": fac,
+            "indicators": ind,
+        })
+        if sig_key == "strong":
+            alerts.append(("quant_strong", f"📈 量化评分 {score:.0f} 分，强势信号"))
+        elif sig_key == "weak":
+            alerts.append(("quant_weak", f"📉 量化评分 {score:.0f} 分，弱势信号"))
+
         for rule_key, msg in alerts:
             rule_type = "intraday" if rule_key.startswith("intraday_") else "daily"
             dedup_key = f"{code}:{rule_key}"
@@ -395,6 +415,8 @@ def main():
                 "price": quote.get("price"),
                 "change_pct": quote.get("change_pct"),
             })
+
+    save_json(os.path.join(DATA_DIR, "quant.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": quant_results})
 
     # 落盘快照
     snapshot = {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "quotes": []}

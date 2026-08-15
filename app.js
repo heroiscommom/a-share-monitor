@@ -5,6 +5,10 @@ let chart = null;
 let activeCode = null;
 let chartMode = 'intraday';
 let activeStock = null;
+let radarChart = null;
+
+const FACTOR_LABELS = { momentum: '动量', trend: '趋势', rsi: '强弱', volume: '量能', volatility: '稳定', position: '位置' };
+const SIGNAL_CLASS = { strong: 's-strong', bullish: 's-bullish', neutral: 's-neutral', bearish: 's-bearish', weak: 's-weak' };
 
 async function loadJSON(url) {
   const r = await fetch(url, { cache: 'no-store' });
@@ -32,6 +36,8 @@ function renderWatchlist(quotes) {
   quotes.forEach((q) => {
     const cp = q.change_pct;
     const cls = cp >= 0 ? 'up' : 'down';
+    const score = q.score;
+    const sigCls = SIGNAL_CLASS[q.signal_key] || 's-neutral';
     const tr = document.createElement('tr');
     tr.dataset.code = q.code;
     tr.innerHTML =
@@ -39,7 +45,8 @@ function renderWatchlist(quotes) {
       `<td>${q.name || '-'}</td>` +
       `<td class="num">${fmt(q.price)}</td>` +
       `<td class="num ${cls}">${cp >= 0 ? '+' : ''}${fmt(cp)}%</td>` +
-      `<td class="num">${q.volume ? Number(q.volume).toLocaleString() : '-'}</td>`;
+      `<td class="num score">${score != null ? Number(score).toFixed(0) : '-'}</td>` +
+      `<td><span class="sig ${sigCls}">${q.signal || '-'}</span></td>`;
     tr.addEventListener('click', () => {
       document.querySelectorAll('tbody tr').forEach((r) => r.classList.remove('active'));
       tr.classList.add('active');
@@ -54,8 +61,44 @@ function renderWatchlist(quotes) {
 async function loadChart(q) {
   activeStock = q;
   activeCode = q.code;
+  drawFactor(q);
   if (chartMode === 'intraday') await loadIntraday(q);
   else await loadDaily(q);
+}
+
+function drawFactor(q) {
+  $('#factor-title').textContent = `${q.name || q.code} (${q.code}) 量化因子`;
+  if (q.score != null) {
+    $('#factor-score').innerHTML =
+      `<span class="score-big">${Number(q.score).toFixed(0)}</span>` +
+      `<span class="sig ${SIGNAL_CLASS[q.signal_key] || 's-neutral'}">${q.signal || ''}</span>`;
+  } else {
+    $('#factor-score').innerHTML = '<span class="empty">暂无评分</span>';
+  }
+  const factors = q.factors;
+  if (!factors) {
+    if (radarChart) radarChart.clear();
+    return;
+  }
+  if (!radarChart) radarChart = echarts.init($('#factor-radar'));
+  const inds = Object.keys(FACTOR_LABELS).filter((k) => factors[k] !== undefined);
+  radarChart.setOption({
+    backgroundColor: 'transparent',
+    radar: {
+      indicator: inds.map((k) => ({ name: `${FACTOR_LABELS[k]} ${factors[k]}`, max: 100 })),
+      axisName: { color: '#8b96ad', fontSize: 11 },
+      splitLine: { lineStyle: { color: '#232c42' } },
+      splitArea: { areaStyle: { color: ['rgba(58,122,254,0.02)', 'rgba(58,122,254,0.05)'] } },
+      axisLine: { lineStyle: { color: '#232c42' } },
+    },
+    series: [{
+      type: 'radar',
+      data: [{
+        value: inds.map((k) => factors[k]), name: '评分',
+        areaStyle: { opacity: 0.3 }, lineStyle: { color: '#3a7afe' }, itemStyle: { color: '#3a7afe' },
+      }],
+    }],
+  }, true);
 }
 
 async function loadIntraday(q) {
@@ -199,6 +242,13 @@ function renderAlerts(items) {
 async function init() {
   try {
     const snap = await loadJSON('data/snapshot.json');
+    const quantData = await loadJSON('data/quant.json').catch(() => null);
+    const quantMap = {};
+    ((quantData && quantData.stocks) || []).forEach((s) => { quantMap[s.code] = s; });
+    (snap.quotes || []).forEach((q) => {
+      const s = quantMap[q.code];
+      if (s) { q.score = s.score; q.signal = s.signal; q.signal_key = s.signal_key; q.factors = s.factors; }
+    });
     $('#updated').textContent = snap.updated_at
       ? '更新于 ' + snap.updated_at
       : '等待首次采集';
@@ -206,7 +256,7 @@ async function init() {
       renderWatchlist(snap.quotes);
     } else {
       $('tbody').innerHTML =
-        '<tr><td colspan="5" class="empty">暂无数据，等待首次采集</td></tr>';
+        '<tr><td colspan="6" class="empty">暂无数据，等待首次采集</td></tr>';
     }
     const al = await loadJSON('data/alerts.json');
     renderAlerts(al.items || []);
@@ -215,7 +265,7 @@ async function init() {
   }
 }
 
-window.addEventListener('resize', () => chart && chart.resize());
+window.addEventListener('resize', () => { chart && chart.resize(); radarChart && radarChart.resize(); });
 init();
 
 // ===== 自选股管理 =====
