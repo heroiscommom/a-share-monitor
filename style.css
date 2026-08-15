@@ -94,6 +94,13 @@ tbody tr.active { background: rgba(58,122,254,0.16); }
 .s-bearish { background: rgba(20,177,67,0.08); color: #4fd17e; }
 .s-weak { background: rgba(20,177,67,0.15); color: var(--down); }
 
+/* 回测报告 */
+.backtest-meta { color: var(--muted); font-size: 12px; }
+.backtest-box { display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: center; }
+#backtest-chart { height: 240px; width: 100%; }
+.backtest-conclusion { color: var(--text); font-size: 13px; line-height: 1.7; background: rgba(58,122,254,0.06); border: 1px solid var(--panel-border); border-radius: 8px; padding: 14px; }
+@media (max-width: 860px) { .backtest-box { grid-template-columns: 1fr; } }
+
 footer { text-align: center; color: var(--muted); font-size: 12px; padding: 16px; }
 
 /* 头部右侧 */

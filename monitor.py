@@ -22,6 +22,7 @@ import datetime
 import urllib.request
 
 import quant
+import backtest
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -417,6 +418,13 @@ def main():
             })
 
     save_json(os.path.join(DATA_DIR, "quant.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": quant_results})
+
+    # 回测
+    try:
+        bt = backtest.run()
+        print(f"[backtest] 样本 {bt['total_samples']} 个，IC {bt.get('ic')}")
+    except Exception as e:
+        print(f"[warn] 回测失败: {e}")
 
     # 落盘快照
     snapshot = {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "quotes": []}

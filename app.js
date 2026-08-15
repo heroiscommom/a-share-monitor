@@ -6,6 +6,7 @@ let activeCode = null;
 let chartMode = 'intraday';
 let activeStock = null;
 let radarChart = null;
+let backtestChart = null;
 
 const FACTOR_LABELS = { momentum: '动量', trend: '趋势', rsi: '强弱', volume: '量能', volatility: '稳定', position: '位置' };
 const SIGNAL_CLASS = { strong: 's-strong', bullish: 's-bullish', neutral: 's-neutral', bearish: 's-bearish', weak: 's-weak' };
@@ -239,6 +240,40 @@ function renderAlerts(items) {
   });
 }
 
+function drawBacktestChart(groups) {
+  if (!backtestChart) backtestChart = echarts.init($('#backtest-chart'));
+  const labels = groups.map((g) => g.label);
+  const values = groups.map((g) => g.avg_return);
+  const colors = values.map((v) => (v >= 0 ? '#ef232a' : '#14b143'));
+  backtestChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', formatter: (p) => {
+      const g = groups[p[0].dataIndex];
+      return `${g.label}：平均 ${g.avg_return}%（胜率 ${g.win_rate}%，样本 ${g.count}）`;
+    } },
+    grid: { left: 50, right: 20, top: 20, bottom: 30 },
+    xAxis: { type: 'category', data: labels, axisLabel: { color: '#8b96ad' }, axisLine: { lineStyle: { color: '#3a4155' } } },
+    yAxis: { type: 'value', name: '未来10日%', axisLabel: { color: '#8b96ad' }, splitLine: { lineStyle: { color: '#232c42' } } },
+    series: [{ type: 'bar', data: values, itemStyle: { color: (p) => colors[p.dataIndex] }, barWidth: '55%' }],
+  }, true);
+}
+
+async function loadBacktest() {
+  try {
+    const b = await loadJSON('data/backtest.json');
+    if (!b || !b.groups || !b.groups.length) {
+      $('#backtest-meta').textContent = '';
+      $('#backtest-conclusion').textContent = '暂无回测数据';
+      return;
+    }
+    $('#backtest-meta').textContent = `持有 ${b.forward_days} 日 · 样本 ${b.total_samples} 个 · IC ${b.ic ?? '-'}`;
+    $('#backtest-conclusion').textContent = b.conclusion || '';
+    drawBacktestChart(b.groups);
+  } catch (e) {
+    $('#backtest-conclusion').textContent = '回测数据加载失败';
+  }
+}
+
 async function init() {
   try {
     const snap = await loadJSON('data/snapshot.json');
@@ -260,12 +295,13 @@ async function init() {
     }
     const al = await loadJSON('data/alerts.json');
     renderAlerts(al.items || []);
+    loadBacktest();
   } catch (e) {
     $('#updated').textContent = '加载失败：' + e.message;
   }
 }
 
-window.addEventListener('resize', () => { chart && chart.resize(); radarChart && radarChart.resize(); });
+window.addEventListener('resize', () => { chart && chart.resize(); radarChart && radarChart.resize(); backtestChart && backtestChart.resize(); });
 init();
 
 // ===== 自选股管理 =====
