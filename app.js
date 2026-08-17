@@ -399,6 +399,30 @@ async function loadScanner() {
   }
 }
 
+async function loadPicks() {
+  try {
+    const d = await loadJSON('data/picks.json').catch(() => null);
+    if (!d || !d.candidates || !d.candidates.length) {
+      $('#picks-meta').textContent = '暂无清单（收盘后自动生成）';
+      $('#picks-list').innerHTML = '<div class="empty">收盘后自动生成 D 策略选股清单</div>';
+      return;
+    }
+    $('#picks-meta').textContent =
+      `${d.updated_at} · 市场：${(d.regime && d.regime.desc) || '-'} · ${d.strategy || ''}`;
+    $('#picks-list').innerHTML = d.candidates.map((c, i) =>
+      `<div class="cand-row">` +
+      `<span class="cand-name">${i + 1}. ${c.name}<span class="cand-code">${c.code}</span></span>` +
+      `<span class="cand-cell">${c.industry || ''}</span>` +
+      `<span class="cand-cell">现价 ${c.price}</span>` +
+      `<span class="cand-cell">支撑 ${c.support ?? '-'}</span>` +
+      `<span class="cand-cell">${c.limit_up ? '⚠️涨停' : ''}</span>` +
+      `</div>`
+    ).join('');
+  } catch (e) {
+    $('#picks-list').innerHTML = '<div class="empty">选股清单加载失败</div>';
+  }
+}
+
 async function init() {
   try {
     const snap = await loadJSON('data/snapshot.json');
@@ -441,6 +465,7 @@ async function init() {
     loadBacktest();
     loadSectors();
     loadScanner();
+    loadPicks();
   } catch (e) {
     $('#updated').textContent = '加载失败：' + e.message;
   }
