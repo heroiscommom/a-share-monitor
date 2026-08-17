@@ -80,6 +80,11 @@ def backtest_stock(history, forward_days, code=""):
         except Exception:
             i += forward_days
             continue
+        try:
+            _, mfac = quant.momentum_factors(history[: i + 1])
+            mscore = quant.momentum_score(mfac)
+        except Exception:
+            mscore = None
         base = history[i].get("close")
         fwd = history[i + forward_days].get("close")
         prev_close = history[i - 1].get("close") if i > 0 else None
@@ -93,6 +98,8 @@ def backtest_stock(history, forward_days, code=""):
         if base and fwd:
             samples.append({
                 "score": score,
+                "mscore": mscore,
+                "date": history[i].get("date", ""),
                 "fwd_return": round((fwd / base - 1) * 100 - COST_PCT, 2),
             })
         i += forward_days

@@ -24,7 +24,7 @@ SCANNER_POOL = os.path.join(BASE_DIR, "data", "scanner_pool.json")
 SCANNER_OUT = os.path.join(BASE_DIR, "data", "scanner.json")
 
 POOL_SIZE = 800
-HISTORY_DAYS = 250
+HISTORY_DAYS = 750      # 3年（2026-08-17 拉长历史）
 MIN_HISTORY = 70
 SCORE_THRESHOLD = 70     # 超跌评分阈值
 SUPPORT_BAND = 3.0       # 价格距支撑位的最大距离%

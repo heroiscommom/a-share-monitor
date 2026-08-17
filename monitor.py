@@ -168,6 +168,27 @@ def fetch_intraday(code, market):
     return {"date": date, "prev_close": prev_close, "minutes": minutes}
 
 
+def fetch_index(days=250):
+    """沪深300 日K（腾讯），当日缓存到 data/index_cache.json（与 pool_backtest 共用）"""
+    cache = load_json(os.path.join(DATA_DIR, "index_cache.json"), None)
+    today = datetime.date.today().isoformat()
+    if cache and cache.get("date") == today and cache.get("closes") and len(cache["closes"]) >= days * 0.9:
+        return cache
+    symbol = "sh000300"
+    url = (
+        "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param="
+        f"{symbol},day,,,{days},qfq"
+    )
+    data = json.loads(http_get(url))
+    node = (data.get("data") or {}).get(symbol) or {}
+    klines = node.get("qfqday") or node.get("day") or []
+    closes = [float(k[2]) for k in klines if len(k) >= 3]
+    dates = [k[0] for k in klines if len(k) >= 3]
+    obj = {"date": today, "closes": closes, "dates": dates}
+    save_json(os.path.join(DATA_DIR, "index_cache.json"), obj)
+    return obj
+
+
 def fetch_moneyflow(code, market):
     """新浪主力资金流，返回 {date, netamount(元), r0_net(元), turnover, change_pct} 或 None"""
     symbol = f"{market}{code}"
@@ -350,6 +371,7 @@ def is_duplicate(state, dedup_key, rule_type, now, force):
 # 提醒重要性分级：S=核心(回测验证) A=重要 B=预警 C=参考
 ALERT_TIERS = {
     "quant_strong": "S", "quant_weak": "S",
+    "momentum_strong": "S",
     "break_support": "A", "break_resistance": "A",
     "break_high": "A", "break_low": "A",
     "moneyflow_in": "A", "moneyflow_out": "A",
@@ -362,6 +384,24 @@ ALERT_TIERS = {
 
 def tier_for(rule_key):
     return ALERT_TIERS.get(rule_key, "C")
+
+
+def quant_tier_by_regime(regime):
+    """超跌机会（均值回归）：下跌市最强(回测胜率59.8%)，震荡市可用，上涨市失效(46.4%)"""
+    return {"下跌": "S", "震荡": "A", "上涨": "B"}.get(regime, "S")
+
+
+def momentum_tier_by_regime(regime):
+    """强势突破（动量）：上涨市有效(52.5%)，震荡/下跌失效(下跌市仅47.4%)"""
+    return {"上涨": "S", "震荡": "B", "下跌": "B"}.get(regime, "B")
+
+
+def effective_tier(rule_key, regime):
+    if rule_key == "quant_strong":
+        return quant_tier_by_regime(regime)
+    if rule_key == "momentum_strong":
+        return momentum_tier_by_regime(regime)
+    return tier_for(rule_key)
 
 
 def send_email(subject, body):
@@ -449,6 +489,15 @@ def main():
 
     print(f"[fetch] 拉取 {len(watchlist)} 只自选股行情 ...")
     quotes = fetch_quotes(watchlist)
+
+    # 市场状态（沪深300 20日趋势+波动率）
+    regime = {"regime": "未知", "mom20": None, "vol20": None, "desc": "指数数据不可用"}
+    try:
+        idx = fetch_index(max(history_days, 250))
+        regime = quant.market_regime(idx.get("closes") or [])
+    except Exception as e:
+        print(f"[warn] 市场状态获取失败: {e}")
+    print(f"[regime] {regime['desc']}")
 
     state = load_json(STATE_PATH, {})
     alerts_log = load_json(ALERTS_PATH, {"updated_at": "", "items": []})
@@ -544,19 +593,40 @@ def main():
         ind, fac = quant.compute_factors(history)
         score = quant.compute_score(fac)
         signal, sig_key = quant.signal_from_score(score)
+        # 动量维度（U型另一端）
+        mind, mfac = quant.momentum_factors(history)
+        mscore = quant.momentum_score(mfac)
+        m_signal = "强势突破" if mscore >= quant.MOM_STRONG_THRESHOLD else ("偏强" if mscore >= 55 else ("中性" if mscore >= 40 else "偏弱"))
         quant_results.append({
             "code": code,
             "name": stock["name"],
             "score": score,
             "signal": signal,
             "signal_key": sig_key,
+            "momentum_score": mscore,
+            "momentum_signal": m_signal,
             "factors": fac,
             "indicators": ind,
+            "momentum_indicators": mind,
         })
         if sig_key == "strong":
-            alerts.append(("quant_strong", f"🟢 超跌反弹机会（评分 {score:.0f} 分）"))
+            note = ""
+            if regime["regime"] == "下跌":
+                note = "（下跌市，历史胜率最高，超跌反弹窗口）"
+            elif regime["regime"] == "上涨":
+                note = "（⚠️ 上涨市超跌信号失效，谨慎）"
+            else:
+                note = "（震荡市，信号可用）"
+            alerts.append(("quant_strong", f"🟢 超跌反弹机会（评分 {score:.0f} 分）{note}"))
         elif sig_key == "weak":
             alerts.append(("quant_weak", f"🔴 高位回调风险（评分 {score:.0f} 分）"))
+        if mscore >= quant.MOM_STRONG_THRESHOLD:
+            note = ""
+            if regime["regime"] == "上涨":
+                note = "（上涨市，动量有效）"
+            elif regime["regime"] == "下跌":
+                note = "（⚠️ 下跌市追高有风险）"
+            alerts.append(("momentum_strong", f"🔥 强势突破机会（动量评分 {mscore:.0f} 分）{note}"))
 
         for rule_key, msg in alerts:
             rule_type = "intraday" if rule_key.startswith("intraday_") else "daily"
@@ -572,9 +642,14 @@ def main():
                 "message": msg,
                 "price": quote.get("price"),
                 "change_pct": quote.get("change_pct"),
+                "tier": effective_tier(rule_key, regime["regime"]),
             })
 
-    save_json(os.path.join(DATA_DIR, "quant.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": quant_results})
+    save_json(os.path.join(DATA_DIR, "quant.json"), {
+        "updated_at": now.strftime("%Y-%m-%d %H:%M:%S"),
+        "market_regime": regime,
+        "stocks": quant_results,
+    })
 
     save_json(os.path.join(DATA_DIR, "support_resistance.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": sr_results})
     save_json(os.path.join(DATA_DIR, "signals.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": sig_results})
@@ -627,6 +702,7 @@ def main():
                 "message": msg,
                 "price": None,
                 "change_pct": sa["avg_change"],
+                "tier": "B",
             })
 
     # 回测（fast 模式跳过，避免每分钟跑；data-only 保留给看板）
@@ -680,9 +756,9 @@ def main():
     #   S/A 级 → 逐条微信实时推送（不攒批、不发邮件）
     #   S/A/B 级 → 累积到 digest.json，收盘后 digest.py 一封邮件汇总
     #   C 级（涨跌幅/量比等）→ 只进看板 alerts.json，不推送不进日报
-    immediate = [t for t in triggered if tier_for(t["rule"]) in ("S", "A")]
-    digest_items = [dict(t, tier=tier_for(t["rule"])) for t in triggered if tier_for(t["rule"]) in ("S", "A", "B")]
-    c_count = sum(1 for t in triggered if tier_for(t["rule"]) == "C")
+    immediate = [t for t in triggered if t.get("tier", tier_for(t["rule"])) in ("S", "A")]
+    digest_items = [dict(t, tier=t.get("tier", tier_for(t["rule"]))) for t in triggered if t.get("tier", tier_for(t["rule"])) in ("S", "A", "B")]
+    c_count = sum(1 for t in triggered if t.get("tier", tier_for(t["rule"])) == "C")
 
     if digest_items:
         digest = load_json(DIGEST_PATH, {"items": []})
@@ -699,7 +775,7 @@ def main():
     if immediate and push_enabled:
         # 每个信号单独发一条短微信，保证手表/手环能完整显示（每条间隔3秒）
         for i, t in enumerate(immediate):
-            tier = tier_for(t["rule"])
+            tier = t.get("tier", tier_for(t["rule"]))
             emoji = "🔴" if tier == "S" else "🟠"
             title = f"{emoji} {t['name']} {t['message']}"
             desp = f"{t['time']} {t['name']}({t['code']}) {t['message']}"
