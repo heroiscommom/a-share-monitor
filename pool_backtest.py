@@ -123,6 +123,103 @@ def threshold_table(samples):
     return rows
 
 
+INDEX_CACHE = os.path.join(BASE_DIR, "data", "index_cache.json")
+
+
+def fetch_index(days=320):
+    """拉取沪深300日K收盘价（腾讯），带当日缓存"""
+    cache = load_json(INDEX_CACHE, None)
+    today = datetime.date.today().isoformat()
+    if cache and cache.get("date") == today and cache.get("closes"):
+        return cache["closes"]
+    url = (
+        "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param="
+        f"sh000300,day,,,{320},qfq"
+    )
+    data = json.loads(http_get(url))
+    node = (data.get("data") or {}).get("sh000300") or {}
+    klines = node.get("qfqday") or node.get("day") or []
+    closes = [float(k[2]) for k in klines if len(k) >= 3]
+    save_json(INDEX_CACHE, {"date": today, "closes": closes})
+    return closes
+
+
+def index_benchmark(closes, forward_days):
+    """沪深300 同口径基准：非重叠 10 日收益（同样扣成本，公平对比）"""
+    rets = []
+    i = 0
+    while i <= len(closes) - forward_days - 1:
+        if closes[i] and closes[i + forward_days]:
+            rets.append((closes[i + forward_days] / closes[i] - 1) * 100 - backtest.COST_PCT)
+        i += forward_days
+    if not rets:
+        return None
+    return {
+        "avg_return": round(sum(rets) / len(rets), 2),
+        "win_rate": round(sum(1 for x in rets if x > 0) / len(rets) * 100, 1),
+        "samples": len(rets),
+    }
+
+
+def walk_forward_oos(pool, hist_map):
+    """
+    样本外验证（walk-forward）：
+      每只股票历史前 60% 作训练集、后 40% 作测试集；
+      在训练集上网格搜索最优评分阈值（样本≥30），再在测试集上评估。
+    """
+    train_all, test_all = [], []
+    for s in pool:
+        hist = hist_map.get(s["code"])
+        if not hist or len(hist) < MIN_HISTORY + FORWARD_DAYS + 20:
+            continue
+        split = int(len(hist) * 0.6)
+        if split > MIN_HISTORY + FORWARD_DAYS:
+            train_all += backtest.backtest_stock(hist[:split], FORWARD_DAYS, s["code"])
+        if len(hist) - split > MIN_HISTORY + FORWARD_DAYS:
+            test_all += backtest.backtest_stock(hist[split:], FORWARD_DAYS, s["code"])
+    if len(train_all) < 100 or len(test_all) < 50:
+        return {"error": f"样本不足(train={len(train_all)}, test={len(test_all)})"}
+
+    # 训练集上选阈值：最大化胜率，样本数≥30
+    best_th, best_wr, best_avg = None, -1.0, None
+    for th in range(50, 91):
+        g = [x for x in train_all if x["score"] >= th]
+        if len(g) < 30:
+            continue
+        wr = sum(1 for x in g if x["fwd_return"] > 0) / len(g)
+        avg = sum(x["fwd_return"] for x in g) / len(g)
+        if wr > best_wr or (wr == best_wr and avg > (best_avg or -999)):
+            best_th, best_wr, best_avg = th, wr, avg
+
+    if best_th is None:
+        return {"error": "训练集无法选出阈值"}
+
+    test_g = [x for x in test_all if x["score"] >= best_th]
+    bench = index_benchmark(fetch_index(), FORWARD_DAYS)
+    test_n = len(test_g)
+    test_wr = round(sum(1 for x in test_g if x["fwd_return"] > 0) / test_n * 100, 1) if test_n else None
+    test_avg = round(sum(x["fwd_return"] for x in test_g) / test_n, 2) if test_n else None
+
+    oos = {
+        "method": "walk-forward：前60%训练选阈值 → 后40%测试评估",
+        "train_n": len(train_all),
+        "train_threshold": best_th,
+        "train_win_rate": round(best_wr * 100, 1),
+        "test_n": test_n,
+        "test_win_rate": test_wr,
+        "test_avg_return": test_avg,
+        "benchmark": bench,
+        "alpha_vs_index": round(test_avg - bench["avg_return"], 2) if test_n and bench else None,
+    }
+    if test_n and bench:
+        oos["conclusion"] = (
+            f"样本外：评分≥{best_th} 胜率 {test_wr}% vs 沪深300基准 {bench['win_rate']}%"
+            f"（+{round(test_wr - bench['win_rate'], 1)}pp）；10日平均 {test_avg}% vs {bench['avg_return']}%"
+            f"（超额 {oos['alpha_vs_index']}%）"
+        )
+    return oos
+
+
 def main():
     # 1. 股票池
     pool = load_json(POOL_LIST_PATH, None)
@@ -134,19 +231,25 @@ def main():
     # 2. 拉历史（带缓存）+ 回测
     all_samples = []
     valid = 0
+    hist_map = {}
     for i, s in enumerate(pool):
-        hist = load_json(history_path(s["code"]), None)
+        hist = hist_map.get(s["code"])
         if hist is None:
+            hist = load_json(history_path(s["code"]), None)
+            if hist is None:
+                try:
+                    hist = fetch_history(s["code"], s["market"])
+                    if hist:
+                        save_json(history_path(s["code"]), hist)
+                except Exception:
+                    hist = []
+                time.sleep(0.06)
+        if not hist:
+            continue
+        hist_map[s["code"]] = hist
+        if len(hist) >= MIN_HISTORY + FORWARD_DAYS:
             try:
-                hist = fetch_history(s["code"], s["market"])
-                if hist:
-                    save_json(history_path(s["code"]), hist)
-            except Exception:
-                hist = []
-            time.sleep(0.06)
-        if hist and len(hist) >= MIN_HISTORY + FORWARD_DAYS:
-            try:
-                all_samples.extend(backtest.backtest_stock(hist, FORWARD_DAYS))
+                all_samples.extend(backtest.backtest_stock(hist, FORWARD_DAYS, s["code"]))
                 valid += 1
             except Exception:
                 pass
@@ -171,6 +274,13 @@ def main():
             "thresholds": threshold_table(all_samples),
             "conclusion": backtest.make_conclusion(groups, ic),
         }
+    result["methodology"] = (
+        f"非重叠抽样(每{FORWARD_DAYS}日1样本) · 双边成本{backtest.COST_PCT}% · "
+        f"剔除一字涨停买入/一字跌停卖出 · 阈值表为全样本(样本内)"
+    )
+    result["oos"] = walk_forward_oos(pool, hist_map)
+    if isinstance(result.get("oos"), dict) and result["oos"].get("conclusion"):
+        result["conclusion"] += "；" + result["oos"]["conclusion"]
     result["updated_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     save_json(POOL_BACKTEST_PATH, result)
     print("\n===== 股票池回测结果 =====")

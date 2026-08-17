@@ -25,6 +25,33 @@ OUT_PATH = os.path.join(BASE_DIR, "data", "backtest.json")
 FORWARD_DAYS = 10      # 未来持有天数
 MIN_HISTORY = 60       # 因子计算所需最少历史
 
+# ===== 严谨性设置（2026-08-17 优化）=====
+COST_PCT = 0.25        # 双边交易成本 %（佣金万2.5×2 + 印花税0.05%卖出 + 滑点）
+NON_OVERLAP = True     # 非重叠抽样：每 FORWARD_DAYS 日取 1 个样本（消除自相关）
+
+
+def limit_pct(code):
+    """涨跌停幅度：创业板/科创板 20%，北交所 30%，主板 10%"""
+    if code.startswith(("688", "300", "301", "302")):
+        return 0.20
+    if code.startswith(("43", "83", "87", "92")):
+        return 0.30
+    return 0.10
+
+
+def is_limit_up(k, prev_close, pct):
+    """一字涨停：收盘=最高 且 触及涨停价 → 买不进"""
+    if not prev_close:
+        return False
+    return k["close"] == k["high"] and k["close"] >= prev_close * (1 + pct - 0.005)
+
+
+def is_limit_down(k, prev_close, pct):
+    """一字跌停：收盘=最低 且 触及跌停价 → 卖不出"""
+    if not prev_close:
+        return False
+    return k["close"] == k["low"] and k["close"] <= prev_close * (1 - pct + 0.005)
+
 
 def load_history(code):
     path = os.path.join(HISTORY_DIR, f"{code}.json")
@@ -34,23 +61,41 @@ def load_history(code):
         return json.load(f)
 
 
-def backtest_stock(history, forward_days):
-    """滚动回测单只股票，返回样本 [{score, fwd_return}]"""
+def backtest_stock(history, forward_days, code=""):
+    """
+    滚动回测单只股票，返回样本 [{score, fwd_return}]
+    严谨版：
+      1. 非重叠抽样（每 forward_days 日取 1 个样本）
+      2. 收益扣双边成本 COST_PCT
+      3. 买入日一字涨停（买不进）→ 剔除；卖出日一字跌停（卖不出）→ 剔除
+    """
     samples = []
     n = len(history)
-    for i in range(MIN_HISTORY, n - forward_days):
+    lp = limit_pct(code)
+    i = MIN_HISTORY
+    while i <= n - forward_days - 1:
         try:
             _, fac = quant.compute_factors(history[: i + 1])
             score = quant.compute_score(fac)
         except Exception:
+            i += forward_days
             continue
         base = history[i].get("close")
         fwd = history[i + forward_days].get("close")
+        prev_close = history[i - 1].get("close") if i > 0 else None
+        # 可交易性过滤（T+1 的实操约束）
+        if is_limit_up(history[i], prev_close, lp):
+            i += forward_days
+            continue
+        if is_limit_down(history[i + forward_days], history[i + forward_days - 1].get("close"), lp):
+            i += forward_days
+            continue
         if base and fwd:
             samples.append({
                 "score": score,
-                "fwd_return": round((fwd / base - 1) * 100, 2),
+                "fwd_return": round((fwd / base - 1) * 100 - COST_PCT, 2),
             })
+        i += forward_days
     return samples
 
 
@@ -132,7 +177,7 @@ def run():
         history = load_history(s["code"])
         if not history or len(history) < MIN_HISTORY + FORWARD_DAYS:
             continue
-        samples = backtest_stock(history, FORWARD_DAYS)
+        samples = backtest_stock(history, FORWARD_DAYS, s["code"])
         all_samples.extend(samples)
         avg = sum(x["fwd_return"] for x in samples) / len(samples) if samples else 0.0
         per_stock.append({
@@ -164,6 +209,10 @@ def run():
         }
 
     result["updated_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    result["methodology"] = (
+        f"非重叠抽样(每{FORWARD_DAYS}日1样本) · 双边成本{COST_PCT}% · "
+        f"剔除一字涨停买入/一字跌停卖出"
+    )
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)

@@ -100,10 +100,13 @@ def main():
         return
 
     items = []
+    c_count = 0
     if os.path.exists(DIGEST_PATH):
         try:
             with open(DIGEST_PATH, "r", encoding="utf-8") as f:
-                items = json.load(f).get("items", [])
+                data = json.load(f)
+                items = data.get("items", [])
+                c_count = int(data.get("c_count", 0) or 0)
         except (json.JSONDecodeError, OSError):
             pass
 
@@ -117,9 +120,9 @@ def main():
         for t in items:
             groups.setdefault(t.get("tier", "C"), []).append(t)
 
-        # 邮件：全量分级汇总
-        lines = [f"今日共 {len(items)} 条异动（收盘汇总）：\n"]
-        for tier in ("S", "A", "B", "C"):
+        # 邮件：全量分级汇总（C 级不逐条列出，只给计数）
+        lines = [f"今日共 {len(items)} 条 S/A/B 级异动（收盘汇总）：\n"]
+        for tier in ("S", "A", "B"):
             if tier not in groups:
                 continue
             title, _ = TIER_META[tier]
@@ -127,8 +130,10 @@ def main():
             for t in groups[tier]:
                 lines.append(f"  {t.get('time', '')}  {t.get('name', '')}({t.get('code', '')})  {t.get('message', '')}")
             lines.append("")
+        if c_count:
+            lines.append(f"⚪ 另有 {c_count} 条 C 级参考（涨跌幅/量比等，仅看板展示，不逐条列出）\n")
         body = "\n".join(lines)
-        send_email(f"【日报】 A股盯盘异动汇总（{len(items)} 条）", body)
+        send_email(f"【日报】 A股盯盘异动汇总（{len(items)} 条" + (f" + C级{c_count}" if c_count else "") + "）", body)
 
         # 微信：只发一条摘要（数量 + 各级别 TOP 几条），避免刷屏
         summary = [f"今日异动 {len(items)} 条："]
@@ -148,7 +153,7 @@ def main():
 
     # 清空日报
     with open(DIGEST_PATH, "w", encoding="utf-8") as f:
-        json.dump({"items": []}, f, ensure_ascii=False, indent=2)
+        json.dump({"items": [], "c_count": 0}, f, ensure_ascii=False, indent=2)
     print("[digest] 日报已清空")
 
 

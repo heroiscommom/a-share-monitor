@@ -2,114 +2,125 @@
   "pool_size": 300,
   "valid_stocks": 296,
   "forward_days": 10,
-  "total_samples": 52400,
+  "total_samples": 5118,
   "groups": [
     {
       "label": "<45",
-      "count": 22972,
-      "avg_return": 2.34,
-      "win_rate": 50.5
+      "count": 2109,
+      "avg_return": 1.92,
+      "win_rate": 50.3
     },
     {
       "label": "45-55",
-      "count": 7918,
-      "avg_return": 0.68,
-      "win_rate": 46.2
+      "count": 751,
+      "avg_return": 0.81,
+      "win_rate": 46.9
     },
     {
       "label": "55-65",
-      "count": 8470,
-      "avg_return": 0.62,
-      "win_rate": 48.4
+      "count": 861,
+      "avg_return": 0.47,
+      "win_rate": 45.2
     },
     {
       "label": "65-75",
-      "count": 7729,
-      "avg_return": 0.69,
-      "win_rate": 48.4
+      "count": 817,
+      "avg_return": 0.3,
+      "win_rate": 44.1
     },
     {
       "label": "≥75",
-      "count": 5311,
-      "avg_return": 2.93,
-      "win_rate": 58.7
+      "count": 580,
+      "avg_return": 0.93,
+      "win_rate": 49.3
     }
   ],
-  "ic": -0.0473,
+  "ic": -0.0641,
   "thresholds": [
     {
       "threshold": 50,
-      "count": 25640,
-      "win_rate": 50.3,
-      "avg_return": 1.16
+      "count": 2666,
+      "win_rate": 46.1,
+      "avg_return": 0.56
     },
     {
       "threshold": 55,
-      "count": 21510,
-      "win_rate": 50.9,
-      "avg_return": 1.22
+      "count": 2258,
+      "win_rate": 45.8,
+      "avg_return": 0.52
     },
     {
       "threshold": 60,
-      "count": 17159,
-      "win_rate": 51.4,
-      "avg_return": 1.34
+      "count": 1835,
+      "win_rate": 45.4,
+      "avg_return": 0.39
     },
     {
       "threshold": 65,
-      "count": 13040,
-      "win_rate": 52.6,
-      "avg_return": 1.61
+      "count": 1397,
+      "win_rate": 46.2,
+      "avg_return": 0.56
     },
     {
       "threshold": 70,
-      "count": 9074,
-      "win_rate": 54.8,
-      "avg_return": 2.08
+      "count": 965,
+      "win_rate": 46.8,
+      "avg_return": 0.64
     },
     {
       "threshold": 75,
-      "count": 5311,
-      "win_rate": 58.7,
-      "avg_return": 2.93
+      "count": 580,
+      "win_rate": 49.3,
+      "avg_return": 0.93
     },
     {
       "threshold": 78,
-      "count": 3471,
-      "win_rate": 61.7,
-      "avg_return": 3.71
+      "count": 370,
+      "win_rate": 50.8,
+      "avg_return": 0.67
     },
     {
       "threshold": 80,
-      "count": 2472,
-      "win_rate": 62.3,
-      "avg_return": 4.14
+      "count": 272,
+      "win_rate": 52.6,
+      "avg_return": 0.8
     },
     {
       "threshold": 82,
-      "count": 1641,
-      "win_rate": 65.3,
-      "avg_return": 4.99
+      "count": 185,
+      "win_rate": 56.8,
+      "avg_return": 1.22
     },
     {
       "threshold": 85,
-      "count": 606,
-      "win_rate": 72.3,
-      "avg_return": 6.91
+      "count": 66,
+      "win_rate": 66.7,
+      "avg_return": 3.37
     },
     {
       "threshold": 88,
-      "count": 60,
-      "win_rate": 61.7,
-      "avg_return": 3.11
-    },
-    {
-      "threshold": 90,
-      "count": 1,
-      "win_rate": 100.0,
-      "avg_return": 5.43
+      "count": 5,
+      "win_rate": 80.0,
+      "avg_return": 3.28
     }
   ],
-  "conclusion": "U型关系：超跌股（2.93%）和强势股（2.34%）都跑赢中间档（0.62%）；其中「超跌」信号最强、胜率最高；线性 IC=-0.047",
-  "updated_at": "2026-08-17 15:06:33"
+  "conclusion": "强势股（1.92%）跑赢超跌股（0.93%），动量有效；线性 IC=-0.064；样本外：评分≥76 胜率 42.5% vs 沪深300基准 54.8%（+-12.3pp）；10日平均 -2.11% vs 0.42%（超额 -2.53%）",
+  "methodology": "非重叠抽样(每10日1样本) · 双边成本0.25% · 剔除一字涨停买入/一字跌停卖出 · 阈值表为全样本(样本内)",
+  "oos": {
+    "method": "walk-forward：前60%训练选阈值 → 后40%测试评估",
+    "train_n": 2278,
+    "train_threshold": 76,
+    "train_win_rate": 56.8,
+    "test_n": 120,
+    "test_win_rate": 42.5,
+    "test_avg_return": -2.11,
+    "benchmark": {
+      "avg_return": 0.42,
+      "win_rate": 54.8,
+      "samples": 31
+    },
+    "alpha_vs_index": -2.53,
+    "conclusion": "样本外：评分≥76 胜率 42.5% vs 沪深300基准 54.8%（+-12.3pp）；10日平均 -2.11% vs 0.42%（超额 -2.53%）"
+  },
+  "updated_at": "2026-08-17 21:38:05"
 }

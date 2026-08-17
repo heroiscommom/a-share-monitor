@@ -538,17 +538,8 @@ def main():
                     kind = "支撑" if lvl["distance_pct"] < 0 else "压力"
                     alerts.append((f"near_{kind}", f"👀 逼近{kind}位 {lvl['price']}（强）"))
 
-        # 分时买点/卖点提醒
-        if intraday and intraday.get("minutes"):
-            ip = [m.get("p") for m in intraday["minutes"] if m.get("p") is not None]
-            cur = quote.get("price")
-            if ip and cur:
-                day_high = max(ip)
-                day_low = min(ip)
-                if day_low and (cur - day_low) / day_low * 100 <= 1.0:
-                    alerts.append(("intraday_buy_low", f"🟢 分时买点：接近日内低点 {day_low:.2f}"))
-                if day_high and (day_high - cur) / cur * 100 <= 1.0:
-                    alerts.append(("intraday_sell_high", f"🔴 分时卖点：接近日内高点 {day_high:.2f}"))
+        # 分时买点/卖点提醒（2026-08-17 已移除："接近日内高低点"过于粗糙、几乎每天触发，纯噪音）
+        # 日线买卖点仍由 signals.py 计算并展示在看板（支撑=买点、压力=卖点）
 
         ind, fac = quant.compute_factors(history)
         score = quant.compute_score(fac)
@@ -685,11 +676,13 @@ def main():
 
     save_json(STATE_PATH, state)
 
-    # 分级推送 v2：
+    # 分级推送 v2（2026-08-17 降噪）：
     #   S/A 级 → 逐条微信实时推送（不攒批、不发邮件）
-    #   所有级别 → 累积到 digest.json，收盘后 digest.py 一封邮件汇总
+    #   S/A/B 级 → 累积到 digest.json，收盘后 digest.py 一封邮件汇总
+    #   C 级（涨跌幅/量比等）→ 只进看板 alerts.json，不推送不进日报
     immediate = [t for t in triggered if tier_for(t["rule"]) in ("S", "A")]
-    digest_items = [dict(t, tier=tier_for(t["rule"])) for t in triggered]
+    digest_items = [dict(t, tier=tier_for(t["rule"])) for t in triggered if tier_for(t["rule"]) in ("S", "A", "B")]
+    c_count = sum(1 for t in triggered if tier_for(t["rule"]) == "C")
 
     if digest_items:
         digest = load_json(DIGEST_PATH, {"items": []})
@@ -698,9 +691,10 @@ def main():
         for it in merged:
             seen[f"{it.get('code')}:{it.get('rule')}"] = it
         digest["items"] = list(seen.values())[-500:]
+        digest["c_count"] = digest.get("c_count", 0) + c_count
         save_json(DIGEST_PATH, digest)
 
-    print(f"[done] 更新 {len(snapshot['quotes'])} 只，触发 {len(triggered)} 条（S/A {len(immediate)} 实时推送，全部 {len(digest_items)} 进日报）")
+    print(f"[done] 更新 {len(snapshot['quotes'])} 只，触发 {len(triggered)} 条（S/A {len(immediate)} 实时推送，日报 {len(digest_items)}，C级参考 {c_count}）")
 
     if immediate and push_enabled:
         # 每个信号单独发一条短微信，保证手表/手环能完整显示（每条间隔3秒）
@@ -716,7 +710,7 @@ def main():
     elif immediate:
         print(f"[push] 非交易时段，S/A {len(immediate)} 条未推微信（已进日报，收盘统一汇总）")
     else:
-        print("本次无 S/A 级信号（全部进日报）")
+        print(f"本次无 S/A 级信号（B级进日报，C级仅看板）")
 
 
 if __name__ == "__main__":

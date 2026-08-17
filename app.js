@@ -315,7 +315,8 @@ async function loadBacktest() {
       return;
     }
     const poolInfo = b.pool_size ? `沪深300池 ${b.pool_size} 只 · ` : '';
-    $('#backtest-meta').textContent = `${poolInfo}持有 ${b.forward_days} 日 · 样本 ${b.total_samples} 个 · IC ${b.ic ?? '-'}`;
+    const method = b.methodology ? ` · ${b.methodology}` : '';
+    $('#backtest-meta').textContent = `${poolInfo}持有 ${b.forward_days} 日 · 样本 ${b.total_samples} 个 · IC ${b.ic ?? '-'}${method}`;
     $('#backtest-conclusion').textContent = b.conclusion || '';
     drawBacktestChart(b.groups);
     if (b.thresholds && b.thresholds.length) drawThresholdChart(b.thresholds);
