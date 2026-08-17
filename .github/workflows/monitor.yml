@@ -29,14 +29,16 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Run monitor (data-only)
+      - name: Run monitor (push enabled)
         env:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_TO: ${{ secrets.SMTP_TO }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
-        # 推送机制 v2：本机每分钟实时盯盘并微信推送；Actions 只维护看板数据，不推送
-        run: python monitor.py --data-only
+        # 推送机制 v2：S/A 信号逐条 Server酱微信实时推送；邮件只由收盘 digest 汇总
+        # （Actions cron 为尽力而为调度，约5分钟一轮；如需秒级实时需常驻服务器）
+        run: python monitor.py
 
       - name: Commit data
         run: |
@@ -44,4 +46,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
           git commit -m "chore: 更新盯盘数据 $(date +'%Y-%m-%dT%H:%M:%S%z')" || echo "无数据变化，跳过提交"
+          git pull --rebase origin main 2>/dev/null || true
           git push
