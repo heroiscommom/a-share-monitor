@@ -130,6 +130,15 @@ def main():
             for t in groups[tier]:
                 lines.append(f"  {t.get('time', '')}  {t.get('name', '')}({t.get('code', '')})  {t.get('message', '')}")
             lines.append("")
+        # 选股清单（D策略，picks.py 写入）
+        picks = data.get("picks") or {}
+        if picks and picks.get("top"):
+            lines.append("📋 今日选股清单（D策略）：")
+            lines.append(f"  市场：{picks.get('regime', '')}市 · {picks.get('strategy', '')}")
+            for i, c in enumerate(picks["top"], 1):
+                flag = " ⚠️涨停" if c.get("limit_up") else ""
+                lines.append(f"  {i}. {c['name']}({c['code']}) 现价{c['price']}{flag} 支撑{c.get('support')}")
+            lines.append("")
         if c_count:
             lines.append(f"⚪ 另有 {c_count} 条 C 级参考（涨跌幅/量比等，仅看板展示，不逐条列出）\n")
         body = "\n".join(lines)
