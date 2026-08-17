@@ -11,8 +11,15 @@ A股盯盘助手 —— 主脚本
 依赖：仅 Python 标准库，无需 pip install。
 
 用法：
-  python monitor.py            # 正常跑（同一天同规则去重）
-  python monitor.py --force    # 本地调试用，忽略当天去重
+  python monitor.py                # 完整模式：检测 + 微信实时推送 + 日报累积（本机用）
+  python monitor.py --fast         # 快扫：跳过回测/资金流缓存，供本机每分钟盯盘
+  python monitor.py --data-only    # 纯数据：只更新看板数据，不推送不落 state（GitHub Actions 用）
+  python monitor.py --force        # 本地调试用，忽略当天去重
+
+推送机制（v2）：
+  - S/A 级信号 → 逐条 Server酱微信推送（实时，不攒批、不发邮件）
+  - 所有级别（S/A/B/C）→ 累积到 data/digest.json，收盘后由 digest.py 一封邮件汇总
+  - 邮件只在收盘后发一封，盘中不再发邮件
 """
 
 import os
@@ -408,8 +415,19 @@ def send_wechat(title, desp):
         return False
 
 
+def is_trading_time(now):
+    """A股交易时段（含盘前盘后缓冲）：周一至周五 9:20-11:40 / 12:50-15:10"""
+    if now.weekday() >= 5:
+        return False
+    t = now.hour * 60 + now.minute
+    return (9 * 60 + 20 <= t <= 11 * 60 + 40) or (12 * 60 + 50 <= t <= 15 * 60 + 10)
+
+
 def main():
-    force = "--force" in sys.argv
+    args = sys.argv[1:]
+    force = "--force" in args
+    fast = "--fast" in args
+    data_only = "--data-only" in args
     config = load_json(CONFIG_PATH, {})
     watchlist = config.get("watchlist", [])
     rules = config.get("rules", {})
@@ -421,6 +439,13 @@ def main():
 
     now = datetime.datetime.now()
     today = now.strftime("%Y-%m-%d")
+
+    # 非交易时段 + 非 force：仍然更新看板数据，但跳过推送/日报（避免盘后噪音）
+    push_enabled = (not data_only) and (is_trading_time(now) or force)
+    if data_only:
+        print("[mode] data-only：仅更新看板数据，不推送")
+    elif fast:
+        print("[mode] fast：快扫模式（跳过回测/资金流缓存）")
 
     print(f"[fetch] 拉取 {len(watchlist)} 只自选股行情 ...")
     quotes = fetch_quotes(watchlist)
@@ -467,9 +492,28 @@ def main():
 
         mf = None
         try:
-            mf = fetch_moneyflow(code, stock["market"])
-            if mf:
-                money_results.append({"code": code, "name": stock["name"], **mf})
+            # fast 模式：资金流 30 分钟缓存（新浪接口，避免每分钟拉爆）
+            mf_cached = None
+            if fast:
+                mf_file = load_json(os.path.join(DATA_DIR, "moneyflow.json"), None)
+                if mf_file and str(mf_file.get("updated_at", "")).startswith(today):
+                    try:
+                        ts = datetime.datetime.strptime(mf_file["updated_at"], "%Y-%m-%d %H:%M:%S")
+                        if (now - ts).total_seconds() < 1800:
+                            mf_cached = mf_file.get("stocks", [])
+                    except (ValueError, TypeError):
+                        pass
+            if mf_cached is not None:
+                hit = next((x for x in mf_cached if x.get("code") == code), None)
+                if hit:
+                    mf = {
+                        "date": hit.get("date"), "netamount": hit.get("netamount"),
+                        "r0_net": hit.get("r0_net"), "change_pct": hit.get("change_pct"),
+                    }
+            else:
+                mf = fetch_moneyflow(code, stock["market"])
+                if mf:
+                    money_results.append({"code": code, "name": stock["name"], **mf})
         except Exception as e:
             print(f"[warn] {code} 资金流失败: {e}")
         mf_th = rules.get("moneyflow_threshold", 50000000)
@@ -594,12 +638,13 @@ def main():
                 "change_pct": sa["avg_change"],
             })
 
-    # 回测
-    try:
-        bt = backtest.run()
-        print(f"[backtest] 样本 {bt['total_samples']} 个，IC {bt.get('ic')}")
-    except Exception as e:
-        print(f"[warn] 回测失败: {e}")
+    # 回测（fast 模式跳过，避免每分钟跑；data-only 保留给看板）
+    if not fast:
+        try:
+            bt = backtest.run()
+            print(f"[backtest] 样本 {bt['total_samples']} 个，IC {bt.get('ic')}")
+        except Exception as e:
+            print(f"[warn] 回测失败: {e}")
 
     # 落盘快照
     snapshot = {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "quotes": []}
@@ -633,11 +678,18 @@ def main():
         alerts_log["updated_at"] = now.strftime("%Y-%m-%d %H:%M:%S")
         save_json(ALERTS_PATH, alerts_log)
 
+    # data-only 模式：不写 state、不推送、不累积日报（状态归属推送方）
+    if data_only:
+        print(f"[done] data-only 更新 {len(snapshot['quotes'])} 只，触发 {len(triggered)} 条（仅看板）")
+        return
+
     save_json(STATE_PATH, state)
 
-    # 分级推送：S/A 立即发（紧急/重要），B/C 进日报
+    # 分级推送 v2：
+    #   S/A 级 → 逐条微信实时推送（不攒批、不发邮件）
+    #   所有级别 → 累积到 digest.json，收盘后 digest.py 一封邮件汇总
     immediate = [t for t in triggered if tier_for(t["rule"]) in ("S", "A")]
-    digest_items = [dict(t, tier=tier_for(t["rule"])) for t in triggered if tier_for(t["rule"]) in ("B", "C")]
+    digest_items = [dict(t, tier=tier_for(t["rule"])) for t in triggered]
 
     if digest_items:
         digest = load_json(DIGEST_PATH, {"items": []})
@@ -648,12 +700,9 @@ def main():
         digest["items"] = list(seen.values())[-500:]
         save_json(DIGEST_PATH, digest)
 
-    print(f"[done] 更新 {len(snapshot['quotes'])} 只，触发 {len(triggered)} 条（S/A {len(immediate)}，日报 {len(digest_items)}）")
-    if immediate:
-        has_S = any(tier_for(t["rule"]) == "S" for t in immediate)
-        prefix = "【紧急】" if has_S else "【重要】"
-        s_items = [t for t in immediate if tier_for(t["rule"]) == "S"]
-        a_items = [t for t in immediate if tier_for(t["rule"]) == "A"]
+    print(f"[done] 更新 {len(snapshot['quotes'])} 只，触发 {len(triggered)} 条（S/A {len(immediate)} 实时推送，全部 {len(digest_items)} 进日报）")
+
+    if immediate and push_enabled:
         # 每个信号单独发一条短微信，保证手表/手环能完整显示（每条间隔3秒）
         for i, t in enumerate(immediate):
             tier = tier_for(t["rule"])
@@ -663,19 +712,11 @@ def main():
             send_wechat(title, desp)
             if i < len(immediate) - 1:
                 time.sleep(3)
-        # 邮件保留完整长消息汇总
-        lines = []
-        if s_items:
-            lines.append("🔴 核心信号（S级）：")
-            lines += [f"  {t['time']}  {t['name']}({t['code']})  {t['message']}" for t in s_items]
-        if a_items:
-            lines.append("🟠 重要信号（A级）：")
-            lines += [f"  {t['time']}  {t['name']}({t['code']})  {t['message']}" for t in a_items]
-        body = "你的自选股出现重要信号：\n\n" + "\n".join(lines)
-        print(body)
-        send_email(f"{prefix} A股盯盘提醒", body)
+        print(f"[push] 已实时推送 {len(immediate)} 条微信（邮件由收盘日报统一汇总）")
+    elif immediate:
+        print(f"[push] 非交易时段，S/A {len(immediate)} 条未推微信（已进日报，收盘统一汇总）")
     else:
-        print("本次无 S/A 级信号（B/C 已进日报）")
+        print("本次无 S/A 级信号（全部进日报）")
 
 
 if __name__ == "__main__":

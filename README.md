@@ -1,6 +1,8 @@
 # 📈 A股量化盯盘平台
 
-一套跑在 GitHub 上的 **A股量化盯盘 + 辅助决策** 系统：自动盯自选股、量化评分、支撑压力位、买卖点、全A股扫描、板块热力图，异动时发 **Server酱微信 + QQ 邮箱**提醒。**零服务器、零成本、纯免费接口。**
+一套 **A股量化盯盘 + 辅助决策** 系统：自动盯自选股、量化评分、支撑压力位、买卖点、全A股扫描、板块热力图。
+
+**推送机制 v2**：盘中 S/A 级信号由**本机每分钟实时扫描 → Server酱微信逐条推送**（不攒批）；收盘后**一封邮件汇总当天全部 S/A/B/C 信号**。GitHub Actions 只负责维护看板数据。
 
 > ⚠️ 仅供学习研究，不构成投资建议。
 
@@ -29,12 +31,19 @@
 │  ├ 量化因子/评分        │  ├ 支撑压力/买卖点标注        │
 │  ├ 支撑压力/买卖点      │  ├ 板块热力图 + 候选股        │
 │  ├ 回测/扫描           │  ├ 回测报告 + 胜率曲线        │
-│  ├ 微信+邮箱发提醒       │  └ 读 data/*.json 渲染       │
-│  └ 写 data/*.json 提交  │                             │
+│  └ 写 data/*.json 提交  │  └ 读 data/*.json 渲染       │
 └───────────────────────┴─────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│  本机（可选，推荐）：实时盯盘推送 v2                 │
+│  ├ crontab 每分钟快扫（交易时段）                    │
+│  ├ S/A 信号 → Server酱微信逐条实时推送               │
+│  └ 15:12 收盘 → 一封邮件汇总当日全部信号             │
+└─────────────────────────────────────────────────────┘
 ```
 
-**核心思路**：GitHub Pages 是纯静态托管（不能跑后端/定时/发邮件），所以后端全交给 GitHub Actions，把结果写成 `data/*.json` commit 回仓库，前端读这些 JSON 渲染。
+**核心思路**：GitHub Pages 是纯静态托管（不能跑后端/定时/发邮件），所以后端数据由 GitHub Actions 写成 `data/*.json` commit 回仓库，前端读这些 JSON 渲染。
+
+**推送机制 v2（实时）**：GitHub Actions 的 cron 调度有分钟级延迟、还会攒批，做不到实时；所以实时推送改由**本机 crontab 每分钟跑 `monitor.py --fast`**（交易时段），S/A 信号立即逐条推微信，全部信号累积到 `data/digest.json`，收盘后 `digest.py` 发一封汇总邮件。Actions 的 `monitor.yml` 改为 `--data-only` 纯数据模式，不再推送。
 
 ## 数据源（全部免费，无需 token）
 
@@ -50,11 +59,14 @@
 ```
 a-share-monitor/
 ├── .github/workflows/
-│   ├── monitor.yml            # 盯盘+评分+提醒（每5分钟，交易时段）
+│   ├── monitor.yml            # 看板数据更新（每5分钟，--data-only 不推送）
 │   ├── manage-watchlist.yml   # 页面自选股管理（Issue 触发）
 │   ├── pool-backtest.yml      # 300股池回测（每周一）
 │   └── scanner.yml            # 全A股扫描（每天收盘后）
-├── monitor.py                 # 主脚本（抓数据/检测/评分/发信/落盘）
+├── monitor.py                 # 主脚本（--fast 本机快扫 / --data-only 看板数据）
+├── digest.py                  # 收盘日报：一封邮件汇总 S/A/B/C
+├── run_local.sh               # 本机 cron 入口（读取 .env 凭据）
+├── .env                       # 本机凭据（gitignore）
 ├── quant.py                   # 量化因子引擎（6因子加权评分）
 ├── support_resistance.py      # 支撑位/压力位计算
 ├── signals.py                 # 买卖点引擎（日线+分时）
@@ -68,7 +80,7 @@ a-share-monitor/
 └── data/                      # 所有数据（快照/评分/信号/板块/回测...）
 ```
 
-## 快速部署（5 步）
+## 快速部署
 
 ### 第 1 步：把代码传到 GitHub
 
@@ -91,28 +103,48 @@ git push -u origin main
 
 ### 第 3 步：配置推送通道
 
-**Server酱微信推送**（推荐，实时到微信）：
+**Server酱微信推送**（盘中实时推送）：
 
 登录 [sct.ftqq.com](https://sct.ftqq.com) → 微信扫码绑定 → 复制你的 **SendKey**（形如 `sctp...`）。
 
-**QQ 邮箱**：
+**发件邮箱**（收盘日报）：任意支持 SMTP 的邮箱，推荐 163 / QQ。
 
-登录 [mail.qq.com](https://mail.qq.com) → **设置** → **账户** → 开启 **SMTP 服务**，生成 **16 位授权码**（不是 QQ 密码）。
+- 163：登录 [mail.163.com](https://mail.163.com) → 设置 → POP3/SMTP/IMAP → 开启 SMTP 服务 → 生成**授权码**
+- QQ：登录 [mail.qq.com](https://mail.qq.com) → 设置 → 账户 → 开启 SMTP 服务 → 生成 16 位授权码
+- 收件箱填自己的常用邮箱即可
 
-### 第 4 步：把凭据存进 Secrets
+### 第 4 步：本机实时盯盘（推荐，实时推送的核心）
+
+在本机（需要交易时段开机）配置：
+
+```bash
+cd a-share-monitor
+cp .env.example .env    # 填入 SMTP_USER/SMTP_PASS/SMTP_HOST/SERVERCHAN_KEY
+crontab -e              # 追加以下三行：
+
+# 交易时段每分钟快扫：S/A 信号实时微信推送
+* 9-11,13-14 * * 1-5 /path/to/a-share-monitor/run_local.sh monitor >> /path/to/a-share-monitor/logs/monitor.log 2>&1
+# 收盘后补一次最终扫描
+5 15 * * 1-5 /path/to/a-share-monitor/run_local.sh monitor >> /path/to/a-share-monitor/logs/monitor.log 2>&1
+# 15:12 收盘日报：一封邮件汇总
+12 15 * * 1-5 /path/to/a-share-monitor/run_local.sh digest >> /path/to/a-share-monitor/logs/digest.log 2>&1
+```
+
+### 第 5 步：GitHub Secrets（看板数据用，推送已迁到本机）
 
 仓库 → **Settings** → **Secrets and variables** → **Actions** → 添加：
 
 | Name | Value |
 |------|-------|
-| `SERVERCHAN_KEY` | Server酱 SendKey（微信推送） |
-| `SMTP_USER` | QQ 邮箱，如 `123456@qq.com` |
-| `SMTP_PASS` | 第 3 步的授权码 |
-| `SMTP_TO` | 收件邮箱（可同 SMTP_USER） |
+| `SERVERCHAN_KEY` | Server酱 SendKey（如保留 Actions 备份推送） |
+| `SMTP_USER` | 发件邮箱 |
+| `SMTP_PASS` | SMTP 授权码 |
+| `SMTP_TO` | 收件邮箱 |
+| `SMTP_HOST` | 可选，默认 smtp.qq.com；163 填 smtp.163.com |
 
-### 第 5 步：触发首次运行
+### 第 6 步：触发首次运行
 
-Actions → **Stock Monitor** → **Run workflow** 手动触发一次。之后定时任务自动跑。
+Actions → **Stock Monitor** → **Run workflow** 手动触发一次；本机 `bash run_local.sh monitor` 手动跑一次验证。
 
 ---
 

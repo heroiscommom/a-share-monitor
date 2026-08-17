@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-每日收盘后发送 B/C 级异动日报，并清空 digest.json。
-`python3 digest.py --demo` 发送演示邮件（展示三级格式）。
+收盘日报（推送机制 v2）—— 收盘后把当天所有级别信号（S/A/B/C）汇总成一封邮件，
+另发一条微信摘要。发完清空 digest.json。
+
+`python3 digest.py --demo` 发送演示邮件（展示四级格式）。
+
+环境变量：
+  SMTP_USER / SMTP_PASS / SMTP_TO / SMTP_HOST(默认 smtp.qq.com)
+  SERVERCHAN_KEY  （可选，配置则同时推一条微信摘要）
 """
 
 import os
 import sys
 import json
-import time
-import urllib.request
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
@@ -17,23 +21,32 @@ from email.header import Header
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DIGEST_PATH = os.path.join(BASE_DIR, "data", "digest.json")
 
+TIER_META = {
+    "S": ("🔴 核心信号（S级）—— 回测验证，重点关注", "S"),
+    "A": ("🟠 重要信号（A级）—— 趋势/资金/关键位", "A"),
+    "B": ("🟡 预警（B级）", "B"),
+    "C": ("⚪ 参考（C级）", "C"),
+}
+
 
 def send_email(subject, body):
     user = os.environ.get("SMTP_USER")
     pw = os.environ.get("SMTP_PASS")
     to = os.environ.get("SMTP_TO")
+    host = os.environ.get("SMTP_HOST", "smtp.qq.com")
+    port = int(os.environ.get("SMTP_PORT", 465))
     if not (user and pw and to):
-        print("[notify] 未配置 SMTP，跳过发信")
+        print("[notify] 未配置 SMTP_USER/SMTP_PASS/SMTP_TO，跳过发信")
         return False
     msg = MIMEText(body, "plain", "utf-8")
     msg["Subject"] = Header(subject, "utf-8")
     msg["From"] = user
     msg["To"] = to
     try:
-        with smtplib.SMTP_SSL("smtp.qq.com", 465, timeout=30) as server:
+        with smtplib.SMTP_SSL(host, port, timeout=30) as server:
             server.login(user, pw)
             server.sendmail(user, [to], msg.as_string())
-        print("[notify] 邮件已发送")
+        print(f"[notify] 邮件已发送（{host}）")
         return True
     except Exception as e:
         print(f"[notify] 发信失败: {e}")
@@ -71,14 +84,14 @@ def demo_email():
         "🟠 重要信号（A级）—— 趋势/资金/关键位\n"
         "  [示例] 招商银行(600036)  ⚠️ 跌破支撑位 37.88（强）\n"
         "  [示例] 宁德时代(300750)  💸 主力净流出 75181 万元\n\n"
-        "🟡 预警（B级）—— 收盘后进日报\n"
+        "🟡 预警（B级）\n"
         "  [示例] 银行板块异动 +2.5%（自选：招商银行、平安银行）\n\n"
-        "⚪ 参考（C级）—— 收盘后进日报\n"
+        "⚪ 参考（C级）\n"
         "  [示例] 平安银行  日涨幅 +3.2%\n\n"
-        "—— 今后 S/A 级实时推送，B/C 级每天收盘后一封日报汇总 ——"
+        "—— 盘中 S/A 级微信实时推送，收盘后邮件统一汇总 ——"
     )
-    send_wechat("【紧急】 A股盯盘提醒（分级测试）", body)
-    send_email("【紧急】 A股盯盘提醒（分级测试）", body)
+    send_wechat("【日报】 A股盯盘汇总（演示）", body)
+    send_email("【日报】 A股盯盘异动汇总（演示）", body)
 
 
 def main():
@@ -95,30 +108,43 @@ def main():
             pass
 
     if not items:
-        body = "今日无 B/C 级异动，一切平静。\n\n（S/A 级信号会实时推送，此日报仅汇总 B/C 级）"
-        send_wechat("【日报】今日无预警", "今日无 B/C 级异动，一切平静。")
+        body = "今日无任何级别异动，一切平静。\n\n（盘中 S/A 级信号会微信实时推送，此邮件仅收盘汇总）"
+        send_wechat("【日报】今日无预警", "今日无任何级别异动，一切平静。")
         send_email("【日报】 A股盯盘异动汇总（今日无预警）", body)
     else:
-        b_items = [t for t in items if t.get("tier") == "B"]
-        c_items = [t for t in items if t.get("tier") == "C"]
-        # 每条异动单独发一条短微信，保证手表能完整显示（每条间隔3秒）
-        for i, t in enumerate(items):
-            emoji = "🟡" if t.get("tier") == "B" else "⚪"
-            title = f"{emoji} {t['name']} {t['message']}"
-            desp = f"{t['time']} {t['name']}({t['code']}) {t['message']}"
-            send_wechat(title, desp)
-            if i < len(items) - 1:
-                time.sleep(3)
-        # 邮件保留完整长消息汇总
-        lines = []
-        if b_items:
-            lines.append("🟡 预警（B级）：")
-            lines += [f"  {t['time']}  {t['name']}({t['code']})  {t['message']}" for t in b_items]
-        if c_items:
-            lines.append("⚪ 参考（C级）：")
-            lines += [f"  {t['time']}  {t['name']}({t['code']})  {t['message']}" for t in c_items]
-        body = f"今日 B/C 级异动汇总（{len(items)} 条）：\n\n" + "\n".join(lines)
+        # 按级别分组
+        groups = {}
+        for t in items:
+            groups.setdefault(t.get("tier", "C"), []).append(t)
+
+        # 邮件：全量分级汇总
+        lines = [f"今日共 {len(items)} 条异动（收盘汇总）：\n"]
+        for tier in ("S", "A", "B", "C"):
+            if tier not in groups:
+                continue
+            title, _ = TIER_META[tier]
+            lines.append(title + "：")
+            for t in groups[tier]:
+                lines.append(f"  {t.get('time', '')}  {t.get('name', '')}({t.get('code', '')})  {t.get('message', '')}")
+            lines.append("")
+        body = "\n".join(lines)
         send_email(f"【日报】 A股盯盘异动汇总（{len(items)} 条）", body)
+
+        # 微信：只发一条摘要（数量 + 各级别 TOP 几条），避免刷屏
+        summary = [f"今日异动 {len(items)} 条："]
+        for tier in ("S", "A", "B", "C"):
+            if tier not in groups:
+                continue
+            _, label = TIER_META[tier]
+            summary.append(f"{label} {len(groups[tier])} 条")
+        top = items[:8]
+        summary.append("")
+        for t in top:
+            emoji = {"S": "🔴", "A": "🟠", "B": "🟡", "C": "⚪"}.get(t.get("tier", "C"), "⚪")
+            summary.append(f"{emoji} {t.get('name', '')} {t.get('message', '')}")
+        if len(items) > 8:
+            summary.append(f"...等共 {len(items)} 条，详见邮件")
+        send_wechat("【日报】 A股盯盘异动汇总", "\n".join(summary))
 
     # 清空日报
     with open(DIGEST_PATH, "w", encoding="utf-8") as f:

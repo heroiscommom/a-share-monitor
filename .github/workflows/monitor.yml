@@ -29,13 +29,14 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Run monitor
+      - name: Run monitor (data-only)
         env:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_TO: ${{ secrets.SMTP_TO }}
           SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
-        run: python monitor.py
+        # 推送机制 v2：本机每分钟实时盯盘并微信推送；Actions 只维护看板数据，不推送
+        run: python monitor.py --data-only
 
       - name: Commit data
         run: |
