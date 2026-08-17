@@ -1,51 +1,99 @@
 {
   "forward_days": 10,
-  "total_samples": 1267,
+  "total_samples": 3076,
   "groups": [
     {
       "label": "<45",
-      "count": 572,
-      "avg_return": -0.75,
-      "win_rate": 42.1
+      "count": 1445,
+      "avg_return": 2.88,
+      "win_rate": 50.4
     },
     {
       "label": "45-55",
-      "count": 215,
-      "avg_return": 0.06,
-      "win_rate": 44.2
+      "count": 458,
+      "avg_return": 1.36,
+      "win_rate": 45.6
     },
     {
       "label": "55-65",
-      "count": 196,
-      "avg_return": 1.28,
-      "win_rate": 58.7
+      "count": 455,
+      "avg_return": 2.09,
+      "win_rate": 55.4
     },
     {
       "label": "65-75",
-      "count": 159,
-      "avg_return": 1.57,
-      "win_rate": 63.5
+      "count": 355,
+      "avg_return": 1.81,
+      "win_rate": 61.1
     },
     {
       "label": "≥75",
-      "count": 125,
-      "avg_return": -0.18,
-      "win_rate": 44.8
+      "count": 363,
+      "avg_return": 2.51,
+      "win_rate": 47.7
     }
   ],
-  "ic": 0.126,
+  "ic": -0.038,
   "per_stock": [
     {
-      "code": "688036",
-      "name": "传音控股",
+      "code": "600664",
+      "name": "哈药股份",
       "samples": 181,
-      "avg_fwd_return": -0.51
+      "avg_fwd_return": 5.47
     },
     {
       "code": "001289",
       "name": "龙源电力",
       "samples": 181,
       "avg_fwd_return": -0.18
+    },
+    {
+      "code": "601700",
+      "name": "风范股份",
+      "samples": 181,
+      "avg_fwd_return": 2.11
+    },
+    {
+      "code": "002900",
+      "name": "哈三联",
+      "samples": 181,
+      "avg_fwd_return": 0.06
+    },
+    {
+      "code": "002437",
+      "name": "誉衡药业",
+      "samples": 181,
+      "avg_fwd_return": 0.84
+    },
+    {
+      "code": "159582",
+      "name": "半导体ETF博时",
+      "samples": 180,
+      "avg_fwd_return": 4.1
+    },
+    {
+      "code": "600667",
+      "name": "太极实业",
+      "samples": 181,
+      "avg_fwd_return": 6.46
+    },
+    {
+      "code": "000657",
+      "name": "中钨高新",
+      "samples": 181,
+      "avg_fwd_return": 7.93
+    },
+    {
+      "code": "001258",
+      "name": "立新能源",
+      "samples": 181,
+      "avg_fwd_return": 4.74
+    },
+    {
+      "code": "688036",
+      "name": "传音控股",
+      "samples": 181,
+      "avg_fwd_return": -0.51
     },
     {
       "code": "001965",
@@ -76,8 +124,20 @@
       "name": "首钢股份",
       "samples": 181,
       "avg_fwd_return": -0.34
+    },
+    {
+      "code": "600584",
+      "name": "长电科技",
+      "samples": 181,
+      "avg_fwd_return": 5.22
+    },
+    {
+      "code": "000725",
+      "name": "京东方A",
+      "samples": 181,
+      "avg_fwd_return": 3.05
     }
   ],
-  "conclusion": "超跌股（-0.18%）跑赢强势股（-0.75%），均值回归有效；线性 IC=0.126",
-  "updated_at": "2026-08-17 21:11:52"
+  "conclusion": "各组收益差异不大（2.88% ~ 2.51%），评分区分度低；线性 IC=-0.038",
+  "updated_at": "2026-08-17 21:22:04"
 }
