@@ -431,15 +431,35 @@
       "tier": "A"
     },
     {
-      "time": "2026-08-18 10:10:24",
+      "time": "2026-08-18 11:07:43",
       "code": "板块",
-      "name": "农林牧渔",
+      "name": "综合",
       "rule": "sector_anomaly",
-      "message": "📈 板块异动：农林牧渔 +2.21%",
+      "message": "📉 板块异动：综合 -3.22%",
       "price": null,
-      "change_pct": 2.21,
+      "change_pct": -3.22,
+      "tier": "B"
+    },
+    {
+      "time": "2026-08-18 11:07:43",
+      "code": "600012",
+      "name": "皖通高速",
+      "rule": "break_low",
+      "message": "⚠️ 跌破 20 日新低（前低 15.80）",
+      "price": 15.79,
+      "change_pct": -0.82,
+      "tier": "A"
+    },
+    {
+      "time": "2026-08-18 11:07:43",
+      "code": "600012",
+      "name": "皖通高速",
+      "rule": "near_支撑",
+      "message": "👀 逼近支撑位 15.76（强）",
+      "price": 15.79,
+      "change_pct": -0.82,
       "tier": "B"
     }
   ],
-  "c_count": 5
+  "c_count": 8
 }
