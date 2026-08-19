@@ -401,13 +401,13 @@
       "tier": "A"
     },
     {
-      "time": "2026-08-19 11:11:44",
+      "time": "2026-08-19 13:21:55",
       "code": "板块",
-      "name": "综合",
+      "name": "汽车",
       "rule": "sector_anomaly",
-      "message": "📉 板块异动：综合 -2.84%",
+      "message": "📉 板块异动：汽车 -2.09%",
       "price": null,
-      "change_pct": -2.84,
+      "change_pct": -2.09,
       "tier": "B"
     },
     {
@@ -419,7 +419,37 @@
       "price": 15.54,
       "change_pct": -0.58,
       "tier": "B"
+    },
+    {
+      "time": "2026-08-19 13:21:55",
+      "code": "000657",
+      "name": "中钨高新",
+      "rule": "intraday_spike_up",
+      "message": "⚡ 盘中急拉：5分钟涨 1.56%（阈值 1.5%）",
+      "price": 66.87,
+      "change_pct": -8.32,
+      "tier": "B"
+    },
+    {
+      "time": "2026-08-19 13:21:55",
+      "code": "600012",
+      "name": "皖通高速",
+      "rule": "near_压力",
+      "message": "👀 逼近压力位 15.96（强）",
+      "price": 15.92,
+      "change_pct": 0.51,
+      "tier": "B"
+    },
+    {
+      "time": "2026-08-19 13:21:55",
+      "code": "600350",
+      "name": "山东高速",
+      "rule": "near_压力",
+      "message": "👀 逼近压力位 10.58（强）",
+      "price": 10.51,
+      "change_pct": -0.28,
+      "tier": "B"
     }
   ],
-  "c_count": 14
+  "c_count": 15
 }
