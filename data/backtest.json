@@ -1,12 +1,12 @@
 {
   "forward_days": 10,
-  "total_samples": 1132,
+  "total_samples": 1131,
   "groups": [
     {
       "label": "<45",
-      "count": 507,
-      "avg_return": 1.11,
-      "win_rate": 47.9
+      "count": 506,
+      "avg_return": 1.13,
+      "win_rate": 48.0
     },
     {
       "label": "45-55",
@@ -24,16 +24,16 @@
       "label": "65-75",
       "count": 128,
       "avg_return": 0.92,
-      "win_rate": 50.0
+      "win_rate": 50.8
     },
     {
       "label": "≥75",
       "count": 89,
-      "avg_return": 0.79,
+      "avg_return": 0.8,
       "win_rate": 44.9
     }
   ],
-  "ic": -0.015,
+  "ic": -0.017,
   "per_stock": [
     {
       "code": "600664",
@@ -63,7 +63,7 @@
       "code": "002437",
       "name": "誉衡药业",
       "samples": 67,
-      "avg_fwd_return": 1.33
+      "avg_fwd_return": 1.34
     },
     {
       "code": "159582",
@@ -86,26 +86,26 @@
     {
       "code": "001258",
       "name": "立新能源",
-      "samples": 67,
-      "avg_fwd_return": 0.95
+      "samples": 66,
+      "avg_fwd_return": 1.14
     },
     {
       "code": "688036",
       "name": "传音控股",
       "samples": 69,
-      "avg_fwd_return": -0.74
+      "avg_fwd_return": -0.72
     },
     {
       "code": "001965",
       "name": "招商公路",
       "samples": 69,
-      "avg_fwd_return": -0.01
+      "avg_fwd_return": -0.0
     },
     {
       "code": "600012",
       "name": "皖通高速",
       "samples": 69,
-      "avg_fwd_return": 0.71
+      "avg_fwd_return": 0.7
     },
     {
       "code": "600011",
@@ -129,16 +129,16 @@
       "code": "600584",
       "name": "长电科技",
       "samples": 67,
-      "avg_fwd_return": 2.08
+      "avg_fwd_return": 2.1
     },
     {
       "code": "000725",
       "name": "京东方A",
       "samples": 69,
-      "avg_fwd_return": 0.67
+      "avg_fwd_return": 0.66
     }
   ],
-  "conclusion": "各组收益差异不大（1.11% ~ 0.79%），评分区分度低；线性 IC=-0.015",
-  "updated_at": "2026-08-19 13:23:33",
+  "conclusion": "各组收益差异不大（1.13% ~ 0.80%），评分区分度低；线性 IC=-0.017",
+  "updated_at": "2026-08-19 13:52:33",
   "methodology": "非重叠抽样(每10日1样本) · 双边成本0.25% · 剔除一字涨停买入/一字跌停卖出"
 }
