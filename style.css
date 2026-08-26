@@ -394,3 +394,9 @@ footer {
   .panel { padding: 14px; }
   header .title { font-size: 17px; }
 }
+
+/* 图表容器高度（ECharts 需要显式高度，否则渲染空白） */
+#chart { height: 440px; width: 100%; }
+#chart .empty { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); }
+#alerts { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow: auto; }
+#backtest-chart { height: 240px; width: 100%; }
