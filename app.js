@@ -72,6 +72,7 @@ async function loadChart(q) {
 function drawFundamental(q) {
   const parts = [];
   if (q.sector) parts.push(`板块 ${q.sector}`);
+  if (q.sr_risk && q.sr_risk.score != null) parts.push(`支撑压力评分 ${q.sr_risk.score}（${q.sr_risk.level}）`);
   const buy = (q.daily_buy && q.daily_buy.length) ? q.daily_buy[0].price : ((q.supports && q.supports[0]) ? q.supports[0].price : null);
   const sell = (q.daily_sell && q.daily_sell.length) ? q.daily_sell[0].price : ((q.resistances && q.resistances[0]) ? q.resistances[0].price : null);
   if (buy != null) parts.push(`买点 ${buy}`);
@@ -208,8 +209,8 @@ function drawDailyChart(q, hist) {
   const closes = hist.map((h) => h.close);
   const volumes = hist.map((h) => h.volume);
   const srLines = [];
-  (q.resistances || []).forEach((r) => srLines.push({ yAxis: r.price, lineStyle: { color: '#ef232a', type: 'dashed', width: 1 }, label: { formatter: `卖${r.price}`, color: '#ef232a', position: 'insideEndTop', fontSize: 10 } }));
-  (q.supports || []).forEach((s) => srLines.push({ yAxis: s.price, lineStyle: { color: '#14b143', type: 'dashed', width: 1 }, label: { formatter: `买${s.price}`, color: '#14b143', position: 'insideEndBottom', fontSize: 10 } }));
+  (q.resistances || []).forEach((r) => srLines.push({ yAxis: r.price, lineStyle: { color: '#ef232a', type: 'dashed', width: 1 }, label: { formatter: `卖${r.price}${r.held_rate != null ? ' 守' + r.held_rate + '%' : ''}`, color: '#ef232a', position: 'insideEndTop', fontSize: 10 } }));
+  (q.supports || []).forEach((s) => srLines.push({ yAxis: s.price, lineStyle: { color: '#14b143', type: 'dashed', width: 1 }, label: { formatter: `买${s.price}${s.held_rate != null ? ' 守' + s.held_rate + '%' : ''}`, color: '#14b143', position: 'insideEndBottom', fontSize: 10 } }));
 
   chart.setOption({
     backgroundColor: 'transparent',
@@ -447,7 +448,7 @@ async function init() {
       if (m) { q.netamount = m.netamount; q.r0_net = m.r0_net; }
       q.sector = sectorMap[q.code] || '';
       const sr = srMap[q.code];
-      if (sr) { q.supports = sr.supports; q.resistances = sr.resistances; }
+      if (sr) { q.supports = sr.supports; q.resistances = sr.resistances; q.sr_risk = sr.risk; }
       const sg = sigMap[q.code];
       if (sg) { q.daily_buy = sg.daily_buy; q.daily_sell = sg.daily_sell; q.intraday_buy = sg.intraday_buy; q.intraday_sell = sg.intraday_sell; }
     });

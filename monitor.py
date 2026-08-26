@@ -34,6 +34,7 @@ import backtest
 import sector
 import support_resistance
 import signals
+import zone_history
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -523,6 +524,24 @@ def main():
             history = load_json(os.path.join(HISTORY_DIR, f"{code}.json"), [])
 
         sr = support_resistance.compute_levels(history)
+        # 决策闭环 v2：每个支撑/压力位的历史守住率 + 触及预警 + 风险评分
+        try:
+            ctx = zone_history.build_zone_context(history, sr)
+            hr_map = {}
+            for side in ("supports", "resistances"):
+                for h in ctx["zone_history"].get(side, []):
+                    hr_map[h["price"]] = h
+            for side in ("supports", "resistances"):
+                for lvl in sr[side]:
+                    h = hr_map.get(round(lvl["price"], 2))
+                    if h:
+                        lvl["held_rate"] = h["held_rate"]
+                        lvl["touch"] = h["touch"]
+                        lvl["confidence"] = h["confidence"]
+            sr["risk"] = ctx["risk"]
+            sr["alerts"] = ctx["alerts"]
+        except Exception as e:
+            print(f"[warn] 决策闭环计算失败: {e}")
         sr_results.append({"code": code, "name": stock["name"], "price": quote.get("price"), **sr})
 
         intraday = None
@@ -572,20 +591,26 @@ def main():
             elif mf["netamount"] <= -mf_th:
                 alerts.append(("moneyflow_out", f"💸 主力净流出 {abs(mf['netamount']) / 10000:.0f} 万元"))
 
-        # 支撑压力位提醒
+        # 支撑压力位提醒（带历史守住率）
         if len(history) >= 2:
             prev_close = history[-2]["close"]
             close = history[-1]["close"]
             for lvl in sr["resistances"]:
                 if prev_close < lvl["price"] <= close:
-                    alerts.append(("break_resistance", f"🚀 突破压力位 {lvl['price']}（{lvl['strength']}）"))
+                    hr = lvl.get("held_rate")
+                    hr_txt = f"（历史守住率{hr}%）" if hr is not None else ""
+                    alerts.append(("break_resistance", f"🚀 突破压力位 {lvl['price']}（{lvl['strength']}{hr_txt}）"))
             for lvl in sr["supports"]:
                 if prev_close > lvl["price"] >= close:
-                    alerts.append(("break_support", f"⚠️ 跌破支撑位 {lvl['price']}（{lvl['strength']}）"))
+                    hr = lvl.get("held_rate")
+                    hr_txt = f"（历史守住率{hr}%）" if hr is not None else ""
+                    alerts.append(("break_support", f"⚠️ 跌破支撑位 {lvl['price']}（{lvl['strength']}{hr_txt}）"))
             for lvl in sr["supports"] + sr["resistances"]:
                 if lvl["strength"] == "强" and 0.1 < abs(lvl["distance_pct"]) <= 1.5:
                     kind = "支撑" if lvl["distance_pct"] < 0 else "压力"
-                    alerts.append((f"near_{kind}", f"👀 逼近{kind}位 {lvl['price']}（强）"))
+                    hr = lvl.get("held_rate")
+                    hr_txt = f"（历史守住率{hr}%）" if hr is not None else ""
+                    alerts.append((f"near_{kind}", f"👀 逼近{kind}位 {lvl['price']}（强{hr_txt}）"))
 
         # 分时买点/卖点提醒（2026-08-17 已移除："接近日内高低点"过于粗糙、几乎每天触发，纯噪音）
         # 日线买卖点仍由 signals.py 计算并展示在看板（支撑=买点、压力=卖点）
