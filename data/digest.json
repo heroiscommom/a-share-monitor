@@ -221,13 +221,13 @@
       "tier": "A"
     },
     {
-      "time": "2026-08-26 10:20:15",
+      "time": "2026-08-26 13:25:50",
       "code": "板块",
-      "name": "有色金属",
+      "name": "非银金融",
       "rule": "sector_anomaly",
-      "message": "📈 板块异动：有色金属 +3.35%（自选：中钨高新）",
+      "message": "📈 板块异动：非银金融 +2.01%",
       "price": null,
-      "change_pct": 3.35,
+      "change_pct": 2.01,
       "tier": "B"
     },
     {
@@ -369,7 +369,27 @@
       "price": 5.71,
       "change_pct": -0.52,
       "tier": "A"
+    },
+    {
+      "time": "2026-08-26 13:25:50",
+      "code": "001258",
+      "name": "立新能源",
+      "rule": "quant_weak",
+      "message": "🔴 高位回调风险（评分 32 分）",
+      "price": 13.52,
+      "change_pct": 10.01,
+      "tier": "S"
+    },
+    {
+      "time": "2026-08-26 13:25:50",
+      "code": "001258",
+      "name": "立新能源",
+      "rule": "momentum_strong",
+      "message": "🔥 强势突破机会（动量评分 80 分）",
+      "price": 13.52,
+      "change_pct": 10.01,
+      "tier": "B"
     }
   ],
-  "c_count": 15
+  "c_count": 16
 }
