@@ -92,6 +92,7 @@ function renderWatchlist(quotes) {
       document.querySelectorAll('tbody tr').forEach((r) => r.classList.remove('active'));
       tr.classList.add('active');
       loadChart(q);
+      openTradeModal(q);
     });
     tbody.appendChild(tr);
   });
@@ -734,11 +735,82 @@ function buildTradeCommand() {
   return parts.join(' ');
 }
 
+let tmStock = null;   // 当前弹窗股票
+
+function sniperText(q) {
+  // 从 sr_risk/alerts 找狙击点位(简化: 用支撑/压力)
+  const sup = q.supports && q.supports[0];
+  const res = q.resistances && q.resistances[0];
+  const parts = [];
+  if (sup) parts.push(`理想买 ${sup.price}${sup.held_rate != null ? '(守' + sup.held_rate + '%)' : ''}`);
+  if (res) parts.push(`止盈 ${res.price}`);
+  return parts.join(' ｜ ') || '暂无价位参考';
+}
+
+function openTradeModal(q) {
+  tmStock = q;
+  $('#tm-title').textContent = `交易 ${q.name || q.code} (${q.code})`;
+  $('#tm-info').innerHTML =
+    `<div class="tm-price-row">
+       <span class="tm-now">现价 <b class="${q.change_pct >= 0 ? 'up' : 'down'}">${fmt(q.price)}</b> (${q.change_pct >= 0 ? '+' : ''}${fmt(q.change_pct)}%)</span>
+       <span class="tm-sniper">${sniperText(q)}</span>
+     </div>`;
+  $('#tm-price').value = q.price != null ? q.price : '';
+  $('#tm-qty').value = '';
+  $('#tm-qty').placeholder = '股数';
+  // 卖出时提示可卖数量
+  loadJSON('data/trades.json').catch(() => null).then((d) => {
+    const trades = (d && d.trades) || [];
+    const pos = {};
+    trades.forEach((t) => {
+      if (!pos[t.code]) pos[t.code] = { shares: 0 };
+      if (t.side === 'buy') pos[t.code].shares += t.shares;
+      else if (t.side === 'sell') pos[t.code].shares -= t.shares;
+    });
+    const hold = pos[q.code] ? pos[q.code].shares : 0;
+    $('#tm-qty').placeholder = hold > 0 ? `股数(可卖 ${hold})` : '股数';
+    if ($('#tm-side').value === 'sell' && hold > 0) {
+      $('#tm-qty').value = hold;
+    }
+  });
+  const m = document.getElementById('trade-modal');
+  m.classList.remove('hidden');
+}
+
+function closeTradeModal() {
+  document.getElementById('trade-modal').classList.add('hidden');
+}
+
+function submitTradeModal() {
+  if (!tmStock) return;
+  const side = document.getElementById('tm-side').value;
+  const price = document.getElementById('tm-price').value.trim();
+  const qty = document.getElementById('tm-qty').value.trim();
+  const note = document.getElementById('tm-note').value.trim();
+  if (!qty || Number(qty) <= 0) { alert('请输入股数'); return; }
+  if (!price) { alert('请输入成交价位'); return; }
+  const cmd = `/trade ${side} ${tmStock.code} ${qty} ${price} ${tmStock.name || ''} ${note ? note : (side === 'buy' ? '页面录入买入' : '页面录入卖出')}`.trim();
+  const title = encodeURIComponent('[trade] 交易录入');
+  const body = encodeURIComponent(cmd + '\n\n（页面自动生成）');
+  window.open(`https://github.com/heroiscommom/a-share-monitor/issues/new?title=${title}&body=${body}`, '_blank');
+  closeTradeModal();
+}
+
 function initTradeForm() {
   document.getElementById('tf-side').addEventListener('change', (e) => {
     const isPnl = e.target.value === 'pnl';
     document.getElementById('tf-price-row').style.display = isPnl ? 'none' : '';
     document.getElementById('tf-qty').placeholder = isPnl ? '盈亏金额(如 -4961)' : '股数';
+  });
+  document.getElementById('tm-close').addEventListener('click', closeTradeModal);
+  document.getElementById('tm-submit').addEventListener('click', submitTradeModal);
+  document.getElementById('tm-side').addEventListener('change', (e) => {
+    const isSell = e.target.value === 'sell';
+    document.getElementById('tm-qty').value = '';
+  });
+  // 点击弹窗遮罩关闭
+  document.getElementById('trade-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('trade-modal')) closeTradeModal();
   });
   document.getElementById('tf-submit').addEventListener('click', () => {
     const cmd = buildTradeCommand();
@@ -858,7 +930,8 @@ async function init() {
     if (cfg && cfg.strategy && cfg.strategy.active && !localStorage.getItem('strategyMode')) {
       strategyMode = cfg.strategy.active;
     }
-    const snap = await loadJSON('data/snapshot.json');
+    const snap = await loadJSON('data/snapshot.json').catch(() => null);
+    if (!snap) { $('#updated').textContent = '数据未采集(等 GitHub Actions 更新)'; return; }
     const quantData = await loadJSON('data/quant.json').catch(() => null);
     const mfData = await loadJSON('data/moneyflow.json').catch(() => null);
     const sectorData = await loadJSON('data/sectors.json').catch(() => null);
@@ -894,33 +967,38 @@ async function init() {
       $('tbody').innerHTML =
         '<tr><td colspan="6" class="empty">暂无数据，等待首次采集</td></tr>';
     }
-    const al = await loadJSON('data/alerts.json');
-    renderAlerts(al.items || []);
+    const al = await loadJSON('data/alerts.json').catch(() => null);
+    renderAlerts((al && al.items) || []);
     loadBacktest();
     loadSectors();
     loadScanner();
     loadPicks();
     loadStrategies();
     loadDragon();
-    document.querySelectorAll('#main-nav button').forEach((b) => {
-      b.addEventListener('click', () => showView(b.dataset.view));
-    });
-    initTradeForm();
-    document.querySelectorAll('.strategy-toggle button').forEach((b) => {
-      b.addEventListener('click', () => {
-        strategyMode = b.dataset.strategy;
-        localStorage.setItem('strategyMode', strategyMode);
-        applyStrategyMode();
-        const snap2 = window.__snapQuotes || [];
-        if (snap2.length) loadChart(snap2[0]);
-      });
-    });
-    applyStrategyMode();
-    const initView = (location.hash || '').replace('#', '');
-    if (['trade', 'review'].includes(initView)) showView(initView);
   } catch (e) {
-    $('#updated').textContent = '加载失败：' + e.message;
+    console.warn('数据加载部分失败(不影响操作):', e);
   }
+  // UI 绑定独立于数据加载——即使某个数据源失败，按钮也必须可点
+  bindUI();
+  const initView = (location.hash || '').replace('#', '');
+  if (['trade', 'review'].includes(initView)) showView(initView);
+}
+
+function bindUI() {
+  document.querySelectorAll('#main-nav button').forEach((b) => {
+    b.addEventListener('click', () => showView(b.dataset.view));
+  });
+  initTradeForm();
+  document.querySelectorAll('.strategy-toggle button').forEach((b) => {
+    b.addEventListener('click', () => {
+      strategyMode = b.dataset.strategy;
+      localStorage.setItem('strategyMode', strategyMode);
+      applyStrategyMode();
+      const snap2 = window.__snapQuotes || [];
+      if (snap2.length) loadChart(snap2[0]);
+    });
+  });
+  applyStrategyMode();
 }
 
 window.addEventListener('resize', () => { chart && chart.resize(); equityChart && equityChart.resize(); sentimentChart && sentimentChart.resize(); radarChart && radarChart.resize(); backtestChart && backtestChart.resize(); thresholdChart && thresholdChart.resize(); sectorHeatChart && sectorHeatChart.resize(); });
