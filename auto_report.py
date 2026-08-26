@@ -104,7 +104,7 @@ def send_email(subject, body):
     msg["To"] = to
     try:
         host = os.environ.get("SMTP_HOST", "smtp.qq.com")
-        port = int(os.environ.get("SMTP_PORT", 465))
+        port = int(os.environ.get("SMTP_PORT") or 465)
         with smtplib.SMTP_SSL(host, port, timeout=30) as server:
             server.login(user, pw)
             server.sendmail(user, [to], msg.as_string())
