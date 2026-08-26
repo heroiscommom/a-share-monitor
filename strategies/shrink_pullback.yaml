@@ -1,0 +1,13 @@
+name: shrink_pullback
+display_name: 缩量回调
+category: reversal
+description: 上升趋势中的缩量回调，抛压衰竭，接近支撑为低吸点
+market_regimes: [上涨, 震荡]
+signal_rules:
+  strong: 70
+  bullish: 55
+factors:
+  - {key: trend, label: 趋势向上, weight: 30}
+  - {key: shrink, label: 缩量程度, weight: 30}
+  - {key: pullback, label: 回调深度, weight: 20}
+  - {key: support, label: 近支撑, weight: 20}

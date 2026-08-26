@@ -193,6 +193,17 @@ def main():
         pnl_txt = f"{pnl:+.1f}%" if pnl is not None else "-"
         lines.append(f"  {a['name']}({a['code']}) 盈亏{pnl_txt} 评分{a.get('score', '-')} → 【{a['advice']}】{a['reason']}")
 
+    # ── 6. 建议准确率（P1b 信号追踪） ──
+    try:
+        import signal_history
+        n_fill = signal_history.check_and_fill()
+        st = signal_history.accuracy_stats()
+        lines.append(f"\n【建议准确率】{signal_history.stats_text(st)}")
+        if n_fill:
+            lines.append(f"（本次回填 {n_fill} 条）")
+    except Exception as e:
+        print(f"[warn] 信号追踪失败: {e}")
+
     lines.append("\n" + "=" * 40)
     lines.append("⚠️ 自动生成仅供参考。交易记录请用 trade.py 及时录入，复盘才有意义。")
     body = "\n".join(lines)

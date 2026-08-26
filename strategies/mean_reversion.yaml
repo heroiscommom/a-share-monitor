@@ -1,0 +1,16 @@
+name: mean_reversion
+display_name: 超跌反弹
+category: reversal
+description: 均值回归，超跌后反弹。6因子加权：RSI超卖/超跌/均线偏离/低位/缩量/低波动
+market_regimes: [下跌, 震荡]
+signal_rules:
+  buy: 82
+  bullish: 62
+  bearish: 45
+factors:
+  - {key: rsi, label: 超卖, weight: 25}
+  - {key: drawdown, label: 超跌, weight: 25}
+  - {key: deviation, label: 偏离, weight: 20}
+  - {key: position, label: 低位, weight: 15}
+  - {key: volume, label: 量能, weight: 10}
+  - {key: volatility, label: 稳定, weight: 5}

@@ -13,6 +13,9 @@ let sectorHeatChart = null;
 const FACTOR_LABELS = { rsi: '超卖', drawdown: '超跌', deviation: '偏离', position: '低位', volume: '量能', volatility: '稳定' };
 const MOM_LABELS = { mom20: '20日动量', mom60: '60日动量', rsi: 'RSI', pos60: '60日位置', vol_ratio: '量比', volatility: '波动' };
 const DRAGON_LABELS = { lbc: '连板高度', seal: '封板强度', fbt: '首板时间', zbc: '炸板', hs: '换手' };
+const MA_LABELS = { cross: '金叉强度', slope: '均线斜率', vol: '量能确认', hold: '回踩守住' };
+const SHRINK_LABELS = { trend: '趋势向上', shrink: '缩量程度', pullback: '回调深度', support: '近支撑' };
+let strategyList = [];   // strategies.json 动态列表
 const SIGNAL_CLASS = { strong: 's-strong', bullish: 's-bullish', neutral: 's-neutral', bearish: 's-bearish', weak: 's-weak' };
 
 let strategyMode = localStorage.getItem('strategyMode') || 'mean_reversion';
@@ -51,6 +54,14 @@ function renderWatchlist(quotes) {
       score = q.momentum_score;
       signal = q.momentum_signal || '-';
       sigKey = q.momentum_score >= 70 ? 'strong' : (q.momentum_score >= 55 ? 'bullish' : (q.momentum_score >= 40 ? 'neutral' : 'weak'));
+    } else if (strategyMode === 'ma_golden_cross') {
+      score = q.ma_score;
+      signal = q.ma_signal || '-';
+      sigKey = score >= 70 ? 'strong' : (score >= 55 ? 'bullish' : 'neutral');
+    } else if (strategyMode === 'shrink_pullback') {
+      score = q.shrink_score;
+      signal = q.shrink_signal || '-';
+      sigKey = score >= 70 ? 'strong' : (score >= 55 ? 'bullish' : 'neutral');
     } else if (strategyMode === 'dragon') {
       const dg = dragonMap[q.code];
       if (dg) {
@@ -126,6 +137,18 @@ function drawFactor(q) {
     score = q.momentum_score;
     sigText = q.momentum_signal || '';
     sigKey = score >= 70 ? 'strong' : (score >= 55 ? 'bullish' : (score >= 40 ? 'neutral' : 'weak'));
+  } else if (strategyMode === 'ma_golden_cross') {
+    factors = q.ma_factors;
+    labels = MA_LABELS;
+    score = q.ma_score;
+    sigText = q.ma_signal || '';
+    sigKey = score >= 70 ? 'strong' : (score >= 55 ? 'bullish' : 'neutral');
+  } else if (strategyMode === 'shrink_pullback') {
+    factors = q.shrink_factors;
+    labels = SHRINK_LABELS;
+    score = q.shrink_score;
+    sigText = q.shrink_signal || '';
+    sigKey = score >= 70 ? 'strong' : (score >= 55 ? 'bullish' : 'neutral');
   } else if (strategyMode === 'dragon') {
     const dg = dragonMap[q.code];
     score = dg ? dg.dragon_score : null;
@@ -544,6 +567,30 @@ function applyStrategyMode() {
   if (snap.length) renderWatchlist(snap);
 }
 
+function renderStrategyButtons() {
+  const wrap = document.querySelector('.strategy-toggle');
+  if (!wrap || !strategyList.length) return;
+  wrap.innerHTML = strategyList.map((s) =>
+    `<button data-strategy="${s.name}" class="${s.name === strategyMode ? 'active' : ''}">${s.display_name}</button>`
+  ).join('');
+  wrap.querySelectorAll('button').forEach((b) => {
+    b.addEventListener('click', () => {
+      strategyMode = b.dataset.strategy;
+      localStorage.setItem('strategyMode', strategyMode);
+      applyStrategyMode();
+      const snap2 = window.__snapQuotes || [];
+      if (snap2.length) loadChart(snap2[0]);
+    });
+  });
+}
+
+function loadStrategies() {
+  return loadJSON('data/strategies.json').then((d) => {
+    strategyList = d.strategies || [];
+    renderStrategyButtons();
+  }).catch(() => { strategyList = []; });
+}
+
 function loadDragon() {
   return loadJSON('data/dragon_head.json').then((d) => {
     dragonData = d;
@@ -853,6 +900,7 @@ async function init() {
     loadSectors();
     loadScanner();
     loadPicks();
+    loadStrategies();
     loadDragon();
     document.querySelectorAll('#main-nav button').forEach((b) => {
       b.addEventListener('click', () => showView(b.dataset.view));

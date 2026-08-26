@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-26 16:21:11",
+  "updated_at": "2026-08-26 23:36:47",
   "market_regime": {
     "regime": "震荡",
     "mom20": -0.4,
@@ -38,7 +38,23 @@
         "pos60": 83.0,
         "vol_ratio": 0.92,
         "volatility": 5.21
-      }
+      },
+      "ma_score": 83.4,
+      "ma_factors": {
+        "cross": 100,
+        "slope": 100,
+        "vol": 86,
+        "hold": 31
+      },
+      "ma_signal": "强势金叉",
+      "shrink_score": 47.6,
+      "shrink_factors": {
+        "trend": 100,
+        "shrink": 22,
+        "pullback": 5,
+        "support": 50
+      },
+      "shrink_signal": "无"
     },
     {
       "code": "001289",
@@ -71,7 +87,23 @@
         "pos60": 11.5,
         "vol_ratio": 0.79,
         "volatility": 0.78
-      }
+      },
+      "ma_score": 27.4,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 67,
+        "hold": 70
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 53.9,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 49,
+        "pullback": 97,
+        "support": 99
+      },
+      "shrink_signal": "无"
     },
     {
       "code": "601700",
@@ -104,40 +136,23 @@
         "pos60": 89.2,
         "vol_ratio": 1.14,
         "volatility": 7.35
-      }
-    },
-    {
-      "code": "002900",
-      "name": "哈三联",
-      "score": 30.9,
-      "signal": "高位风险",
-      "signal_key": "weak",
-      "momentum_score": 84.3,
-      "momentum_signal": "强势突破",
-      "factors": {
-        "rsi": 45,
-        "drawdown": 11,
-        "deviation": 51,
-        "position": 43,
-        "volume": 2,
-        "volatility": 0
       },
-      "indicators": {
-        "rsi": 57.2,
-        "mom20": 15.42,
-        "deviation": -0.21,
-        "pos60": 56.8,
-        "vol_ratio": 1.18,
-        "volatility": 5.59
+      "ma_score": 82.8,
+      "ma_factors": {
+        "cross": 100,
+        "slope": 100,
+        "vol": 100,
+        "hold": 14
       },
-      "momentum_indicators": {
-        "mom20": 15.42,
-        "mom60": 29.96,
-        "rsi": 57.2,
-        "pos60": 56.8,
-        "vol_ratio": 1.18,
-        "volatility": 5.59
-      }
+      "ma_signal": "强势金叉",
+      "shrink_score": 40.0,
+      "shrink_factors": {
+        "trend": 100,
+        "shrink": 0,
+        "pullback": 0,
+        "support": 50
+      },
+      "shrink_signal": "无"
     },
     {
       "code": "002437",
@@ -170,40 +185,72 @@
         "pos60": 64.8,
         "vol_ratio": 1.4,
         "volatility": 6.88
-      }
+      },
+      "ma_score": 80.0,
+      "ma_factors": {
+        "cross": 100,
+        "slope": 100,
+        "vol": 100,
+        "hold": 0
+      },
+      "ma_signal": "强势金叉",
+      "shrink_score": 44.2,
+      "shrink_factors": {
+        "trend": 100,
+        "shrink": 0,
+        "pullback": 0,
+        "support": 71
+      },
+      "shrink_signal": "无"
     },
     {
       "code": "159582",
       "name": "半导体ETF博时",
-      "score": 55.5,
+      "score": 55.8,
       "signal": "中性",
       "signal_key": "neutral",
-      "momentum_score": 43.8,
+      "momentum_score": 43.5,
       "momentum_signal": "中性",
       "factors": {
         "rsi": 60,
         "drawdown": 54,
-        "deviation": 57,
+        "deviation": 58,
         "position": 71,
         "volume": 50,
         "volatility": 0
       },
       "indicators": {
-        "rsi": 46.4,
-        "mom20": -1.55,
-        "deviation": -1.42,
-        "pos60": 29.4,
+        "rsi": 46.2,
+        "mom20": -1.68,
+        "deviation": -1.54,
+        "pos60": 29.2,
         "vol_ratio": 0.7,
         "volatility": 4.28
       },
       "momentum_indicators": {
-        "mom20": -1.55,
-        "mom60": 16.39,
-        "rsi": 46.4,
-        "pos60": 29.4,
+        "mom20": -1.68,
+        "mom60": 16.23,
+        "rsi": 46.2,
+        "pos60": 29.2,
         "vol_ratio": 0.7,
         "volatility": 4.28
-      }
+      },
+      "ma_score": 31.6,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 62,
+        "hold": 96
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 45.5,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 57,
+        "pullback": 92,
+        "support": 50
+      },
+      "shrink_signal": "无"
     },
     {
       "code": "600667",
@@ -236,7 +283,23 @@
         "pos60": 32.4,
         "vol_ratio": 0.56,
         "volatility": 5.67
-      }
+      },
+      "ma_score": 62.4,
+      "ma_factors": {
+        "cross": 77,
+        "slope": 100,
+        "vol": 52,
+        "hold": 0
+      },
+      "ma_signal": "金叉",
+      "shrink_score": 55.5,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 73,
+        "pullback": 86,
+        "support": 82
+      },
+      "shrink_signal": "接近"
     },
     {
       "code": "000657",
@@ -269,7 +332,23 @@
         "pos60": 23.4,
         "vol_ratio": 0.81,
         "volatility": 5.89
-      }
+      },
+      "ma_score": 77.2,
+      "ma_factors": {
+        "cross": 100,
+        "slope": 100,
+        "vol": 86,
+        "hold": 0
+      },
+      "ma_signal": "强势金叉",
+      "shrink_score": 35.7,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 21,
+        "pullback": 97,
+        "support": 50
+      },
+      "shrink_signal": "无"
     },
     {
       "code": "001258",
@@ -302,7 +381,23 @@
         "pos60": 68.0,
         "vol_ratio": 0.77,
         "volatility": 6.43
-      }
+      },
+      "ma_score": 39.4,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 100,
+        "vol": 72,
+        "hold": 0
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 62.2,
+      "shrink_factors": {
+        "trend": 100,
+        "shrink": 42,
+        "pullback": 48,
+        "support": 50
+      },
+      "shrink_signal": "接近"
     },
     {
       "code": "688036",
@@ -335,7 +430,23 @@
         "pos60": 27.6,
         "vol_ratio": 0.78,
         "volatility": 2.6
-      }
+      },
+      "ma_score": 32.0,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 73,
+        "hold": 87
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 51.5,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 41,
+        "pullback": 97,
+        "support": 99
+      },
+      "shrink_signal": "无"
     },
     {
       "code": "001965",
@@ -368,7 +479,23 @@
         "pos60": 68.1,
         "vol_ratio": 1.19,
         "volatility": 1.44
-      }
+      },
+      "ma_score": 20.0,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 100,
+        "hold": 0
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 27.5,
+      "shrink_factors": {
+        "trend": 9,
+        "shrink": 0,
+        "pullback": 28,
+        "support": 96
+      },
+      "shrink_signal": "无"
     },
     {
       "code": "600012",
@@ -401,7 +528,23 @@
         "pos60": 41.9,
         "vol_ratio": 0.78,
         "volatility": 1.75
-      }
+      },
+      "ma_score": 21.0,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 71,
+        "hold": 34
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 41.2,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 44,
+        "pullback": 53,
+        "support": 87
+      },
+      "shrink_signal": "无"
     },
     {
       "code": "600011",
@@ -434,7 +577,23 @@
         "pos60": 7.3,
         "vol_ratio": 0.65,
         "volatility": 0.97
-      }
+      },
+      "ma_score": 24.6,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 53,
+        "hold": 70
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 57.6,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 70,
+        "pullback": 86,
+        "support": 97
+      },
+      "shrink_signal": "接近"
     },
     {
       "code": "600350",
@@ -467,7 +626,23 @@
         "pos60": 24.7,
         "vol_ratio": 0.88,
         "volatility": 1.81
-      }
+      },
+      "ma_score": 30.8,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 91,
+        "hold": 63
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 35.0,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 14,
+        "pullback": 58,
+        "support": 96
+      },
+      "shrink_signal": "无"
     },
     {
       "code": "000959",
@@ -500,7 +675,23 @@
         "pos60": 56.1,
         "vol_ratio": 0.92,
         "volatility": 1.17
-      }
+      },
+      "ma_score": 21.8,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 80,
+        "hold": 29
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 58.4,
+      "shrink_factors": {
+        "trend": 38,
+        "shrink": 30,
+        "pullback": 96,
+        "support": 94
+      },
+      "shrink_signal": "接近"
     },
     {
       "code": "600584",
@@ -533,7 +724,23 @@
         "pos60": 24.1,
         "vol_ratio": 0.68,
         "volatility": 5.26
-      }
+      },
+      "ma_score": 37.0,
+      "ma_factors": {
+        "cross": 65,
+        "slope": 0,
+        "vol": 61,
+        "hold": 10
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 49.8,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 58,
+        "pullback": 91,
+        "support": 71
+      },
+      "shrink_signal": "无"
     },
     {
       "code": "000725",
@@ -566,7 +773,72 @@
         "pos60": 10.2,
         "vol_ratio": 0.7,
         "volatility": 3.54
-      }
+      },
+      "ma_score": 22.6,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 66,
+        "hold": 47
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 52.5,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 51,
+        "pullback": 89,
+        "support": 97
+      },
+      "shrink_signal": "无"
+    },
+    {
+      "code": "002491",
+      "name": "通鼎互联",
+      "score": 13.7,
+      "signal": "高位风险",
+      "signal_key": "weak",
+      "momentum_score": 70.1,
+      "momentum_signal": "强势突破",
+      "factors": {
+        "rsi": 15,
+        "drawdown": 0,
+        "deviation": 0,
+        "position": 66,
+        "volume": 0,
+        "volatility": 0
+      },
+      "indicators": {
+        "rsi": 73.3,
+        "mom20": 51.58,
+        "deviation": 24.74,
+        "pos60": 34.4,
+        "vol_ratio": 1.45,
+        "volatility": 5.42
+      },
+      "momentum_indicators": {
+        "mom20": 51.58,
+        "mom60": -10.4,
+        "rsi": 73.3,
+        "pos60": 34.4,
+        "vol_ratio": 1.45,
+        "volatility": 5.42
+      },
+      "ma_score": 80.0,
+      "ma_factors": {
+        "cross": 100,
+        "slope": 100,
+        "vol": 100,
+        "hold": 0
+      },
+      "ma_signal": "强势金叉",
+      "shrink_score": 17.8,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 0,
+        "pullback": 0,
+        "support": 89
+      },
+      "shrink_signal": "无"
     }
   ]
 }

@@ -35,6 +35,7 @@ import sector
 import support_resistance
 import signals
 import zone_history
+import strategy_index
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -634,6 +635,20 @@ def main():
             "indicators": ind,
             "momentum_indicators": mind,
         })
+        # 新策略（P1a yaml 化配套）
+        try:
+            maf = quant.ma_golden_cross_factors(history)
+            quant_results[-1]["ma_score"] = quant.ma_golden_cross_score(maf)
+            quant_results[-1]["ma_factors"] = maf
+            quant_results[-1]["ma_signal"] = ("强势金叉" if (quant_results[-1]["ma_score"] or 0) >= 70 else
+                                              ("金叉" if (quant_results[-1]["ma_score"] or 0) >= 55 else "未金叉"))
+            sf = quant.shrink_pullback_factors(history)
+            quant_results[-1]["shrink_score"] = quant.shrink_pullback_score(sf)
+            quant_results[-1]["shrink_factors"] = sf
+            quant_results[-1]["shrink_signal"] = ("缩量低吸" if (quant_results[-1]["shrink_score"] or 0) >= 70 else
+                                                 ("接近" if (quant_results[-1]["shrink_score"] or 0) >= 55 else "无"))
+        except Exception:
+            pass
         if sig_key == "strong":
             note = ""
             if regime["regime"] == "下跌":
@@ -678,6 +693,12 @@ def main():
 
     save_json(os.path.join(DATA_DIR, "support_resistance.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": sr_results})
     save_json(os.path.join(DATA_DIR, "signals.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": sig_results})
+
+    # 策略索引（P1a yaml 化，供前端动态渲染打法选择器）
+    try:
+        strategy_index.main()
+    except Exception as e:
+        print(f"[warn] 策略索引失败: {e}")
 
     # ══════════ 龙头战法（2026-08-26 新增）══════════
     try:

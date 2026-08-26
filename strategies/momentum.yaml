@@ -1,0 +1,14 @@
+name: momentum
+display_name: 强势动量
+category: trend
+description: 强势突破，动量延续。20/60日动量+RSI强势+距60日高点+放量+活跃度
+market_regimes: [上涨]
+signal_rules:
+  strong: 70
+factors:
+  - {key: mom20, label: 20日动量, weight: 25}
+  - {key: mom60, label: 60日动量, weight: 20}
+  - {key: rsi, label: RSI强势, weight: 20}
+  - {key: pos60, label: 60日位置, weight: 15}
+  - {key: vol_ratio, label: 量比, weight: 10}
+  - {key: volatility, label: 活跃度, weight: 10}

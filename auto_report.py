@@ -192,6 +192,13 @@ def portfolio_section():
 
 def build_report():
     advices, overall, demo = portfolio_section()
+    # 信号落库（P1b：真实建议→10日后自动回填判定）
+    if not demo:
+        try:
+            import signal_history
+            signal_history.record_signals(advices)
+        except Exception as e:
+            print(f"[warn] 信号落库失败: {e}")
     extra = [("市场与情绪", market_section()), ("回测摘要", backtest_section())]
     body = pf.format_report_text(advices, overall, extra)
     # AI 决策报告（有 DEEPSEEK_API_KEY 时追加，失败不影响主报告）

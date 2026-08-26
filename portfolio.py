@@ -109,6 +109,26 @@ def advice_one(position, quote, history):
     if out.get("resistance"):
         res_dist = (out["resistance"] - price) / price * 100
 
+    # ── 狙击点位（P1c，学 DSA 的 ideal_buy/secondary_buy/stop_loss/take_profit） ──
+    sniper = {}
+    try:
+        supports = lv["supports"]
+        resistances = lv["resistances"]
+        # 理想买点：守住率≥60% 的最近支撑；否则最近支撑
+        good_sups = [s for s in supports if s.get("held_rate") is not None and s["held_rate"] >= 60]
+        pick_sups = good_sups if good_sups else supports
+        if pick_sups:
+            ideal = pick_sups[0]
+            sniper["ideal_buy"] = round(ideal["price"], 2)
+            sniper["stop_loss"] = round(ideal["price"] * 0.98, 2)
+            if len(pick_sups) > 1:
+                sniper["secondary_buy"] = round(pick_sups[1]["price"], 2)
+        if resistances:
+            sniper["take_profit"] = round(resistances[0]["price"], 2)
+    except Exception:
+        pass
+    out["sniper"] = sniper
+
     # 1. 止损：浮亏≥8% 且 跌破支撑（或价格在支撑下方）
     if pnl_pct <= -8 and (sup_dist is not None and sup_dist < 0):
         out["advice"] = "止损"
@@ -209,11 +229,25 @@ def format_report_text(advices, overall, extra_sections=None):
     for a in advices:
         pnl = a.get("pnl_pct")
         pnl_txt = f"{pnl:+.1f}%" if pnl is not None else "-"
+        sp = a.get("sniper") or {}
+        sniper_txt = ""
+        if sp:
+            parts = []
+            if sp.get("ideal_buy"):
+                parts.append(f"理想买{sp['ideal_buy']}")
+            if sp.get("secondary_buy"):
+                parts.append(f"次买{sp['secondary_buy']}")
+            if sp.get("stop_loss"):
+                parts.append(f"止损{sp['stop_loss']}")
+            if sp.get("take_profit"):
+                parts.append(f"止盈{sp['take_profit']}")
+            sniper_txt = " ｜ 狙击: " + " / ".join(parts)
         lines.append(
             f"• {a['name']}({a['code']}) 现价{a.get('price')} 成本{a.get('cost')} "
             f"盈亏{pnl_txt} 评分{a.get('score', '-')} {a.get('signal', '')}"
             f"\n   支撑{a.get('support', '-')}(守{a.get('support_held', '-')}%) 压力{a.get('resistance', '-')} "
             f"风险{a.get('risk', {}).get('score', '-')}({a.get('risk', {}).get('level', '')})"
+            f"{sniper_txt}"
             f"\n   → 【{a['advice']}】{a['reason']}"
         )
 

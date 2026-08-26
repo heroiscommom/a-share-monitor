@@ -1,0 +1,13 @@
+name: ma_golden_cross
+display_name: 均线金叉
+category: trend
+description: MA5上穿MA20且MA20走平/上行，量能确认，回踩不破为买点
+market_regimes: [震荡, 上涨]
+signal_rules:
+  strong: 70
+  bullish: 55
+factors:
+  - {key: cross, label: 金叉强度, weight: 35}
+  - {key: slope, label: 均线斜率, weight: 25}
+  - {key: vol, label: 量能确认, weight: 20}
+  - {key: hold, label: 回踩守住, weight: 20}

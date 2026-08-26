@@ -270,3 +270,108 @@ def market_regime(index_closes, lookback=20):
         regime = "震荡"
     desc = f"沪深300 20日涨跌 {mom20:+.1f}%，波动 {vol20:.1f}% → {regime}市"
     return {"regime": regime, "mom20": round(mom20, 1), "vol20": round(vol20, 1), "desc": desc}
+
+
+# ═══════════════════════════════════════════
+# 新增策略因子（2026-08-26，P1a yaml 化配套）
+# ═══════════════════════════════════════════
+
+def ma_golden_cross_factors(history):
+    """
+    均线金叉因子（0-100，越高越强）：
+      cross  金叉强度：MA5 上穿 MA20 的天数/幅度
+      slope  均线斜率：MA20 近10日斜率
+      vol    量能确认：金叉日放量程度
+      hold   回踩守住：现价距 MA5/MA20 的距离（回踩不破）
+    """
+    def ma(n):
+        if len(history) < n:
+            return None
+        return sum(h["close"] for h in history[-n:]) / n
+    ma5, ma20 = ma(5), ma(20)
+    if ma5 is None or ma20 is None or ma20 <= 0:
+        return None
+    # 金叉强度：MA5-MA20 归一化（2% 为满分）
+    cross = max(0.0, min(100.0, (ma5 / ma20 - 1) * 100 / 2.0 * 100))
+    # 斜率：MA20 近10日变化（2% 为满分）
+    if len(history) >= 30:
+        ma20_prev = sum(h["close"] for h in history[-30:-10]) / 20
+        slope = max(0.0, min(100.0, (ma20 / ma20_prev - 1) * 100 / 2.0 * 100)) if ma20_prev else 50
+    else:
+        slope = 50
+    # 量能确认：近5日均量 vs 前20日均量（放量 1.2x 满分）
+    v5 = sum(h["volume"] for h in history[-5:]) / 5
+    v20 = sum(h["volume"] for h in history[-25:-5]) / 20 if len(history) >= 25 else v5
+    vol = min(100.0, max(0.0, v5 / v20 * 100)) if v20 else 50
+    # 回踩守住：现价在 MA5 附近（±1.5% 满分）
+    cur = history[-1]["close"]
+    dist_ma5 = abs(cur / ma5 - 1) * 100
+    hold = max(0.0, 100 - dist_ma5 * 30)
+    return {"cross": round(cross), "slope": round(slope), "vol": round(vol), "hold": round(hold)}
+
+
+def ma_golden_cross_score(factors):
+    if not factors:
+        return None
+    return round(factors["cross"] * 0.35 + factors["slope"] * 0.25 +
+                 factors["vol"] * 0.20 + factors["hold"] * 0.20, 1)
+
+
+def shrink_pullback_factors(history):
+    """
+    缩量回调因子（0-100，越高越值得低吸）：
+      trend    趋势向上：MA20 高于 MA60 且斜率正
+      shrink   缩量程度：近5日均量 / 前20日均量（越缩越好）
+      pullback 回调深度：现价距 MA20 的回调幅度（0~8% 为佳）
+      support  近支撑：现价接近 60日支撑（复用 support_resistance）
+    """
+    def ma(n):
+        if len(history) < n:
+            return None
+        return sum(h["close"] for h in history[-n:]) / n
+    ma20, ma60 = ma(20), ma(60)
+    if ma20 is None or ma60 is None or ma60 <= 0:
+        return None
+    # 趋势
+    slope = 0.0
+    if len(history) >= 40:
+        ma20_prev = sum(h["close"] for h in history[-40:-20]) / 20
+        slope = (ma20 / ma20_prev - 1) * 100 if ma20_prev else 0
+    trend = max(0.0, min(100.0, (ma20 / ma60 - 1) * 100 / 5.0 * 100 * 0.6 + slope * 20))
+    # 缩量：近5日/前20日，0.6 倍以下满分
+    v5 = sum(h["volume"] for h in history[-5:]) / 5
+    v20 = sum(h["volume"] for h in history[-25:-5]) / 20 if len(history) >= 25 else v5
+    ratio = v5 / v20 if v20 else 1.0
+    shrink = max(0.0, min(100.0, (1.0 - ratio) * 150))
+    # 回调深度：距 MA20 的负偏离 0~8% 最佳
+    cur = history[-1]["close"]
+    dev = (cur / ma20 - 1) * 100
+    if -8 <= dev <= 0:
+        pullback = 100 - abs(dev) * 5
+    elif dev > 0:
+        pullback = max(0.0, 60 - dev * 10)
+    else:
+        pullback = max(0.0, 60 - abs(dev + 8) * 6)
+    # 近支撑：现价距最近支撑 0~3% 满分
+    support = 50.0
+    try:
+        import support_resistance
+        lv = support_resistance.compute_levels(history)
+        if lv["supports"]:
+            sp = lv["supports"][0]["price"]
+            dist = (cur - sp) / cur * 100
+            if 0 <= dist <= 3:
+                support = 100 - dist * 20
+            elif dist < 0:
+                support = 30  # 已跌破支撑
+    except Exception:
+        pass
+    return {"trend": round(trend), "shrink": round(shrink),
+            "pullback": round(pullback), "support": round(support)}
+
+
+def shrink_pullback_score(factors):
+    if not factors:
+        return None
+    return round(factors["trend"] * 0.30 + factors["shrink"] * 0.30 +
+                 factors["pullback"] * 0.20 + factors["support"] * 0.20, 1)

@@ -1,0 +1,16 @@
+name: dragon_head
+display_name: 龙头战法
+category: emotion
+description: 涨停梯队识别市场龙头。连板高度/封板强度/首板时间/炸板/板块共振/换手
+market_regimes: [回暖, 活跃]
+signal_rules:
+  S: 70
+  A: 60
+  B: 45
+factors:
+  - {key: lbc, label: 连板高度, weight: 30}
+  - {key: seal, label: 封板强度, weight: 25}
+  - {key: fbt, label: 首板时间, weight: 15}
+  - {key: zbc, label: 炸板, weight: 10}
+  - {key: sector, label: 板块共振, weight: 10}
+  - {key: hs, label: 换手, weight: 10}
