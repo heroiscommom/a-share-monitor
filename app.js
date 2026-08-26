@@ -181,11 +181,17 @@ function drawFactor(q) {
     $('#factor-score').innerHTML = `<span class="empty">${strategyMode === 'dragon' ? '非涨停股无龙头分' : '暂无评分'}</span>`;
   }
   if (!factors || !Object.keys(factors).length) {
-    if (radarChart) radarChart.clear();
+    // 无因子时显示占位提示（而非纯空白）
+    if (radarChart) { try { radarChart.dispose(); } catch (e) {} radarChart = null; }
+    const fel = $('#factor-radar');
+    if (fel) fel.innerHTML = `<div class="empty" style="height:100%;display:flex;align-items:center;justify-content:center;">${
+      strategyMode === 'dragon' ? '非涨停股无龙头分 — 切换到其他策略查看因子' : '暂无因子数据'}</div>`;
     drawFundamental(q);
     return;
   }
-  if (!radarChart) radarChart = echarts.init($('#factor-radar'));
+  const fel2 = $('#factor-radar');
+  if (fel2) fel2.innerHTML = '';
+  if (!radarChart) radarChart = echarts.init(fel2);
   const inds = Object.keys(labels).filter((k) => factors[k] !== undefined);
   radarChart.setOption({
     backgroundColor: 'transparent',
