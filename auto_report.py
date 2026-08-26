@@ -194,6 +194,15 @@ def build_report():
     advices, overall, demo = portfolio_section()
     extra = [("市场与情绪", market_section()), ("回测摘要", backtest_section())]
     body = pf.format_report_text(advices, overall, extra)
+    # AI 决策报告（有 DEEPSEEK_API_KEY 时追加，失败不影响主报告）
+    try:
+        import ai_report
+        payload = ai_report.build_data_payload()
+        ai_text = ai_report.call_deepseek(payload)
+        if ai_text:
+            body += "\n\n" + "=" * 40 + "\n🤖 AI 决策报告\n" + "=" * 40 + "\n" + ai_text
+    except Exception as e:
+        print(f"[warn] AI 报告失败: {e}")
     if demo:
         body += "\n\n⚠️ 当前为演示持仓（watchlist 前5只，成本=现价×0.95）。请在 config.json 配置真实 portfolio 与 capital。"
     return body, overall
