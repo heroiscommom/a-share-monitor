@@ -10,13 +10,19 @@
 <body>
   <header>
     <div class="title">📈 A股盯盘助手</div>
+    <nav class="main-nav" id="main-nav">
+      <button data-view="board" class="active">📊 盯盘</button>
+      <button data-view="trade">💼 交易</button>
+      <button data-view="review">📈 复盘</button>
+    </nav>
     <div class="header-right">
-      <button id="manage-btn">⚙️ 管理自选股</button>
+      <button id="manage-btn">⚙️ 自选股</button>
       <div id="updated" class="updated">加载中…</div>
     </div>
   </header>
 
   <main>
+    <div id="view-board">
     <section class="panel">
       <h2>自选股</h2>
       <table id="watchlist">
@@ -110,6 +116,65 @@
       <h2>异动记录</h2>
       <ul id="alerts"></ul>
     </section>
+    </div><!-- /view-board -->
+
+    <!-- ══════════ 交易视图 ══════════ -->
+    <div id="view-trade" class="view hidden">
+      <section class="panel full">
+        <div class="chart-head">
+          <h2>💼 当前持仓</h2>
+          <span id="pos-summary" class="backtest-meta"></span>
+        </div>
+        <div id="positions" class="trade-list"></div>
+      </section>
+
+      <section class="panel full">
+        <div class="chart-head"><h2>✍️ 交易录入（同步现实操作）</h2></div>
+        <div class="trade-form">
+          <div class="tf-row">
+            <select id="tf-side" class="tf-input">
+              <option value="buy">买入</option>
+              <option value="sell">卖出</option>
+              <option value="pnl">记录已实现盈亏</option>
+            </select>
+            <input id="tf-code" class="tf-input" placeholder="股票代码 如600664" inputmode="numeric" maxlength="6">
+          </div>
+          <div class="tf-row">
+            <input id="tf-name" class="tf-input" placeholder="股票名称(可选)">
+            <input id="tf-qty" class="tf-input" placeholder="股数(盈亏记录填金额)" inputmode="decimal">
+          </div>
+          <div class="tf-row" id="tf-price-row">
+            <input id="tf-price" class="tf-input" placeholder="成交价格" inputmode="decimal">
+            <input id="tf-note" class="tf-input" placeholder="备注(可选)">
+          </div>
+          <button id="tf-submit" class="tf-submit">提交交易记录</button>
+          <p class="hint">点「提交」会打开 GitHub 新建 Issue 页，点「Submit new issue」后自动录入（约30秒），刷新本页即可看到。手机上同样操作。</p>
+        </div>
+      </section>
+
+      <section class="panel full">
+        <div class="chart-head"><h2>📜 最近交易流水</h2></div>
+        <div id="trade-list" class="trade-list"></div>
+      </section>
+    </div>
+
+    <!-- ══════════ 复盘视图 ══════════ -->
+    <div id="view-review" class="view hidden">
+      <section class="panel full">
+        <div class="chart-head"><h2>📈 净值曲线</h2><span id="equity-meta" class="backtest-meta"></span></div>
+        <div id="equity-chart" class="equity-chart"></div>
+      </section>
+
+      <section class="panel full">
+        <div class="chart-head"><h2>🧾 复盘摘要</h2></div>
+        <div id="review-summary" class="trade-list"></div>
+      </section>
+
+      <section class="panel full">
+        <div class="chart-head"><h2>🗂 全部交易流水</h2></div>
+        <div id="all-trades" class="trade-list"></div>
+      </section>
+    </div>
   </main>
 
   <footer>数据来源：腾讯行情 · 仅供参考，不构成投资建议</footer>

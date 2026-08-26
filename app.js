@@ -561,6 +561,203 @@ function loadDragon() {
   });
 }
 
+let equityChart = null;
+let lastQuoteMap = {};
+
+// ═══════════ 视图切换 ═══════════
+function showView(v) {
+  ['board', 'trade', 'review'].forEach((k) => {
+    const el = document.getElementById('view-' + k);
+    if (el) el.classList.toggle('hidden', k !== v);
+  });
+  document.querySelectorAll('#main-nav button').forEach((b) => {
+    b.classList.toggle('active', b.dataset.view === v);
+  });
+  try { if (location.hash !== '#' + v) history.replaceState(null, '', '#' + v); } catch (e) {}
+  if (v === 'trade') loadTrade();
+  if (v === 'review') loadReview();
+  window.scrollTo(0, 0);
+}
+
+// ═══════════ 交易视图 ═══════════
+function fmtMoney(n) {
+  if (n === null || n === undefined || Number.isNaN(n)) return '-';
+  return Number(n).toLocaleString('zh-CN', { maximumFractionDigits: 0 });
+}
+
+function loadTrade() {
+  loadJSON('data/trades.json').then((d) => {
+    const trades = d.trades || [];
+    // 推导持仓
+    const pos = {};
+    trades.sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
+    trades.forEach((t) => {
+      if (!pos[t.code]) pos[t.code] = { name: t.name || t.code, shares: 0, avg: 0, cost: 0, realized: 0 };
+      const p = pos[t.code];
+      if (t.side === 'buy') {
+        const c = t.shares * t.price + (t.fee || 0);
+        const ns = p.shares + t.shares;
+        p.avg = ns ? (p.cost + c) / ns : 0;
+        p.cost += c;
+        p.shares = ns;
+      } else if (t.side === 'sell') {
+        const sv = t.shares * t.price - (t.fee || 0);
+        p.realized += sv - p.avg * t.shares;
+        p.shares = Math.max(0, p.shares - t.shares);
+        p.cost = p.avg * p.shares;
+      } else if (t.side === 'pnl') {
+        p.realized += t.shares;
+      }
+    });
+    // 现价
+    const codes = Object.keys(pos);
+    Promise.all(codes.map((c) => loadJSON('data/snapshot.json').then((s) => {
+      const q = (s.quotes || []).find((x) => x.code === c);
+      return q ? { code: c, price: q.price } : null;
+    }).catch(() => null))).then((quotes) => {
+      const qm = {};
+      quotes.forEach((x) => { if (x) qm[x.code] = x.price; });
+      renderPositions(pos, qm);
+    });
+    renderTradeList(trades.slice(-15).reverse());
+  }).catch(() => {
+    document.getElementById('positions').innerHTML = '<div class="empty">暂无交易记录</div>';
+  });
+}
+
+function renderPositions(pos, qm) {
+  const el = document.getElementById('positions');
+  const sumEl = document.getElementById('pos-summary');
+  let mv = 0, floatPnl = 0;
+  const rows = Object.keys(pos).map((code) => {
+    const p = pos[code];
+    const price = qm[code] || 0;
+    const m = p.shares * price;
+    const fp = m - p.avg * p.shares;
+    mv += m; floatPnl += fp;
+    const pnlCls = fp >= 0 ? 'up' : 'down';
+    if (p.shares > 0) {
+      return `<div class="pos-card">
+        <div class="pos-head"><b>${p.name}</b><span>${code}</span></div>
+        <div class="pos-grid">
+          <div><label>持仓</label><span>${p.shares}股</span></div>
+          <div><label>均价</label><span>${p.avg.toFixed(3)}</span></div>
+          <div><label>现价</label><span>${price || '-'}</span></div>
+          <div><label>浮动盈亏</label><span class="${pnlCls}">${fp >= 0 ? '+' : ''}${fmtMoney(fp)}</span></div>
+        </div>
+      </div>`;
+    }
+    return `<div class="pos-card pos-closed">
+      <div class="pos-head"><b>${p.name}</b><span>${code} 已清仓</span></div>
+      <div class="pos-grid"><div><label>已实现盈亏</label><span class="${p.realized >= 0 ? 'up' : 'down'}">${p.realized >= 0 ? '+' : ''}${fmtMoney(p.realized)}</span></div></div>
+    </div>`;
+  }).join('');
+  el.innerHTML = rows || '<div class="empty">暂无持仓</div>';
+  sumEl.textContent = `持仓市值 ${fmtMoney(mv)} ｜ 浮动 ${floatPnl >= 0 ? '+' : ''}${fmtMoney(floatPnl)}`;
+}
+
+function renderTradeList(trades) {
+  const el = document.getElementById('trade-list');
+  if (!trades.length) { el.innerHTML = '<div class="empty">暂无交易流水</div>'; return; }
+  el.innerHTML = trades.map((t) => {
+    const sideTxt = { buy: '买入', sell: '卖出', pnl: '盈亏' }[t.side] || t.side;
+    const cls = t.side === 'buy' ? 'up' : (t.side === 'sell' ? 'down' : '');
+    if (t.side === 'pnl') {
+      return `<div class="trade-row"><span class="t-date">${t.date}</span><span class="${t.shares >= 0 ? 'up' : 'down'}">${sideTxt}</span><b>${t.name || t.code}</b><span>${t.shares >= 0 ? '+' : ''}${fmtMoney(t.shares)}</span><span class="t-note">${t.reason || ''}</span></div>`;
+    }
+    return `<div class="trade-row"><span class="t-date">${t.date}</span><span class="${cls}">${sideTxt}</span><b>${t.name || t.code}</b><span>${t.shares}股 @${t.price}</span><span class="t-note">${t.reason || ''}</span></div>`;
+  }).join('');
+}
+
+// ═══════════ 交易录入表单 ═══════════
+function buildTradeCommand() {
+  const side = document.getElementById('tf-side').value;
+  const code = document.getElementById('tf-code').value.trim();
+  const name = document.getElementById('tf-name').value.trim();
+  const qty = document.getElementById('tf-qty').value.trim();
+  const price = document.getElementById('tf-price').value.trim();
+  const note = document.getElementById('tf-note').value.trim();
+  if (!/^\d{6}$/.test(code)) { alert('请输入6位股票代码'); return null; }
+  if (!qty || Number(qty) === 0) { alert('请输入股数/金额'); return null; }
+  if (side !== 'pnl' && !price) { alert('请输入成交价格'); return null; }
+  const parts = ['/trade', side, code, qty];
+  if (side !== 'pnl') parts.push(price);
+  if (name) parts.push(name);
+  if (note) parts.push(note);
+  return parts.join(' ');
+}
+
+function initTradeForm() {
+  document.getElementById('tf-side').addEventListener('change', (e) => {
+    const isPnl = e.target.value === 'pnl';
+    document.getElementById('tf-price-row').style.display = isPnl ? 'none' : '';
+    document.getElementById('tf-qty').placeholder = isPnl ? '盈亏金额(如 -4961)' : '股数';
+  });
+  document.getElementById('tf-submit').addEventListener('click', () => {
+    const cmd = buildTradeCommand();
+    if (!cmd) return;
+    const title = encodeURIComponent('[trade] 交易录入');
+    const body = encodeURIComponent(cmd + '\n\n（自动生成，提交后自动录入并关闭）');
+    window.open(`https://github.com/heroiscommom/a-share-monitor/issues/new?title=${title}&body=${body}`, '_blank');
+  });
+}
+
+// ═══════════ 复盘视图 ═══════════
+function loadReview() {
+  // 净值曲线
+  loadJSON('data/equity_history.json').then((d) => {
+    const entries = d.entries || [];
+    const meta = document.getElementById('equity-meta');
+    if (entries.length >= 2) {
+      const last = entries[entries.length - 1];
+      const prev = entries[entries.length - 2];
+      const chg = last.total - prev.total;
+      meta.textContent = `最新 ${last.date} 总资产 ${fmtMoney(last.total)}（${chg >= 0 ? '+' : ''}${fmtMoney(chg)}）`;
+    } else if (entries.length === 1) {
+      meta.textContent = `最新 ${entries[0].date} 总资产 ${fmtMoney(entries[0].total)}`;
+    }
+    if (entries.length >= 2 && document.getElementById('equity-chart')) {
+      if (!equityChart) equityChart = echarts.init(document.getElementById('equity-chart'));
+      equityChart.setOption({
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'axis' },
+        grid: { left: 64, right: 16, top: 16, bottom: 24 },
+        xAxis: { type: 'category', data: entries.map((e) => e.date.slice(5)), axisLabel: { color: '#8b96ad', fontSize: 10 }, axisLine: { lineStyle: { color: '#3a4155' } } },
+        yAxis: { type: 'value', scale: true, axisLabel: { color: '#8b96ad', fontSize: 10 }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } } },
+        series: [{
+          type: 'line', data: entries.map((e) => e.total), smooth: true, symbol: 'circle', symbolSize: 5,
+          lineStyle: { color: '#3a7afe', width: 2 },
+          areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(58,122,254,0.35)' }, { offset: 1, color: 'rgba(58,122,254,0.02)' }] } },
+          markPoint: { data: [{ type: 'max', name: '高点' }, { type: 'min', name: '低点' }] },
+        }],
+      }, true);
+    }
+  }).catch(() => {});
+  // 复盘摘要 + 全部流水
+  loadJSON('data/trades.json').then((d) => {
+    const trades = d.trades || [];
+    const realized = trades.filter((t) => t.side === 'pnl').reduce((s, t) => s + t.shares, 0);
+    const buys = trades.filter((t) => t.side === 'buy').length;
+    const sells = trades.filter((t) => t.side === 'sell').length;
+    const sumEl = document.getElementById('review-summary');
+    sumEl.innerHTML = `<div class="review-cards">
+      <div class="review-card"><label>总交易笔数</label><span>${trades.length}</span></div>
+      <div class="review-card"><label>买入/卖出</label><span>${buys} / ${sells}</span></div>
+      <div class="review-card"><label>已实现盈亏</label><span class="${realized >= 0 ? 'up' : 'down'}">${realized >= 0 ? '+' : ''}${fmtMoney(realized)}</span></div>
+      <div class="review-card"><label>数据起始</label><span>${trades.length ? trades[0].date : '-'}</span></div>
+    </div>
+    <p class="hint">每周日 15:30 自动生成周复盘邮件，净值曲线随周报更新。</p>`;
+    const allEl = document.getElementById('all-trades');
+    if (!trades.length) { allEl.innerHTML = '<div class="empty">暂无交易记录</div>'; return; }
+    allEl.innerHTML = trades.slice().reverse().map((t) => {
+      const sideTxt = { buy: '买入', sell: '卖出', pnl: '盈亏' }[t.side] || t.side;
+      const cls = t.side === 'buy' ? 'up' : (t.side === 'sell' ? 'down' : (t.shares >= 0 ? 'up' : 'down'));
+      const detail = t.side === 'pnl' ? `${t.shares >= 0 ? '+' : ''}${fmtMoney(t.shares)}` : `${t.shares}股 @${t.price}`;
+      return `<div class="trade-row"><span class="t-date">${t.date}</span><span class="${cls}">${sideTxt}</span><b>${t.name || t.code}</b><span>${detail}</span><span class="t-note">${t.reason || ''}</span></div>`;
+    }).join('');
+  }).catch(() => {});
+}
+
 async function loadScanner() {
   try {
     const d = await loadJSON('data/scanner.json');
@@ -657,6 +854,10 @@ async function init() {
     loadScanner();
     loadPicks();
     loadDragon();
+    document.querySelectorAll('#main-nav button').forEach((b) => {
+      b.addEventListener('click', () => showView(b.dataset.view));
+    });
+    initTradeForm();
     document.querySelectorAll('.strategy-toggle button').forEach((b) => {
       b.addEventListener('click', () => {
         strategyMode = b.dataset.strategy;
@@ -667,12 +868,14 @@ async function init() {
       });
     });
     applyStrategyMode();
+    const initView = (location.hash || '').replace('#', '');
+    if (['trade', 'review'].includes(initView)) showView(initView);
   } catch (e) {
     $('#updated').textContent = '加载失败：' + e.message;
   }
 }
 
-window.addEventListener('resize', () => { chart && chart.resize(); sentimentChart && sentimentChart.resize(); radarChart && radarChart.resize(); backtestChart && backtestChart.resize(); thresholdChart && thresholdChart.resize(); sectorHeatChart && sectorHeatChart.resize(); });
+window.addEventListener('resize', () => { chart && chart.resize(); equityChart && equityChart.resize(); sentimentChart && sentimentChart.resize(); radarChart && radarChart.resize(); backtestChart && backtestChart.resize(); thresholdChart && thresholdChart.resize(); sectorHeatChart && sectorHeatChart.resize(); });
 init();
 
 // ===== 自选股管理 =====

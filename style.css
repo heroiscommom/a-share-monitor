@@ -185,3 +185,50 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 16px
 .sent-label { color: var(--muted); font-size: 12px; }
 .sent-num { font-size: 16px; font-weight: 700; color: var(--accent); }
 .sentiment-chart { height: 90px; margin-bottom: 12px; }
+
+/* ═══════════ 导航 + 视图 ═══════════ */
+.main-nav { display: flex; gap: 6px; margin: 0 12px; }
+.main-nav button { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--panel-border); background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; }
+.main-nav button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.view.hidden, #view-board.hidden { display: none; }
+
+/* 交易表单（手机友好） */
+.trade-form { display: flex; flex-direction: column; gap: 10px; padding: 4px 0; }
+.tf-row { display: flex; gap: 8px; }
+.tf-input { flex: 1; min-width: 0; padding: 12px 10px; font-size: 16px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.04); color: var(--text, #e8ecf4); }
+.tf-input::placeholder { color: #5a6478; }
+.tf-submit { padding: 14px; font-size: 16px; font-weight: 600; border-radius: 10px; border: none; background: var(--accent); color: #fff; cursor: pointer; min-height: 48px; }
+.tf-submit:active { opacity: 0.8; }
+select.tf-input { appearance: auto; }
+
+/* 持仓卡片 */
+.trade-list { display: flex; flex-direction: column; gap: 10px; }
+.pos-card { border: 1px solid var(--panel-border); border-radius: 10px; padding: 12px; background: rgba(255,255,255,0.02); }
+.pos-card.pos-closed { opacity: 0.75; }
+.pos-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+.pos-head span { color: var(--muted); font-size: 12px; }
+.pos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.pos-grid label { display: block; color: var(--muted); font-size: 11px; margin-bottom: 2px; }
+.pos-grid span { font-size: 14px; font-weight: 600; }
+.trade-row { display: flex; align-items: center; gap: 8px; padding: 9px 4px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; flex-wrap: wrap; }
+.trade-row .t-date { color: var(--muted); font-size: 11px; }
+.trade-row .t-note { color: var(--muted); font-size: 11px; margin-left: auto; }
+
+/* 复盘页 */
+.equity-chart { height: 260px; }
+.review-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
+.review-card { border: 1px solid var(--panel-border); border-radius: 10px; padding: 12px; text-align: center; }
+.review-card label { display: block; color: var(--muted); font-size: 11px; margin-bottom: 4px; }
+.review-card span { font-size: 18px; font-weight: 700; }
+
+/* 手机端 */
+@media (max-width: 860px) {
+  .main-nav { order: 3; width: 100%; justify-content: center; margin: 6px 0 0; }
+  .main-nav button { flex: 1; padding: 10px 0; font-size: 14px; }
+  .header-right { gap: 8px; }
+  .pos-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .tf-row { flex-direction: column; gap: 8px; }
+  .strategy-toggle { margin: 6px 0 0; width: 100%; justify-content: center; }
+  .strategy-toggle button { flex: 1; padding: 8px 0; }
+  .chart-head { flex-wrap: wrap; }
+}
