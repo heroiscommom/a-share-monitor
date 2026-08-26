@@ -722,8 +722,16 @@ def main():
                        for k, v in tiers.items()},
             "break_low": break_low,
         }
+        # 情绪周期温度计（涨停家数历史 + 趋势）
+        try:
+            dragon["sentiment"] = dh.sentiment_report(today_pool=today_pool, trading_days=40)
+        except Exception as e:
+            print(f"[warn] 情绪周期获取失败: {e}")
         save_json(os.path.join(DATA_DIR, "dragon_head.json"), dragon)
         print(f"[dragon] 涨停{len(today_pool)}只 S{len(tiers['S'])} A{len(tiers['A'])} B{len(tiers['B'])} 断板低吸{len(break_low)}只")
+        if dragon.get("sentiment"):
+            s = dragon["sentiment"]
+            print(f"[sentiment] {s['today']['state']} 涨停{s['today']['zt_count']}只 最高{s['today']['max_lbc']}板 | {s['trend']['desc']}")
     except Exception as e:
         print(f"[warn] 龙头战法数据失败: {e}")
 

@@ -235,3 +235,94 @@ if __name__ == "__main__":
         print(f"\n断板低吸候选(昨日涨停{len(y)}只):")
         for c in find_break_low(pool, y):
             print(f"  {c['name']}({c['code']}) 昨{c['prev_lbc']}板 分{c['prev_score']} {c['hybk']}")
+
+
+# ═══════════════════════════════════════════
+# 情绪周期温度计（2026-08-26 新增）
+# ═══════════════════════════════════════════
+
+def sentiment_state(zt_count):
+    """按当日涨停家数划分情绪状态"""
+    if zt_count < 30:
+        return "冰点"
+    if zt_count < 50:
+        return "回暖"
+    if zt_count < 80:
+        return "活跃"
+    return "高潮"
+
+
+def max_lbc_of(pool):
+    """涨停池最高连板数（0=无涨停）"""
+    return max((it.get("lbc") or 1) for it in pool) if pool else 0
+
+
+def fetch_zt_history(trading_days=40, gap=1):
+    """
+    拉最近 N 个交易日的涨停家数历史（东财接口逐日请求，带缓存）。
+
+    返回 [{date:'YYYYMMDD', zt_count, max_lbc}, ...]（时间升序）
+    gap: 每次回退天数（节假日时自动跳过空池）
+    """
+    cache = load_zt_cache()
+    hist = cache.get("history", [])
+    have = {h["date"] for h in hist}
+
+    today = datetime.date.today()
+    d = today
+    fetched = 0
+    while fetched < trading_days and d > today - datetime.timedelta(days=gap * trading_days * 2):
+        ds = d.strftime("%Y%m%d")
+        if ds not in have:
+            pool = fetch_zt_pool(ds)
+            if pool:
+                hist.append({"date": ds, "zt_count": len(pool), "max_lbc": max_lbc_of(pool)})
+                have.add(ds)
+                fetched += 1
+                time.sleep(0.25)
+            # 空池 = 非交易日/休市，继续往前退
+        elif any(h["date"] == ds for h in hist):
+            fetched += 1
+        d -= datetime.timedelta(days=gap)
+        if fetched >= trading_days:
+            break
+
+    hist.sort(key=lambda h: h["date"])
+    # 只保留最近 trading_days 条
+    hist = hist[-trading_days:]
+    cache["history"] = hist
+    save_zt_cache(cache)
+    return hist
+
+
+def sentiment_report(today_pool=None, trading_days=40):
+    """
+    生成情绪周期报告：
+      {today: {date, zt_count, max_lbc, state},
+       history: [...],
+       trend: {zt5, zt20, rising, desc}}
+    """
+    hist = fetch_zt_history(trading_days=trading_days)
+    if today_pool is None:
+        today_pool = fetch_zt_pool(datetime.date.today().strftime("%Y%m%d"))
+    today = datetime.date.today().strftime("%Y%m%d")
+    tc = len(today_pool)
+    ml = max_lbc_of(today_pool)
+
+    # 5日 vs 20日 平均涨停家数 → 升温/降温
+    counts = [h["zt_count"] for h in hist]
+    zt5 = round(sum(counts[-5:]) / min(5, len(counts)), 1) if counts else 0
+    zt20 = round(sum(counts[-20:]) / min(20, len(counts)), 1) if len(counts) >= 5 else zt5
+    rising = zt5 > zt20 * 1.1
+    if rising:
+        trend_desc = f"情绪升温（5日均{zt5} vs 20日均{zt20}）"
+    elif zt5 < zt20 * 0.9:
+        trend_desc = f"情绪降温（5日均{zt5} vs 20日均{zt20}）"
+    else:
+        trend_desc = f"情绪平稳（5日均{zt5} vs 20日均{zt20}）"
+
+    return {
+        "today": {"date": today, "zt_count": tc, "max_lbc": ml, "state": sentiment_state(tc)},
+        "history": hist,
+        "trend": {"zt5": zt5, "zt20": zt20, "rising": rising, "desc": trend_desc},
+    }

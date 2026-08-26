@@ -439,6 +439,52 @@ function tierBadge(t) {
   return `<span class="sig ${cls}">${t}级</span>`;
 }
 
+let sentimentChart = null;
+
+const SENT_STYLE = { 冰点: 's-weak', 回暖: 's-neutral', 活跃: 's-bullish', 高潮: 's-strong' };
+
+function renderSentiment() {
+  const barEl = $('#sentiment-bar');
+  const chartEl = $('#sentiment-chart');
+  const s = dragonData && dragonData.sentiment;
+  if (!s) {
+    if (barEl) barEl.innerHTML = '<div class="empty">情绪数据采集中…</div>';
+    return;
+  }
+  const t = s.today;
+  const st = t.state;
+  barEl.innerHTML =
+    `<div class="sentiment-card">
+      <div class="sent-item"><span class="sent-label">今日涨停</span><span class="sent-num">${t.zt_count}</span></div>
+      <div class="sent-item"><span class="sent-label">情绪状态</span><span class="sig ${SENT_STYLE[st] || 's-neutral'}">${st}</span></div>
+      <div class="sent-item"><span class="sent-label">最高连板</span><span class="sent-num">${t.max_lbc}板</span></div>
+      <div class="sent-item"><span class="sent-label">5日/20日均</span><span class="sent-num">${s.trend.zt5}/${s.trend.zt20}</span></div>
+      <div class="sent-item"><span class="sent-label">趋势</span><span class="sig ${s.trend.rising ? 's-strong' : 's-weak'}">${s.trend.desc}</span></div>
+    </div>`;
+  // 30 日涨停家数迷你曲线
+  const hist = (s.history || []).slice(-30);
+  if (hist.length >= 3 && chartEl) {
+    if (!sentimentChart) sentimentChart = echarts.init(chartEl);
+    const dates = hist.map((h) => h.date.replace(/^(\d{4})(\d{2})(\d{2})$/, '$2-$3'));
+    const counts = hist.map((h) => h.zt_count);
+    sentimentChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'axis' },
+      grid: { left: 40, right: 12, top: 12, bottom: 24 },
+      xAxis: { type: 'category', data: dates, axisLabel: { color: '#8b96ad', fontSize: 10 }, axisLine: { lineStyle: { color: '#3a4155' } } },
+      yAxis: { type: 'value', axisLabel: { color: '#8b96ad', fontSize: 10 }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } } },
+      series: [{
+        type: 'line', data: counts, smooth: true, symbol: 'none',
+        lineStyle: { color: '#3a7afe', width: 2 },
+        areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(58,122,254,0.35)' }, { offset: 1, color: 'rgba(58,122,254,0.02)' }] } },
+        markLine: { silent: true, symbol: 'none', lineStyle: { color: '#f5a623', type: 'dashed' }, data: [{ yAxis: 30, label: { formatter: '冰点线30', color: '#8b96ad', fontSize: 9 } }] },
+      }],
+    }, true);
+  } else if (chartEl && sentimentChart) {
+    sentimentChart.clear();
+  }
+}
+
 function renderDragon() {
   const meta = $('#dragon-meta');
   const tiersEl = $('#dragon-tiers');
@@ -450,6 +496,7 @@ function renderDragon() {
     return;
   }
   meta.textContent = `${dragonData.date} 涨停 ${dragonData.zt_count} 只`;
+  renderSentiment();
   const order = ['S', 'A', 'B', 'C'];
   const tierNames = { S: 'S 龙头确认', A: 'A 龙头候选', B: 'B 观察池', C: 'C 参考' };
   tiersEl.innerHTML = order.map((k) => {
@@ -625,7 +672,7 @@ async function init() {
   }
 }
 
-window.addEventListener('resize', () => { chart && chart.resize(); radarChart && radarChart.resize(); backtestChart && backtestChart.resize(); thresholdChart && thresholdChart.resize(); sectorHeatChart && sectorHeatChart.resize(); });
+window.addEventListener('resize', () => { chart && chart.resize(); sentimentChart && sentimentChart.resize(); radarChart && radarChart.resize(); backtestChart && backtestChart.resize(); thresholdChart && thresholdChart.resize(); sectorHeatChart && sectorHeatChart.resize(); });
 init();
 
 // ===== 自选股管理 =====

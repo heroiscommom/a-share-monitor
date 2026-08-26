@@ -178,3 +178,10 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 16px
 .strategy-toggle { margin-left: auto; margin-right: 12px; }
 .strategy-toggle button { padding: 5px 14px; font-size: 12px; }
 .strategy-toggle button[data-strategy="dragon"]:hover { border-color: var(--up); color: var(--up); }
+
+/* 情绪周期温度计 */
+.sentiment-card { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; padding: 10px 14px; border: 1px solid var(--panel-border); border-radius: 8px; margin-bottom: 10px; background: rgba(255,255,255,0.02); }
+.sent-item { display: flex; align-items: baseline; gap: 6px; }
+.sent-label { color: var(--muted); font-size: 12px; }
+.sent-num { font-size: 16px; font-weight: 700; color: var(--accent); }
+.sentiment-chart { height: 90px; margin-bottom: 12px; }
