@@ -1,20 +1,11 @@
 {
-  "updated_at": "2026-08-25 16:06:35",
+  "updated_at": "2026-08-26 10:20:15",
   "stocks": [
     {
       "code": "600664",
       "name": "哈药股份",
-      "price": 8.21,
+      "price": 8.1,
       "supports": [
-        {
-          "price": 8.14,
-          "strength": "弱",
-          "sources": [
-            "筹码密集"
-          ],
-          "volume": 18074668,
-          "distance_pct": -0.85
-        },
         {
           "price": 6.35,
           "strength": "弱",
@@ -22,7 +13,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -22.66
+          "distance_pct": -21.6
         },
         {
           "price": 5.89,
@@ -31,10 +22,29 @@
             "筹码密集"
           ],
           "volume": 32470425,
-          "distance_pct": -28.26
+          "distance_pct": -27.28
+        },
+        {
+          "price": 5.25,
+          "strength": "中",
+          "sources": [
+            "筹码密集",
+            "20日低点"
+          ],
+          "volume": 25341578,
+          "distance_pct": -35.19
         }
       ],
       "resistances": [
+        {
+          "price": 8.14,
+          "strength": "弱",
+          "sources": [
+            "筹码密集"
+          ],
+          "volume": 19207424,
+          "distance_pct": 0.49
+        },
         {
           "price": 9.27,
           "strength": "强",
@@ -44,85 +54,87 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 12.91
+          "distance_pct": 14.44
         }
       ]
     },
     {
       "code": "001289",
       "name": "龙源电力",
-      "price": 15.7,
+      "price": 15.84,
       "supports": [
         {
-          "price": 15.69,
-          "strength": "中",
+          "price": 15.82,
+          "strength": "强",
           "sources": [
             "前低",
+            "前高",
             "筹码密集"
           ],
           "volume": 872155,
-          "distance_pct": -0.06
+          "distance_pct": -0.13
         },
         {
-          "price": 15.45,
-          "strength": "强",
-          "sources": [
-            "20日低点",
-            "前低",
-            "60日低点"
-          ],
-          "volume": 0,
-          "distance_pct": -1.59
-        },
-        {
-          "price": 15.24,
+          "price": 15.55,
           "strength": "中",
           "sources": [
             "前低",
+            "20日低点"
+          ],
+          "volume": 0,
+          "distance_pct": -1.83
+        },
+        {
+          "price": 15.35,
+          "strength": "强",
+          "sources": [
+            "前低",
+            "60日低点",
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -2.93
+          "distance_pct": -3.09
         }
       ],
       "resistances": [
         {
-          "price": 15.77,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 0.45
-        },
-        {
-          "price": 15.97,
-          "strength": "强",
-          "sources": [
-            "前高",
-            "前低",
-            "筹码密集"
-          ],
-          "volume": 1000327,
-          "distance_pct": 1.72
-        },
-        {
-          "price": 16.19,
+          "price": 15.85,
           "strength": "中",
           "sources": [
             "前低",
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 3.12
+          "distance_pct": 0.06
+        },
+        {
+          "price": 16.13,
+          "strength": "强",
+          "sources": [
+            "前低",
+            "前高",
+            "筹码密集"
+          ],
+          "volume": 1000327,
+          "distance_pct": 1.83
+        },
+        {
+          "price": 16.33,
+          "strength": "强",
+          "sources": [
+            "前低",
+            "筹码密集",
+            "前高"
+          ],
+          "volume": 712298,
+          "distance_pct": 3.09
         }
       ]
     },
     {
       "code": "601700",
       "name": "风范股份",
-      "price": 7.51,
+      "price": 7.22,
       "supports": [
         {
           "price": 7.19,
@@ -131,8 +143,8 @@
             "筹码密集",
             "前高"
           ],
-          "volume": 5738459,
-          "distance_pct": -4.26
+          "volume": 6612965,
+          "distance_pct": -0.42
         },
         {
           "price": 7.0,
@@ -141,7 +153,7 @@
             "筹码密集"
           ],
           "volume": 6848899,
-          "distance_pct": -6.79
+          "distance_pct": -3.05
         },
         {
           "price": 6.3,
@@ -151,7 +163,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -16.11
+          "distance_pct": -12.74
         }
       ],
       "resistances": [
@@ -162,7 +174,7 @@
             "筹码密集"
           ],
           "volume": 4793661,
-          "distance_pct": 1.07
+          "distance_pct": 5.12
         },
         {
           "price": 7.94,
@@ -171,7 +183,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 5.73
+          "distance_pct": 9.97
         },
         {
           "price": 8.08,
@@ -181,34 +193,55 @@
             "60日高点"
           ],
           "volume": 0,
-          "distance_pct": 7.59
+          "distance_pct": 11.91
         }
       ]
     },
     {
       "code": "002900",
       "name": "哈三联",
-      "price": 14.09,
+      "price": 13.31,
       "supports": [
         {
-          "price": 14.0,
-          "strength": "中",
+          "price": 13.15,
+          "strength": "弱",
           "sources": [
-            "前高",
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -0.64
+          "distance_pct": -1.13
         },
         {
-          "price": 13.77,
+          "price": 12.99,
+          "strength": "中",
+          "sources": [
+            "前低",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": -2.33
+        },
+        {
+          "price": 12.75,
           "strength": "中",
           "sources": [
             "前高",
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -2.27
+          "distance_pct": -4.14
+        }
+      ],
+      "resistances": [
+        {
+          "price": 13.32,
+          "strength": "中",
+          "sources": [
+            "前低",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 0.15
         },
         {
           "price": 13.55,
@@ -218,46 +251,24 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -3.83
-        }
-      ],
-      "resistances": [
-        {
-          "price": 14.22,
-          "strength": "弱",
-          "sources": [
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": 0.92
+          "distance_pct": 1.88
         },
         {
-          "price": 14.51,
-          "strength": "强",
-          "sources": [
-            "筹码密集",
-            "前低",
-            "前高"
-          ],
-          "volume": 1070948,
-          "distance_pct": 2.98
-        },
-        {
-          "price": 14.7,
+          "price": 13.73,
           "strength": "中",
           "sources": [
-            "前低",
-            "前高"
+            "前高",
+            "前低"
           ],
           "volume": 0,
-          "distance_pct": 4.33
+          "distance_pct": 3.23
         }
       ]
     },
     {
       "code": "002437",
       "name": "誉衡药业",
-      "price": 4.3,
+      "price": 4.12,
       "supports": [
         {
           "price": 4.08,
@@ -266,7 +277,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -5.12
+          "distance_pct": -1.21
         },
         {
           "price": 3.99,
@@ -275,7 +286,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -7.21
+          "distance_pct": -3.39
         },
         {
           "price": 3.91,
@@ -284,7 +295,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -9.07
+          "distance_pct": -5.33
         }
       ],
       "resistances": [
@@ -295,7 +306,7 @@
             "筹码密集"
           ],
           "volume": 21973126,
-          "distance_pct": 1.16
+          "distance_pct": 5.33
         },
         {
           "price": 4.76,
@@ -304,7 +315,7 @@
             "筹码密集"
           ],
           "volume": 12957092,
-          "distance_pct": 10.7
+          "distance_pct": 15.25
         },
         {
           "price": 5.1,
@@ -315,14 +326,14 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 18.6
+          "distance_pct": 23.49
         }
       ]
     },
     {
       "code": "159582",
       "name": "半导体ETF博时",
-      "price": 0.744,
+      "price": 0.745,
       "supports": [
         {
           "price": 0.72,
@@ -331,7 +342,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -2.7
+          "distance_pct": -4.0
         },
         {
           "price": 0.69,
@@ -340,7 +351,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -6.76
+          "distance_pct": -8.0
         },
         {
           "price": 0.67,
@@ -350,7 +361,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -9.46
+          "distance_pct": -10.67
         }
       ],
       "resistances": [
@@ -362,7 +373,7 @@
             "筹码密集"
           ],
           "volume": 15890507,
-          "distance_pct": 4.05
+          "distance_pct": 2.67
         },
         {
           "price": 0.8,
@@ -371,7 +382,7 @@
             "筹码密集"
           ],
           "volume": 8977812,
-          "distance_pct": 8.11
+          "distance_pct": 6.67
         },
         {
           "price": 0.82,
@@ -380,14 +391,14 @@
             "筹码密集"
           ],
           "volume": 10719525,
-          "distance_pct": 10.81
+          "distance_pct": 9.33
         }
       ]
     },
     {
       "code": "600667",
       "name": "太极实业",
-      "price": 19.94,
+      "price": 19.45,
       "supports": [
         {
           "price": 19.45,
@@ -396,16 +407,16 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -2.46
+          "distance_pct": -0.05
         },
         {
-          "price": 17.63,
+          "price": 18.72,
           "strength": "弱",
           "sources": [
             "筹码密集"
           ],
-          "volume": 19924096,
-          "distance_pct": -11.58
+          "volume": 19594436,
+          "distance_pct": -3.8
         },
         {
           "price": 17.11,
@@ -414,19 +425,10 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -14.19
+          "distance_pct": -12.08
         }
       ],
       "resistances": [
-        {
-          "price": 22.3,
-          "strength": "弱",
-          "sources": [
-            "筹码密集"
-          ],
-          "volume": 15133628,
-          "distance_pct": 11.84
-        },
         {
           "price": 24.88,
           "strength": "中",
@@ -435,7 +437,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 24.77
+          "distance_pct": 27.85
         },
         {
           "price": 27.95,
@@ -444,15 +446,34 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 40.17
+          "distance_pct": 43.63
+        },
+        {
+          "price": 32.1,
+          "strength": "中",
+          "sources": [
+            "60日高点",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 64.95
         }
       ]
     },
     {
       "code": "000657",
       "name": "中钨高新",
-      "price": 63.81,
+      "price": 64.07,
       "supports": [
+        {
+          "price": 64.08,
+          "strength": "弱",
+          "sources": [
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": -0.19
+        },
         {
           "price": 63.07,
           "strength": "弱",
@@ -460,7 +481,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -1.16
+          "distance_pct": -1.76
         },
         {
           "price": 61.07,
@@ -470,28 +491,18 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -4.29
-        },
-        {
-          "price": 53.53,
-          "strength": "弱",
-          "sources": [
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -16.11
+          "distance_pct": -4.88
         }
       ],
       "resistances": [
         {
-          "price": 64.08,
-          "strength": "中",
+          "price": 64.34,
+          "strength": "弱",
           "sources": [
-            "前高",
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 0.42
+          "distance_pct": 0.22
         },
         {
           "price": 65.7,
@@ -499,8 +510,8 @@
           "sources": [
             "筹码密集"
           ],
-          "volume": 6861233,
-          "distance_pct": 2.96
+          "volume": 6285905,
+          "distance_pct": 2.34
         },
         {
           "price": 68.97,
@@ -510,14 +521,14 @@
             "筹码密集"
           ],
           "volume": 8704424,
-          "distance_pct": 8.09
+          "distance_pct": 7.43
         }
       ]
     },
     {
       "code": "001258",
       "name": "立新能源",
-      "price": 12.29,
+      "price": 11.87,
       "supports": [
         {
           "price": 11.85,
@@ -526,7 +537,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -3.58
+          "distance_pct": -0.08
         },
         {
           "price": 11.59,
@@ -536,7 +547,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -5.7
+          "distance_pct": -2.28
         },
         {
           "price": 11.15,
@@ -547,7 +558,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -9.28
+          "distance_pct": -5.99
         }
       ],
       "resistances": [
@@ -559,7 +570,7 @@
             "筹码密集"
           ],
           "volume": 9523482,
-          "distance_pct": 0.08
+          "distance_pct": 3.71
         },
         {
           "price": 12.94,
@@ -568,7 +579,7 @@
             "筹码密集"
           ],
           "volume": 6895111,
-          "distance_pct": 5.29
+          "distance_pct": 9.11
         },
         {
           "price": 13.46,
@@ -577,24 +588,24 @@
             "筹码密集"
           ],
           "volume": 4449000,
-          "distance_pct": 9.52
+          "distance_pct": 13.49
         }
       ]
     },
     {
       "code": "688036",
       "name": "传音控股",
-      "price": 59.1,
+      "price": 58.77,
       "supports": [
         {
-          "price": 58.77,
+          "price": 58.55,
           "strength": "中",
           "sources": [
             "前低",
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -0.56
+          "distance_pct": -0.36
         },
         {
           "price": 57.79,
@@ -603,7 +614,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -2.22
+          "distance_pct": -1.65
         },
         {
           "price": 57.02,
@@ -613,10 +624,19 @@
             "筹码密集"
           ],
           "volume": 155815059,
-          "distance_pct": -3.52
+          "distance_pct": -2.96
         }
       ],
       "resistances": [
+        {
+          "price": 58.77,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 0.02
+        },
         {
           "price": 59.7,
           "strength": "中",
@@ -625,7 +645,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 1.02
+          "distance_pct": 1.6
         },
         {
           "price": 60.64,
@@ -635,25 +655,35 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 2.61
-        },
-        {
-          "price": 61.56,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 4.16
+          "distance_pct": 3.2
         }
       ]
     },
     {
       "code": "001965",
       "name": "招商公路",
-      "price": 9.65,
+      "price": 9.82,
       "supports": [
+        {
+          "price": 9.82,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -0.1
+        },
+        {
+          "price": 9.7,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -1.32
+        },
         {
           "price": 9.52,
           "strength": "中",
@@ -662,101 +692,47 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -1.35
-        },
-        {
-          "price": 9.39,
-          "strength": "强",
-          "sources": [
-            "前低",
-            "筹码密集",
-            "前高"
-          ],
-          "volume": 917217,
-          "distance_pct": -2.69
-        },
-        {
-          "price": 9.22,
-          "strength": "中",
-          "sources": [
-            "筹码密集",
-            "前低"
-          ],
-          "volume": 2142303,
-          "distance_pct": -4.46
+          "distance_pct": -3.15
         }
       ],
       "resistances": [
         {
-          "price": 9.66,
+          "price": 9.86,
           "strength": "中",
           "sources": [
             "前低",
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 0.1
+          "distance_pct": 0.31
         },
         {
-          "price": 9.79,
+          "price": 10.02,
           "strength": "中",
           "sources": [
             "前高",
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 1.45
+          "distance_pct": 1.93
         },
         {
-          "price": 9.93,
+          "price": 10.16,
           "strength": "中",
           "sources": [
             "前高",
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 2.9
+          "distance_pct": 3.36
         }
       ]
     },
     {
       "code": "600012",
       "name": "皖通高速",
-      "price": 16.39,
+      "price": 16.44,
       "supports": [
-        {
-          "price": 16.28,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "筹码密集"
-          ],
-          "volume": 635046,
-          "distance_pct": -0.67
-        },
-        {
-          "price": 16.04,
-          "strength": "强",
-          "sources": [
-            "前低",
-            "筹码密集",
-            "前高"
-          ],
-          "volume": 408839,
-          "distance_pct": -2.14
-        },
-        {
-          "price": 15.81,
-          "strength": "中",
-          "sources": [
-            "前低",
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -3.54
-        }
-      ],
-      "resistances": [
         {
           "price": 16.41,
           "strength": "中",
@@ -764,17 +740,49 @@
             "筹码密集",
             "前高"
           ],
-          "volume": 414585,
-          "distance_pct": 0.12
+          "volume": 429507,
+          "distance_pct": -0.06
         },
         {
-          "price": 16.65,
+          "price": 16.2,
+          "strength": "中",
+          "sources": [
+            "筹码密集",
+            "前低"
+          ],
+          "volume": 635046,
+          "distance_pct": -1.34
+        },
+        {
+          "price": 15.99,
+          "strength": "强",
+          "sources": [
+            "前低",
+            "筹码密集",
+            "前高"
+          ],
+          "volume": 408839,
+          "distance_pct": -2.62
+        }
+      ],
+      "resistances": [
+        {
+          "price": 16.49,
           "strength": "弱",
           "sources": [
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 1.59
+          "distance_pct": 0.43
+        },
+        {
+          "price": 16.69,
+          "strength": "弱",
+          "sources": [
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 1.64
         },
         {
           "price": 16.91,
@@ -783,49 +791,15 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 3.17
+          "distance_pct": 2.98
         }
       ]
     },
     {
       "code": "600011",
       "name": "华能国际",
-      "price": 6.69,
+      "price": 6.73,
       "supports": [
-        {
-          "price": 6.68,
-          "strength": "中",
-          "sources": [
-            "前低",
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -0.15
-        },
-        {
-          "price": 6.59,
-          "strength": "强",
-          "sources": [
-            "前高",
-            "前低",
-            "20日低点",
-            "60日低点"
-          ],
-          "volume": 0,
-          "distance_pct": -1.49
-        },
-        {
-          "price": 6.51,
-          "strength": "中",
-          "sources": [
-            "前低",
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -2.69
-        }
-      ],
-      "resistances": [
         {
           "price": 6.72,
           "strength": "中",
@@ -834,44 +808,88 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 0.45
+          "distance_pct": -0.15
         },
         {
-          "price": 6.82,
+          "price": 6.62,
           "strength": "中",
           "sources": [
             "前低",
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 1.94
+          "distance_pct": -1.63
         },
         {
-          "price": 6.91,
-          "strength": "中",
+          "price": 6.54,
+          "strength": "强",
           "sources": [
-            "前高",
+            "20日低点",
+            "60日低点",
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 3.29
+          "distance_pct": -2.82
+        }
+      ],
+      "resistances": [
+        {
+          "price": 6.74,
+          "strength": "中",
+          "sources": [
+            "前低",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 0.15
+        },
+        {
+          "price": 6.83,
+          "strength": "强",
+          "sources": [
+            "前低",
+            "筹码密集",
+            "前高"
+          ],
+          "volume": 9849364,
+          "distance_pct": 1.49
+        },
+        {
+          "price": 6.92,
+          "strength": "中",
+          "sources": [
+            "前低",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 2.82
         }
       ]
     },
     {
       "code": "600350",
       "name": "山东高速",
-      "price": 10.9,
+      "price": 11.06,
       "supports": [
         {
-          "price": 10.82,
+          "price": 10.95,
           "strength": "中",
           "sources": [
             "前高",
             "筹码密集"
           ],
+          "volume": 1299949,
+          "distance_pct": -0.82
+        },
+        {
+          "price": 10.76,
+          "strength": "中",
+          "sources": [
+            "筹码密集",
+            "前高"
+          ],
           "volume": 1257111,
-          "distance_pct": -0.73
+          "distance_pct": -2.54
         },
         {
           "price": 10.59,
@@ -882,91 +900,45 @@
             "前低"
           ],
           "volume": 1111474,
-          "distance_pct": -2.84
-        },
-        {
-          "price": 10.41,
-          "strength": "强",
-          "sources": [
-            "前低",
-            "20日低点",
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -4.5
+          "distance_pct": -4.08
         }
       ],
       "resistances": [
         {
-          "price": 10.94,
-          "strength": "中",
-          "sources": [
-            "筹码密集",
-            "前高"
-          ],
-          "volume": 1299949,
-          "distance_pct": 0.37
-        },
-        {
-          "price": 11.1,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 1.83
-        },
-        {
-          "price": 11.46,
+          "price": 11.06,
           "strength": "弱",
           "sources": [
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 5.14
+          "distance_pct": 0.18
+        },
+        {
+          "price": 11.2,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 1.45
+        },
+        {
+          "price": 11.46,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "20日高点"
+          ],
+          "volume": 0,
+          "distance_pct": 3.8
         }
       ]
     },
     {
       "code": "000959",
       "name": "首钢股份",
-      "price": 3.56,
+      "price": 3.6,
       "supports": [
-        {
-          "price": 3.55,
-          "strength": "中",
-          "sources": [
-            "前低",
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -0.28
-        },
-        {
-          "price": 3.5,
-          "strength": "强",
-          "sources": [
-            "前低",
-            "前高",
-            "筹码密集"
-          ],
-          "volume": 2920038,
-          "distance_pct": -1.69
-        },
-        {
-          "price": 3.44,
-          "strength": "强",
-          "sources": [
-            "前高",
-            "20日低点",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -3.37
-        }
-      ],
-      "resistances": [
         {
           "price": 3.58,
           "strength": "中",
@@ -975,33 +947,66 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 0.56
+          "distance_pct": -0.56
         },
         {
-          "price": 3.63,
-          "strength": "中",
+          "price": 3.53,
+          "strength": "强",
           "sources": [
             "前高",
-            "前低"
+            "前低",
+            "筹码密集"
           ],
-          "volume": 0,
-          "distance_pct": 1.97
+          "volume": 2920038,
+          "distance_pct": -1.94
         },
         {
-          "price": 3.68,
+          "price": 3.48,
+          "strength": "中",
+          "sources": [
+            "前低",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": -3.33
+        }
+      ],
+      "resistances": [
+        {
+          "price": 3.61,
+          "strength": "中",
+          "sources": [
+            "前低",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 0.28
+        },
+        {
+          "price": 3.66,
           "strength": "弱",
           "sources": [
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 3.37
+          "distance_pct": 1.67
+        },
+        {
+          "price": 3.73,
+          "strength": "中",
+          "sources": [
+            "筹码密集",
+            "前高"
+          ],
+          "volume": 3286883,
+          "distance_pct": 3.61
         }
       ]
     },
     {
       "code": "600584",
       "name": "长电科技",
-      "price": 74.05,
+      "price": 73.24,
       "supports": [
         {
           "price": 72.55,
@@ -1010,7 +1015,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -2.03
+          "distance_pct": -1.04
         },
         {
           "price": 69.6,
@@ -1019,7 +1024,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -6.01
+          "distance_pct": -5.06
         },
         {
           "price": 67.85,
@@ -1028,7 +1033,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -8.37
+          "distance_pct": -7.45
         }
       ],
       "resistances": [
@@ -1039,7 +1044,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 3.17
+          "distance_pct": 4.21
         },
         {
           "price": 78.07,
@@ -1048,7 +1053,7 @@
             "筹码密集"
           ],
           "volume": 16582454,
-          "distance_pct": 5.43
+          "distance_pct": 6.49
         },
         {
           "price": 86.03,
@@ -1057,24 +1062,15 @@
             "筹码密集"
           ],
           "volume": 10744363,
-          "distance_pct": 16.18
+          "distance_pct": 17.35
         }
       ]
     },
     {
       "code": "000725",
       "name": "京东方A",
-      "price": 5.74,
+      "price": 5.71,
       "supports": [
-        {
-          "price": 5.71,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -0.52
-        },
         {
           "price": 5.62,
           "strength": "弱",
@@ -1082,7 +1078,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -2.09
+          "distance_pct": -1.58
         },
         {
           "price": 5.5,
@@ -1091,18 +1087,29 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -4.18
+          "distance_pct": -3.68
+        },
+        {
+          "price": 5.29,
+          "strength": "强",
+          "sources": [
+            "20日低点",
+            "60日低点",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -7.36
         }
       ],
       "resistances": [
         {
-          "price": 5.83,
+          "price": 5.82,
           "strength": "弱",
           "sources": [
             "筹码密集"
           ],
-          "volume": 215594513,
-          "distance_pct": 1.57
+          "volume": 203991036,
+          "distance_pct": 1.93
         },
         {
           "price": 6.03,
@@ -1111,8 +1118,8 @@
             "前高",
             "筹码密集"
           ],
-          "volume": 330528748,
-          "distance_pct": 5.05
+          "volume": 342132225,
+          "distance_pct": 5.6
         },
         {
           "price": 6.17,
@@ -1121,7 +1128,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 7.49
+          "distance_pct": 8.06
         }
       ]
     }
