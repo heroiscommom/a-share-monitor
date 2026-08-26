@@ -41,10 +41,27 @@
     <section class="panel full">
       <div class="chart-head">
         <h2 id="factor-title">量化因子</h2>
+        <div class="chart-toggle strategy-toggle">
+          <button data-strategy="mean_reversion" class="active">超跌反弹</button>
+          <button data-strategy="momentum">强势动量</button>
+          <button data-strategy="dragon">龙头战法</button>
+        </div>
         <div id="factor-score" class="factor-score"></div>
       </div>
       <div id="factor-radar" class="factor-radar"></div>
       <div id="fundamental-bar" class="fundamental-bar"></div>
+    </section>
+
+    <section class="panel full" id="dragon-panel">
+      <div class="chart-head">
+        <h2>🐉 龙头梯队</h2>
+        <span id="dragon-meta" class="backtest-meta"></span>
+      </div>
+      <div id="dragon-tiers"></div>
+      <div class="chart-head" style="margin-top:14px;">
+        <h2>断板低吸候选（昨日连板今日断板 + 支撑守住率确认）</h2>
+      </div>
+      <div id="dragon-breaklow"></div>
     </section>
 
     <section class="panel full">

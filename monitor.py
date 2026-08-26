@@ -679,6 +679,54 @@ def main():
     save_json(os.path.join(DATA_DIR, "support_resistance.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": sr_results})
     save_json(os.path.join(DATA_DIR, "signals.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": sig_results})
 
+    # ══════════ 龙头战法（2026-08-26 新增）══════════
+    try:
+        import dragon_head as dh
+        today_pool = dh.fetch_zt_pool(now.strftime("%Y%m%d"))
+        yest_str = (now - datetime.timedelta(days=1)).strftime("%Y%m%d")
+        yest_pool = dh.fetch_zt_pool(yest_str)
+        tiers = dh.build_tiers(today_pool) if today_pool else {"S": [], "A": [], "B": [], "C": []}
+
+        # 断板低吸：昨日连板≥2 今日断板 → 拉历史算支撑/守住率（最多10只，防慢）
+        break_low = []
+        for c in dh.find_break_low(today_pool, yest_pool):
+            code = c["code"]
+            market = "sh" if code.startswith("6") else ("bj" if code.startswith(("4", "8")) else "sz")
+            try:
+                chist = fetch_history(code, market, 250)
+                if len(chist) >= 60:
+                    lv = support_resistance.compute_levels(chist)
+                    ctx = zone_history.build_zone_context(chist, lv)
+                    sup = lv["supports"][0] if lv["supports"] else None
+                    c["support"] = sup["price"] if sup else None
+                    # 守住率：取最近支撑对应的预警
+                    sup_alerts = [a for a in ctx["alerts"] if a["side"] == "supports"]
+                    if sup_alerts:
+                        nearest = min(sup_alerts, key=lambda a: a["distance_pct"])
+                        c["support_held"] = nearest["held_rate"]
+                    c["risk_score"] = ctx["risk"]["score"]
+                    c["risk_level"] = ctx["risk"]["level"]
+                    c["now_price"] = chist[-1]["close"]
+            except Exception:
+                pass
+            break_low.append(c)
+
+        dragon = {
+            "updated_at": now.strftime("%Y-%m-%d %H:%M:%S"),
+            "date": now.strftime("%Y%m%d"),
+            "zt_count": len(today_pool),
+            "tiers": {k: [{"code": it["code"], "name": it["name"], "lbc": it.get("lbc"),
+                             "dragon_score": it.get("dragon_score"), "fund": it.get("fund"),
+                             "fbt": it.get("fbt"), "zbc": it.get("zbc"), "hybk": it.get("hybk"),
+                             "hs": it.get("hs"), "price": it.get("price")} for it in v]
+                       for k, v in tiers.items()},
+            "break_low": break_low,
+        }
+        save_json(os.path.join(DATA_DIR, "dragon_head.json"), dragon)
+        print(f"[dragon] 涨停{len(today_pool)}只 S{len(tiers['S'])} A{len(tiers['A'])} B{len(tiers['B'])} 断板低吸{len(break_low)}只")
+    except Exception as e:
+        print(f"[warn] 龙头战法数据失败: {e}")
+
     if money_results:
         save_json(os.path.join(DATA_DIR, "moneyflow.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": money_results})
 

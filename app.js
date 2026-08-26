@@ -11,7 +11,13 @@ let thresholdChart = null;
 let sectorHeatChart = null;
 
 const FACTOR_LABELS = { rsi: '超卖', drawdown: '超跌', deviation: '偏离', position: '低位', volume: '量能', volatility: '稳定' };
+const MOM_LABELS = { mom20: '20日动量', mom60: '60日动量', rsi: 'RSI', pos60: '60日位置', vol_ratio: '量比', volatility: '波动' };
+const DRAGON_LABELS = { lbc: '连板高度', seal: '封板强度', fbt: '首板时间', zbc: '炸板', hs: '换手' };
 const SIGNAL_CLASS = { strong: 's-strong', bullish: 's-bullish', neutral: 's-neutral', bearish: 's-bearish', weak: 's-weak' };
+
+let strategyMode = localStorage.getItem('strategyMode') || 'mean_reversion';
+let dragonData = null;
+let dragonMap = {};
 
 async function loadJSON(url) {
   const r = await fetch(url, { cache: 'no-store' });
@@ -39,8 +45,29 @@ function renderWatchlist(quotes) {
   quotes.forEach((q) => {
     const cp = q.change_pct;
     const cls = cp >= 0 ? 'up' : 'down';
-    const score = q.score;
-    const sigCls = SIGNAL_CLASS[q.signal_key] || 's-neutral';
+    // 按打法模式取评分/信号
+    let score = null, signal = '-', sigKey = 'neutral';
+    if (strategyMode === 'momentum') {
+      score = q.momentum_score;
+      signal = q.momentum_signal || '-';
+      sigKey = q.momentum_score >= 70 ? 'strong' : (q.momentum_score >= 55 ? 'bullish' : (q.momentum_score >= 40 ? 'neutral' : 'weak'));
+    } else if (strategyMode === 'dragon') {
+      const dg = dragonMap[q.code];
+      if (dg) {
+        score = dg.dragon_score;
+        signal = `${dg.lbc}连板`;
+        sigKey = dg.tier === 'S' ? 'strong' : (dg.tier === 'A' ? 'bullish' : (dg.tier === 'B' ? 'neutral' : 'weak'));
+      } else {
+        score = null;
+        signal = '非涨停';
+        sigKey = 'neutral';
+      }
+    } else {
+      score = q.score;
+      signal = q.signal || '-';
+      sigKey = q.signal_key || 'neutral';
+    }
+    const sigCls = SIGNAL_CLASS[sigKey] || 's-neutral';
     const tr = document.createElement('tr');
     tr.dataset.code = q.code;
     tr.innerHTML =
@@ -49,7 +76,7 @@ function renderWatchlist(quotes) {
       `<td class="num">${fmt(q.price)}</td>` +
       `<td class="num ${cls}">${cp >= 0 ? '+' : ''}${fmt(cp)}%</td>` +
       `<td class="num score">${score != null ? Number(score).toFixed(0) : '-'}</td>` +
-      `<td><span class="sig ${sigCls}">${q.signal || '-'}</span></td>`;
+      `<td><span class="sig ${sigCls}">${signal}</span></td>`;
     tr.addEventListener('click', () => {
       document.querySelectorAll('tbody tr').forEach((r) => r.classList.remove('active'));
       tr.classList.add('active');
@@ -92,24 +119,54 @@ function drawFundamental(q) {
 
 function drawFactor(q) {
   $('#factor-title').textContent = `${q.name || q.code} (${q.code}) 量化因子`;
-  if (q.score != null) {
-    $('#factor-score').innerHTML =
-      `<span class="score-big">${Number(q.score).toFixed(0)}</span>` +
-      `<span class="sig ${SIGNAL_CLASS[q.signal_key] || 's-neutral'}">${q.signal || ''}</span>`;
+  let factors = null, labels = FACTOR_LABELS, score = null, sigKey = 'neutral', sigText = '';
+  if (strategyMode === 'momentum') {
+    factors = q.momentum_indicators;
+    labels = MOM_LABELS;
+    score = q.momentum_score;
+    sigText = q.momentum_signal || '';
+    sigKey = score >= 70 ? 'strong' : (score >= 55 ? 'bullish' : (score >= 40 ? 'neutral' : 'weak'));
+  } else if (strategyMode === 'dragon') {
+    const dg = dragonMap[q.code];
+    score = dg ? dg.dragon_score : null;
+    sigText = dg ? `${dg.lbc}连板 · ${dg.tier}级` : '非涨停股';
+    sigKey = dg && dg.tier === 'S' ? 'strong' : (dg && dg.tier === 'A' ? 'bullish' : 'neutral');
+    if (dg) {
+      const f = (v, max) => Math.min(100, Math.round((v || 0) / max * 100));
+      factors = {
+        lbc: f(Math.log2(Math.max(dg.lbc, 1)) / Math.log2(6) * 100, 1),
+        seal: f(dg.fund / (dg.ltsz || 1) * 100, 5),
+        fbt: dg.fbt_score != null ? dg.fbt_score : 50,
+        zbc: Math.max(0, 100 - (dg.zbc || 0) * 30),
+        hs: Math.min(100, Math.max(0, 100 - Math.abs((dg.hs || 5) - 12) * 4)),
+      };
+      labels = DRAGON_LABELS;
+    }
   } else {
-    $('#factor-score').innerHTML = '<span class="empty">暂无评分</span>';
+    factors = q.factors;
+    labels = FACTOR_LABELS;
+    score = q.score;
+    sigText = q.signal || '';
+    sigKey = q.signal_key || 'neutral';
   }
-  const factors = q.factors;
-  if (!factors) {
+  if (score != null) {
+    $('#factor-score').innerHTML =
+      `<span class="score-big">${Number(score).toFixed(0)}</span>` +
+      `<span class="sig ${SIGNAL_CLASS[sigKey] || 's-neutral'}">${sigText || ''}</span>`;
+  } else {
+    $('#factor-score').innerHTML = `<span class="empty">${strategyMode === 'dragon' ? '非涨停股无龙头分' : '暂无评分'}</span>`;
+  }
+  if (!factors || !Object.keys(factors).length) {
     if (radarChart) radarChart.clear();
+    drawFundamental(q);
     return;
   }
   if (!radarChart) radarChart = echarts.init($('#factor-radar'));
-  const inds = Object.keys(FACTOR_LABELS).filter((k) => factors[k] !== undefined);
+  const inds = Object.keys(labels).filter((k) => factors[k] !== undefined);
   radarChart.setOption({
     backgroundColor: 'transparent',
     radar: {
-      indicator: inds.map((k) => ({ name: `${FACTOR_LABELS[k]} ${factors[k]}`, max: 100 })),
+      indicator: inds.map((k) => ({ name: `${labels[k]} ${factors[k]}`, max: 100 })),
       axisName: { color: '#8b96ad', fontSize: 11 },
       splitLine: { lineStyle: { color: '#232c42' } },
       splitArea: { areaStyle: { color: ['rgba(58,122,254,0.02)', 'rgba(58,122,254,0.05)'] } },
@@ -377,6 +434,86 @@ async function loadSectors() {
   }
 }
 
+function tierBadge(t) {
+  const cls = t === 'S' ? 's-strong' : (t === 'A' ? 's-bullish' : (t === 'B' ? 's-neutral' : 's-weak'));
+  return `<span class="sig ${cls}">${t}级</span>`;
+}
+
+function renderDragon() {
+  const meta = $('#dragon-meta');
+  const tiersEl = $('#dragon-tiers');
+  const blEl = $('#dragon-breaklow');
+  if (!dragonData) {
+    meta.textContent = '暂无数据（收盘后采集）';
+    tiersEl.innerHTML = '<div class="empty">等待采集</div>';
+    blEl.innerHTML = '';
+    return;
+  }
+  meta.textContent = `${dragonData.date} 涨停 ${dragonData.zt_count} 只`;
+  const order = ['S', 'A', 'B', 'C'];
+  const tierNames = { S: 'S 龙头确认', A: 'A 龙头候选', B: 'B 观察池', C: 'C 参考' };
+  tiersEl.innerHTML = order.map((k) => {
+    const list = (dragonData.tiers && dragonData.tiers[k]) || [];
+    const rows = list.slice(0, 12).map((it) =>
+      `<tr>
+        <td>${it.name}</td><td>${it.code}</td>
+        <td class="num">${it.lbc}板</td>
+        <td class="num score">${it.dragon_score}</td>
+        <td class="num">${it.fund != null ? (it.fund / 1e8).toFixed(1) + '亿' : '-'}</td>
+        <td class="num">${it.fbt ? String(it.fbt).padStart(6, '0').slice(0, 4).replace(/^(\d{2})(\d{2})/, '$1:$2') : '-'}</td>
+        <td class="num">${it.zbc}</td>
+        <td>${it.hybk || '-'}</td>
+      </tr>`).join('');
+    return `<div class="tier-block">
+      <h3>${tierNames[k]}（${list.length}）</h3>
+      ${rows ? `<table class="dragon-table"><thead><tr><th>名称</th><th>代码</th><th>连板</th><th>强度分</th><th>封单</th><th>首板</th><th>炸板</th><th>板块</th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="empty">无</div>'}
+    </div>`;
+  }).join('');
+
+  const bl = dragonData.break_low || [];
+  if (!bl.length) {
+    blEl.innerHTML = '<div class="empty">今日无断板低吸候选</div>';
+    return;
+  }
+  blEl.innerHTML = `<table class="dragon-table"><thead><tr><th>名称</th><th>代码</th><th>昨连板</th><th>昨强度</th><th>现价</th><th>支撑位</th><th>守住率</th><th>风险评分</th><th>板块</th></tr></thead><tbody>` +
+    bl.map((c) =>
+      `<tr>
+        <td>${c.name}</td><td>${c.code}</td>
+        <td class="num">${c.prev_lbc}板</td>
+        <td class="num score">${c.prev_score || '-'}</td>
+        <td class="num">${fmt(c.now_price)}</td>
+        <td class="num">${c.support != null ? c.support : '-'}</td>
+        <td class="num ${c.support_held != null && c.support_held >= 60 ? 'up' : ''}">${c.support_held != null ? c.support_held + '%' : '-'}</td>
+        <td class="num ${c.risk_score != null && c.risk_score >= 65 ? 'up' : (c.risk_score != null && c.risk_score < 40 ? 'down' : '')}">${c.risk_score != null ? c.risk_score + '(' + (c.risk_level || '') + ')' : '-'}</td>
+        <td>${c.hybk || '-'}</td>
+      </tr>`).join('') + `</tbody></table>`;
+}
+
+function applyStrategyMode() {
+  document.querySelectorAll('.strategy-toggle button').forEach((b) => {
+    b.classList.toggle('active', b.dataset.strategy === strategyMode);
+  });
+  const snap = window.__snapQuotes || [];
+  if (snap.length) renderWatchlist(snap);
+}
+
+function loadDragon() {
+  return loadJSON('data/dragon_head.json').then((d) => {
+    dragonData = d;
+    dragonMap = {};
+    (['S', 'A', 'B', 'C']).forEach((k) => {
+      ((d.tiers && d.tiers[k]) || []).forEach((it) => {
+        it.tier = k;
+        dragonMap[it.code] = it;
+      });
+    });
+    renderDragon();
+  }).catch(() => {
+    dragonData = null;
+    renderDragon();
+  });
+}
+
 async function loadScanner() {
   try {
     const d = await loadJSON('data/scanner.json');
@@ -426,6 +563,10 @@ async function loadPicks() {
 
 async function init() {
   try {
+    const cfg = await loadJSON('config.json').catch(() => null);
+    if (cfg && cfg.strategy && cfg.strategy.active && !localStorage.getItem('strategyMode')) {
+      strategyMode = cfg.strategy.active;
+    }
     const snap = await loadJSON('data/snapshot.json');
     const quantData = await loadJSON('data/quant.json').catch(() => null);
     const mfData = await loadJSON('data/moneyflow.json').catch(() => null);
@@ -455,6 +596,7 @@ async function init() {
     $('#updated').textContent = snap.updated_at
       ? '更新于 ' + snap.updated_at
       : '等待首次采集';
+    window.__snapQuotes = snap.quotes || [];
     if (snap.quotes && snap.quotes.length) {
       renderWatchlist(snap.quotes);
     } else {
@@ -467,6 +609,17 @@ async function init() {
     loadSectors();
     loadScanner();
     loadPicks();
+    loadDragon();
+    document.querySelectorAll('.strategy-toggle button').forEach((b) => {
+      b.addEventListener('click', () => {
+        strategyMode = b.dataset.strategy;
+        localStorage.setItem('strategyMode', strategyMode);
+        applyStrategyMode();
+        const snap2 = window.__snapQuotes || [];
+        if (snap2.length) loadChart(snap2[0]);
+      });
+    });
+    applyStrategyMode();
   } catch (e) {
     $('#updated').textContent = '加载失败：' + e.message;
   }

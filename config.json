@@ -101,5 +101,18 @@
     "moneyflow_threshold": 50000000,
     "sector_threshold": 2.0
   },
-  "history_days": 750
+  "history_days": 750,
+  "strategy": {
+    "active": "dragon",
+    "options": [
+      "mean_reversion",
+      "momentum",
+      "dragon"
+    ],
+    "labels": {
+      "mean_reversion": "超跌反弹",
+      "momentum": "强势动量",
+      "dragon": "龙头战法"
+    }
+  }
 }
