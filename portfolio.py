@@ -45,9 +45,52 @@ def load_json(path, default):
 
 
 def load_portfolio():
-    """返回 (portfolio列表, capital字典)"""
+    """
+    返回 (portfolio列表, capital字典)。
+    优先从 trades.json 推导真实持仓（页面/Issue 机器人录入后自动同步，已清仓的剔除）；
+    无流水时才退回 config.json 的初始种子。
+    """
     cfg = load_json(CONFIG_PATH, {})
-    return cfg.get("portfolio", []), cfg.get("capital", {})
+    capital = cfg.get("capital", {})
+    try:
+        import trade as tr
+        trades = tr.load_trades().get("trades", [])
+        if trades:
+            pos = tr.positions_from_trades(trades)
+            portfolio = []
+            for code, p in pos.items():
+                if (p.get("shares") or 0) <= 0:
+                    continue  # 已清仓不参与建议
+                market = "sh" if code.startswith("6") else ("bj" if code.startswith(("4", "8")) else "sz")
+                portfolio.append({
+                    "code": code, "market": market,
+                    "name": p.get("name") or code,
+                    "shares": p["shares"],
+                    "cost": p.get("avg_cost") or 0,
+                })
+            if portfolio:
+                portfolio.sort(key=lambda x: x["shares"] * x["cost"], reverse=True)
+                # 现金推导：初始现金(建仓日快照) + 建仓日之后的资金流（买入扣款/卖出回款/盈亏记录）
+                try:
+                    seed_date = min(t["date"] for t in trades)
+                    flow = 0.0
+                    for t in trades:
+                        if t["date"] <= seed_date:
+                            continue
+                        if t["side"] == "buy":
+                            flow -= t["shares"] * t["price"] + t.get("fee", 0)
+                        elif t["side"] == "sell":
+                            flow += t["shares"] * t["price"] - t.get("fee", 0)
+                        elif t["side"] == "pnl":
+                            flow += t["shares"]
+                    cash = round((capital.get("cash") or 0) + flow, 2)
+                    capital = {"cash": cash, "total": 0}   # total=0 → overall_advice 用 市值+现金 兜底
+                except Exception as e:
+                    print(f"[warn] 现金推导失败: {e}")
+                return portfolio, capital
+    except Exception as e:
+        print(f"[warn] trades 推导持仓失败，退回 config: {e}")
+    return cfg.get("portfolio", []), capital
 
 
 def advice_one(position, quote, history):

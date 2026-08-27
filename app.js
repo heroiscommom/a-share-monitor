@@ -566,13 +566,17 @@ function renderSentiment() {
   }
   const t = s.today;
   const st = t.state;
+  const sm = s.state_machine || {};
+  const zbcTxt = sm.zbc_rate != null ? Math.round(sm.zbc_rate * 100) + '%' : '-';
   barEl.innerHTML =
     `<div class="sentiment-card">
       <div class="sent-item"><span class="sent-label">今日涨停</span><span class="sent-num">${t.zt_count}</span></div>
-      <div class="sent-item"><span class="sent-label">情绪状态</span><span class="sig ${SENT_STYLE[st] || 's-neutral'}">${st}</span></div>
+      <div class="sent-item"><span class="sent-label">情绪状态</span><span class="sig ${SENT_STYLE[st] || 's-neutral'}">${st}${sm.direction ? '·' + sm.direction : ''}</span></div>
       <div class="sent-item"><span class="sent-label">最高连板</span><span class="sent-num">${t.max_lbc}板</span></div>
+      <div class="sent-item"><span class="sent-label">炸板率</span><span class="sent-num">${zbcTxt}</span></div>
       <div class="sent-item"><span class="sent-label">5日/20日均</span><span class="sent-num">${s.trend.zt5}/${s.trend.zt20}</span></div>
       <div class="sent-item"><span class="sent-label">趋势</span><span class="sig ${s.trend.rising ? 's-strong' : 's-weak'}">${s.trend.desc}</span></div>
+      <div class="sent-item sent-pos"><span class="sent-label">💡 仓位建议</span><span class="sent-pos-txt">${sm.position_advice || '-'}</span></div>
     </div>`;
   // 30 日涨停家数迷你曲线
   const hist = (s.history || []).slice(-30);

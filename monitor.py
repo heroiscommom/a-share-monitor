@@ -743,16 +743,20 @@ def main():
                        for k, v in tiers.items()},
             "break_low": break_low,
         }
-        # 情绪周期温度计（涨停家数历史 + 趋势）
+        # 情绪周期温度计（涨停家数历史 + 趋势 + P2状态机：连板高度/炸板率/3日确认）
         try:
-            dragon["sentiment"] = dh.sentiment_report(today_pool=today_pool, trading_days=40)
+            zbc_rate = None
+            if today_pool:
+                zbc_rate = round(sum(1 for it in today_pool if (it.get("zbc") or 0) > 0) / len(today_pool), 3)
+            dragon["sentiment"] = dh.sentiment_report(today_pool=today_pool, trading_days=40, zbc_rate=zbc_rate)
         except Exception as e:
             print(f"[warn] 情绪周期获取失败: {e}")
         save_json(os.path.join(DATA_DIR, "dragon_head.json"), dragon)
         print(f"[dragon] 涨停{len(today_pool)}只 S{len(tiers['S'])} A{len(tiers['A'])} B{len(tiers['B'])} 断板低吸{len(break_low)}只")
         if dragon.get("sentiment"):
             s = dragon["sentiment"]
-            print(f"[sentiment] {s['today']['state']} 涨停{s['today']['zt_count']}只 最高{s['today']['max_lbc']}板 | {s['trend']['desc']}")
+            sm = s.get("state_machine") or {}
+            print(f"[sentiment] {s['today']['state']}（{sm.get('direction', '')}）涨停{s['today']['zt_count']}只 最高{s['today']['max_lbc']}板 炸板率{sm.get('zbc_rate', '-')} | {s['trend']['desc']} | 仓位建议: {sm.get('position_advice', '-')}")
     except Exception as e:
         print(f"[warn] 龙头战法数据失败: {e}")
 

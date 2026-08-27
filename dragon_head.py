@@ -242,7 +242,7 @@ if __name__ == "__main__":
 # ═══════════════════════════════════════════
 
 def sentiment_state(zt_count):
-    """按当日涨停家数划分情绪状态"""
+    """按当日涨停家数划分情绪状态（单因子）"""
     if zt_count < 30:
         return "冰点"
     if zt_count < 50:
@@ -250,6 +250,73 @@ def sentiment_state(zt_count):
     if zt_count < 80:
         return "活跃"
     return "高潮"
+
+
+# ── P2 情绪状态机（2026-08-27 新增）──
+STATE_ORDER = ["冰点", "回暖", "活跃", "高潮"]
+POSITION_ADVICE = {
+    "冰点": "仓位≤20%，只做超跌反弹，不追高",
+    "回暖": "仓位≤50%，超跌+龙头低吸",
+    "活跃": "仓位≤70%，龙头战法/强势动量",
+    "高潮": "仓位≤50%，逢高兑现，防退潮",
+}
+
+
+def raw_state(zt_count, max_lbc, zbc_rate=None):
+    """多因子原始状态：涨停家数（炸板率≥45% 时打折）+ 连板高度约束"""
+    zt_eff = zt_count * (0.75 if (zbc_rate or 0) >= 0.45 else 1.0)
+    if zt_eff < 30 or (zt_eff < 45 and (max_lbc or 0) <= 2):
+        return "冰点"
+    if zt_eff < 60:
+        return "回暖"
+    if zt_eff < 85:
+        return "活跃"
+    return "高潮"
+
+
+def sentiment_state_machine(hist, today_zt, today_lbc, zbc_rate=None):
+    """
+    多因子情绪状态机（P2）：涨停家数 + 连板高度 + 炸板率 + 3日确认。
+    hist: [{date, zt_count, max_lbc}, ...] 升序（含今日）
+    返回 (state, direction, today_raw, prev_raw)
+    确认规则（防单日抖动）：
+      - 升级：需连续2日同向，或强信号（今日涨停≥85 或 连板≥6）
+      - 降级：需连续2日同向，或强退潮（炸板率≥50% 或 涨停≤25）
+    """
+    recent = hist[-3:]
+    raws = []
+    for h in recent:
+        is_today = h["date"] == (recent[-1]["date"])
+        raws.append(raw_state(h["zt_count"], h.get("max_lbc") or 0, zbc_rate if is_today else None))
+    today_raw = raws[-1]
+    prev_raw = raws[-2] if len(raws) >= 2 else today_raw
+    prev2_raw = raws[-3] if len(raws) >= 3 else prev_raw
+
+    strong_up = today_zt >= 85 or today_lbc >= 6
+    strong_down = (zbc_rate or 0) >= 0.5 or today_zt <= 25
+    i_t, i_p, i_p2 = (STATE_ORDER.index(x) for x in (today_raw, prev_raw, prev2_raw))
+    monotonic_up = i_p2 < i_p < i_t      # 连续3日升温
+    monotonic_down = i_p2 > i_p > i_t    # 连续3日降温
+    if today_raw == prev_raw:
+        state = today_raw
+    elif i_t > i_p:
+        state = today_raw if (today_raw == prev2_raw or monotonic_up or strong_up) else prev_raw
+    else:
+        state = today_raw if (today_raw == prev2_raw or monotonic_down or strong_down) else prev_raw
+
+    # 连板/家数修正：防单因子错配
+    if state == "高潮" and (today_lbc or 0) < 4 and today_zt < 85:
+        state = "活跃"
+    if state == "冰点" and today_zt >= 45 and (today_lbc or 0) >= 3:
+        state = "回暖"
+
+    if STATE_ORDER.index(state) > STATE_ORDER.index(prev_raw):
+        direction = "升温"
+    elif STATE_ORDER.index(state) < STATE_ORDER.index(prev_raw):
+        direction = "降温"
+    else:
+        direction = "平稳"
+    return state, direction, today_raw, prev_raw
 
 
 def max_lbc_of(pool):
@@ -295,12 +362,14 @@ def fetch_zt_history(trading_days=40, gap=1):
     return hist
 
 
-def sentiment_report(today_pool=None, trading_days=40):
+def sentiment_report(today_pool=None, trading_days=40, zbc_rate=None):
     """
-    生成情绪周期报告：
+    生成情绪周期报告（P2 状态机版）：
       {today: {date, zt_count, max_lbc, state},
+       state_machine: {state, prev_state, direction, position_advice, zbc_rate, today_raw},
        history: [...],
        trend: {zt5, zt20, rising, desc}}
+    zbc_rate: 池内炸板股占比（分歧度，0-1），由调用方从涨停池计算
     """
     hist = fetch_zt_history(trading_days=trading_days)
     if today_pool is None:
@@ -308,6 +377,11 @@ def sentiment_report(today_pool=None, trading_days=40):
     today = datetime.date.today().strftime("%Y%m%d")
     tc = len(today_pool)
     ml = max_lbc_of(today_pool)
+
+    # 确保 hist 含今日（monitor 刚拉过今日池，直接补进去）
+    if hist and hist[-1]["date"] != today:
+        hist.append({"date": today, "zt_count": tc, "max_lbc": ml})
+        hist = hist[-trading_days:]
 
     # 5日 vs 20日 平均涨停家数 → 升温/降温
     counts = [h["zt_count"] for h in hist]
@@ -321,8 +395,18 @@ def sentiment_report(today_pool=None, trading_days=40):
     else:
         trend_desc = f"情绪平稳（5日均{zt5} vs 20日均{zt20}）"
 
+    state, direction, today_raw, prev_raw = sentiment_state_machine(hist, tc, ml, zbc_rate)
+
     return {
-        "today": {"date": today, "zt_count": tc, "max_lbc": ml, "state": sentiment_state(tc)},
+        "today": {"date": today, "zt_count": tc, "max_lbc": ml, "state": state},
+        "state_machine": {
+            "state": state,
+            "prev_state": prev_raw,
+            "direction": direction,
+            "position_advice": POSITION_ADVICE.get(state, ""),
+            "zbc_rate": zbc_rate,
+            "today_raw": today_raw,
+        },
         "history": hist,
         "trend": {"zt5": zt5, "zt20": zt20, "rising": rising, "desc": trend_desc},
     }

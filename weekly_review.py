@@ -193,7 +193,7 @@ def main():
         pnl_txt = f"{pnl:+.1f}%" if pnl is not None else "-"
         lines.append(f"  {a['name']}({a['code']}) 盈亏{pnl_txt} 评分{a.get('score', '-')} → 【{a['advice']}】{a['reason']}")
 
-    # ── 6. 建议准确率（P1b 信号追踪） ──
+    # ── 6. 建议准确率（P1b 信号追踪 + P1-5 打脸复盘） ──
     try:
         import signal_history
         n_fill = signal_history.check_and_fill()
@@ -203,6 +203,24 @@ def main():
             lines.append(f"（本次回填 {n_fill} 条）")
     except Exception as e:
         print(f"[warn] 信号追踪失败: {e}")
+
+    # 打脸复盘（P1-5）：本周回填的判定 + 累计命中率
+    try:
+        import advice_history
+        advice_history.backfill_evaluations()
+        ah = advice_history.load_json(advice_history.ADVICE_PATH, {"entries": []})
+        week_evals = []
+        for e in ah.get("entries", []):
+            for code, v in (e.get("verdicts") or {}).items():
+                if v.get("eval_date", "") >= week_start:
+                    name = next((it.get("name", code) for it in e.get("items", []) if it.get("code") == code), code)
+                    week_evals.append(f"  {e['date']} {name}：{v.get('result', '?')}（{v.get('detail', '')}）")
+        if week_evals:
+            lines.append(f"\n【本周建议复盘】本周回填 {len(week_evals)} 条判定：")
+            lines.extend(week_evals)
+        lines.append(f"\n【建议命中统计】{advice_history.stats_text()}")
+    except Exception as e:
+        print(f"[warn] 打脸复盘失败: {e}")
 
     lines.append("\n" + "=" * 40)
     lines.append("⚠️ 自动生成仅供参考。交易记录请用 trade.py 及时录入，复盘才有意义。")

@@ -241,6 +241,8 @@ tbody tr.active { background: rgba(58, 122, 254, 0.16); }
 .sent-label { color: var(--muted); font-size: 12px; }
 .sent-num { font-size: 17px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 .sentiment-chart { height: 90px; margin-bottom: 12px; }
+.sent-pos { flex-basis: 100%; padding-top: 4px; border-top: 1px dashed var(--panel-border); }
+.sent-pos-txt { color: var(--accent); font-size: 13px; font-weight: 600; }
 
 /* ═══════════ 交易/复盘视图 ═══════════ */
 .view.hidden, #view-board.hidden { display: none; }

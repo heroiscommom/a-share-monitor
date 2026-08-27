@@ -31,10 +31,11 @@ SYSTEM_PROMPT = """你是A股量化分析助手。你只根据用户提供的结
 1. 所有结论必须基于给定的数据；数据里没有的，写"数据不足"。
 2. 操作建议必须引用数据中的【建议】(持有/止损/止盈/低吸/减仓)和理由，不得擅自改变。
 3. 报告格式（不超过500字）：
-   【今日大盘】市场状态+情绪一句话
+   【今日大盘】市场状态+情绪一句话（含仓位建议）
    【持仓操作】逐只：名称 现价 建议 一句话理由
    【仓位观点】基于现金比例给一句仓位建议
    【风险提示】1-2条基于数据的风险点（如支撑守住率低、高位风险评分）
+   【建议复盘】如有 advice_check 命中率数据：一句话点评历史建议命中情况，点名最近打脸案例（没有则写"数据积累中"）
 4. 语言精炼口语化，像资深交易员复盘，不用寒暄。
 5. 结尾固定一行：⚠️ 本报告由AI基于量化数据生成，仅供参考，不构成投资建议。"""
 
@@ -70,15 +71,39 @@ def build_data_payload():
                          "support", "resistance", "support_held", "risk", "advice", "reason")})
 
     sentiment = (dragon.get("sentiment") or {}).get("today") or {}
+    sm = (dragon.get("sentiment") or {}).get("state_machine") or {}
     trend = (dragon.get("sentiment") or {}).get("trend") or {}
     tiers = dragon.get("tiers") or {}
     sa = (tiers.get("S") or [])[:3] + (tiers.get("A") or [])[:3]
+
+    # 打脸复盘统计（P1-5）
+    advice_stats = load_json(os.path.join(data_dir, "advice_history.json"), {"entries": []})
+    vcount = {"应验": 0, "打脸": 0, "持平": 0}
+    facepalms = []
+    for e in advice_stats.get("entries", []):
+        for code, v in (e.get("verdicts") or {}).items():
+            r = v.get("result")
+            if r in vcount:
+                vcount[r] += 1
+                if r == "打脸":
+                    name = next((it.get("name", code) for it in e.get("items", []) if it.get("code") == code), code)
+                    facepalms.append(f"{e['date']} {name} {v.get('detail', '')}")
+    vn = vcount["应验"] + vcount["打脸"]
+    advice_check = {
+        "hit_rate": round(vcount["应验"] / vn * 100) if vn else None,
+        "counts": vcount,
+        "facepalms": facepalms[-3:],
+    }
 
     return {
         "generated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
         "market": (quant.get("market_regime") or {}).get("desc", "未知"),
         "sentiment": {"state": sentiment.get("state"), "zt_count": sentiment.get("zt_count"),
-                      "max_lbc": sentiment.get("max_lbc"), "trend": trend.get("desc", "")},
+                      "max_lbc": sentiment.get("max_lbc"),
+                      "direction": sm.get("direction"), "position_advice": sm.get("position_advice"),
+                      "zbc_rate": sm.get("zbc_rate"),
+                      "trend": trend.get("desc", "")},
+        "advice_check": advice_check,
         "capital": {"total": capital.get("total"), "cash": capital.get("cash")},
         "positions": advices,
         "dragon_watch": [{"name": it.get("name"), "lbc": it.get("lbc"),

@@ -127,7 +127,12 @@ def market_section():
     s = d.get("sentiment") or {}
     if s:
         t = s.get("today") or {}
-        lines.append(f"情绪周期: {t.get('state', '-')}（涨停{t.get('zt_count', '-')}只/最高{t.get('max_lbc', '-')}板）｜ {s.get('trend', {}).get('desc', '')}")
+        sm = s.get("state_machine") or {}
+        zbc = sm.get("zbc_rate")
+        zbc_txt = f"炸板率{round(zbc * 100)}%" if zbc is not None else ""
+        lines.append(f"情绪周期: {t.get('state', '-')}（涨停{t.get('zt_count', '-')}只/最高{t.get('max_lbc', '-')}板 {zbc_txt}，{sm.get('direction', '')}）｜ {s.get('trend', {}).get('desc', '')}")
+        if sm.get("position_advice"):
+            lines.append(f"仓位建议: {sm['position_advice']}")
     tiers = d.get("tiers") or {}
     if tiers.get("S") or tiers.get("A"):
         sa = (tiers.get("S") or [])[:2] + (tiers.get("A") or [])[:3]
@@ -192,6 +197,18 @@ def portfolio_section():
 
 def build_report():
     advices, overall, demo = portfolio_section()
+    # 打脸复盘（P1-5）：建议落库 + 到期回填 + 昨日对照（演示持仓不记录）
+    check_lines = []
+    stat_line = ""
+    if not demo:
+        try:
+            import advice_history
+            advice_history.record_daily_advice(advices)
+            advice_history.backfill_evaluations()
+            check_lines = advice_history.today_check(advices)
+            stat_line = advice_history.stats_text()
+        except Exception as e:
+            print(f"[warn] 打脸复盘失败: {e}")
     # 信号落库（P1b：真实建议→10日后自动回填判定）
     if not demo:
         try:
@@ -200,6 +217,10 @@ def build_report():
         except Exception as e:
             print(f"[warn] 信号落库失败: {e}")
     extra = [("市场与情绪", market_section()), ("回测摘要", backtest_section())]
+    if check_lines:
+        extra.append(("昨日建议对照（初判）", "\n".join(check_lines)))
+    if stat_line and not stat_line.startswith("建议命中统计：数据积累中"):
+        extra.append(("建议命中复盘", stat_line))
     body = pf.format_report_text(advices, overall, extra)
     # AI 决策报告（有 DEEPSEEK_API_KEY 时追加，失败不影响主报告）
     try:
