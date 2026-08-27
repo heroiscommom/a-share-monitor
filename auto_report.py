@@ -223,8 +223,19 @@ def main():
         print("\n[dry-run] 不发送")
         return
     date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    marker = os.path.join(DATA_DIR, f"report_sent_{date_str}.txt")
+    # 当日已发过则跳过（GitHub 定时 + 本机兜底双触发时防重复邮件）
+    if os.path.exists(marker):
+        print(f"[skip] 今日({date_str})报告已发送过（{marker} 存在），跳过")
+        return
     subject = f"【A股量化报告】{date_str} 仓位{overall['pos_ratio']}%｜{overall['summary'][:40]}"
-    send_email(subject, body)
+    ok = send_email(subject, body)
+    if ok:
+        with open(marker, "w", encoding="utf-8") as f:
+            f.write(datetime.datetime.now().isoformat())
+        print(f"[sent] 邮件已发送，写入去重标记 {marker}")
+    else:
+        print("[warn] 邮件发送失败/未配置，不写标记（下次重试）")
 
 
 if __name__ == "__main__":

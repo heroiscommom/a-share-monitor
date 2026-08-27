@@ -6,7 +6,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   report:
@@ -31,3 +31,13 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
           python3 auto_report.py
+
+      - name: Commit report marker
+        # 把当日发送标记入库：GitHub 定时 + 本机 cron 双触发时防止重复发邮件
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/report_sent_*.txt
+          git commit -m "chore: 日报发送标记 $(date +'%Y-%m-%d')" || echo "无标记变化，跳过提交"
+          git pull --rebase origin main 2>/dev/null || true
+          git push || echo "推送失败(下次 run 会再尝试)"

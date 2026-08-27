@@ -886,7 +886,12 @@ def main():
                 time.sleep(3)
         print(f"[push] 已实时推送 {len(immediate)} 条微信（邮件由收盘日报统一汇总）")
     elif immediate:
-        print(f"[push] 非交易时段，S/A {len(immediate)} 条未推微信（已进日报，收盘统一汇总）")
+        # 非交易时段（收盘后的补扫/迟到 run）：不逐条推，攒成单条批量补推，避免轰炸
+        lines = [f"🔸 {t['name']}({t['code']}) {t['message']}" for t in immediate[:20]]
+        if len(immediate) > 20:
+            lines.append(f"… 共 {len(immediate)} 条")
+        send_wechat(f"📋 盘后补推 {len(immediate)} 条 S/A 信号", "\n".join(lines))
+        print(f"[push] 非交易时段，S/A {len(immediate)} 条已批量补推微信（单条汇总，避免轰炸）")
     else:
         print(f"本次无 S/A 级信号（B级进日报，C级仅看板）")
 
