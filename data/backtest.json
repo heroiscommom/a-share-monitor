@@ -1,39 +1,39 @@
 {
   "forward_days": 10,
-  "total_samples": 1118,
+  "total_samples": 1119,
   "groups": [
     {
       "label": "<45",
-      "count": 504,
-      "avg_return": 1.37,
+      "count": 506,
+      "avg_return": 1.36,
       "win_rate": 50.4
     },
     {
       "label": "45-55",
-      "count": 185,
-      "avg_return": 0.93,
-      "win_rate": 48.6
+      "count": 187,
+      "avg_return": 0.96,
+      "win_rate": 47.6
     },
     {
       "label": "55-65",
-      "count": 191,
-      "avg_return": 1.06,
-      "win_rate": 51.3
+      "count": 190,
+      "avg_return": 0.91,
+      "win_rate": 51.6
     },
     {
       "label": "65-75",
       "count": 128,
-      "avg_return": 1.29,
-      "win_rate": 51.6
+      "avg_return": 1.03,
+      "win_rate": 50.0
     },
     {
       "label": "≥75",
-      "count": 110,
-      "avg_return": 1.04,
-      "win_rate": 46.4
+      "count": 108,
+      "avg_return": 1.14,
+      "win_rate": 47.2
     }
   ],
-  "ic": -0.022,
+  "ic": -0.024,
   "per_stock": [
     {
       "code": "600664",
@@ -50,8 +50,8 @@
     {
       "code": "601700",
       "name": "风范股份",
-      "samples": 66,
-      "avg_fwd_return": 1.19
+      "samples": 67,
+      "avg_fwd_return": 0.45
     },
     {
       "code": "002437",
@@ -138,7 +138,7 @@
       "avg_fwd_return": 3.66
     }
   ],
-  "conclusion": "各组收益差异不大（1.37% ~ 1.04%），评分区分度低；线性 IC=-0.022",
-  "updated_at": "2026-08-27 20:14:42",
+  "conclusion": "各组收益差异不大（1.36% ~ 1.14%），评分区分度低；线性 IC=-0.024",
+  "updated_at": "2026-08-27 22:46:14",
   "methodology": "非重叠抽样(每10日1样本) · 双边成本0.25% · 剔除一字涨停买入/一字跌停卖出"
 }
