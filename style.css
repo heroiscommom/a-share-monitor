@@ -303,11 +303,19 @@ select.tf-input { appearance: auto; }
 .trade-row .t-date { color: var(--muted); font-size: 11px; }
 .trade-row .t-note { color: var(--muted); font-size: 11px; margin-left: auto; }
 
-.equity-chart { height: 260px; }
-.review-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
+.equity-chart { height: 280px; }
+.review-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 10px; }
 .review-card { border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px; text-align: center; background: rgba(255,255,255,0.02); }
 .review-card label { display: block; color: var(--muted); font-size: 11px; margin-bottom: 4px; }
 .review-card span { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* 决策闭环 */
+.decision-closed { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.dc-card { border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px 16px; background: linear-gradient(135deg, rgba(58,122,254,0.05), transparent); }
+.dc-title { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+.dc-num { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; margin-right: 8px; }
+.dc-sub { color: var(--muted); font-size: 12px; }
+.dc-detail { color: var(--muted); font-size: 11px; margin-top: 8px; line-height: 1.6; }
 
 /* ═══════════ Modal ═══════════ */
 .modal {

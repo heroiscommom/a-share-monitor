@@ -175,17 +175,35 @@
     <!-- ══════════ 复盘视图 ══════════ -->
     <div id="view-review" class="view hidden">
       <section class="panel full">
+        <div class="chart-head"><h2>📊 资产摘要</h2><span id="review-meta" class="backtest-meta"></span></div>
+        <div id="review-cards" class="review-cards"></div>
+      </section>
+
+      <section class="panel full">
         <div class="chart-head"><h2>📈 净值曲线</h2><span id="equity-meta" class="backtest-meta"></span></div>
         <div id="equity-chart" class="equity-chart"></div>
       </section>
 
       <section class="panel full">
-        <div class="chart-head"><h2>🧾 复盘摘要</h2></div>
-        <div id="review-summary" class="trade-list"></div>
+        <div class="chart-head"><h2>🧭 决策闭环</h2><span id="decision-meta" class="backtest-meta"></span></div>
+        <div id="decision-closed" class="decision-closed"></div>
       </section>
 
       <section class="panel full">
-        <div class="chart-head"><h2>🗂 全部交易流水</h2></div>
+        <div class="chart-head"><h2>🗂 持仓汇总（按股票）</h2></div>
+        <div id="stock-summary" class="trade-list"></div>
+      </section>
+
+      <section class="panel full">
+        <div class="chart-head">
+          <h2>📜 全部交易流水</h2>
+          <div class="chart-toggle" id="flow-filter">
+            <button data-f="all" class="active">全部</button>
+            <button data-f="buy">买入</button>
+            <button data-f="sell">卖出</button>
+            <button data-f="pnl">盈亏</button>
+          </div>
+        </div>
         <div id="all-trades" class="trade-list"></div>
       </section>
     </div>
