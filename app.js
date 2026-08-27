@@ -985,14 +985,17 @@ function deriveCash(trades, baseCash) {
 }
 
 function loadReviewBasics() {
-  // 预计算持仓/现金（复盘页与情绪卡共用）
-  return loadJSON('data/trades.json').catch(() => null).then((d) => {
+  // 预计算持仓/现金（复盘页与情绪卡共用）——原子赋值，避免中间态（现金未就绪时被读成 0）
+  return Promise.all([
+    loadJSON('data/trades.json').catch(() => null),
+    loadJSON('config.json').catch(() => null),
+  ]).then(([d, cfg]) => {
     const trades = (d && d.trades) || [];
     reviewPos = derivePositions(trades);
-    return loadJSON('config.json').catch(() => null).then((cfg) => {
-      reviewCash = deriveCash(trades, (cfg && cfg.capital && cfg.capital.cash) || 0);
-      return { reviewPos, reviewCash };
-    });
+    reviewCash = deriveCash(trades, (cfg && cfg.capital && cfg.capital.cash) || 0);
+    // 若情绪卡已渲染过（时序竞争），用完整数据重绘一次
+    if (dragonData) renderSentiment();
+    return { reviewPos, reviewCash };
   });
 }
 
@@ -1294,7 +1297,7 @@ async function enrichQuotes(snap) {
     if (s) {
       // 全部策略字段（默认/动量/金叉/缩量）一并合并，切打法不再丢评分
       ['score', 'signal', 'signal_key', 'factors', 'momentum_score', 'momentum_signal', 'momentum_indicators',
-        'ma_score', 'ma_signal', 'ma_factors', 'shrink_score', 'shrink_signal', 'shrink_factors'].forEach((k) => {
+        'ma_score', 'ma_signal', 'ma_factors', 'shrink_score', 'shrink_signal', 'shrink_factors', 'resonance'].forEach((k) => {
         if (s[k] !== undefined) q[k] = s[k];
       });
     }
