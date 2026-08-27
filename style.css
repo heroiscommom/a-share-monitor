@@ -403,7 +403,39 @@ footer {
   .sector-list { grid-template-columns: 1fr; }
   .panel { padding: 14px; }
   header .title { font-size: 17px; }
+  /* 手机端：自选股表收紧，避免信号列被挤出屏外（评分列隐藏，点个股可看） */
+  #watchlist th:nth-child(5), #watchlist td:nth-child(5) { display: none; }
+  #watchlist th, #watchlist td { padding: 8px 4px; font-size: 12px; }
+  .stk-name { max-width: 56px; }
+  .td-trade { padding: 3px 6px; }
+  #watchlist .sig { font-size: 10px; padding: 2px 5px; }
 }
+
+/* 自选股操作 / 排序 / 自动刷新 */
+.watch-wrap { flex: 1; overflow: auto; max-height: 640px; min-width: 0; }
+.stk-name { display: inline-block; max-width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; margin-right: 6px; }
+.td-trade {
+  border: 1px solid var(--panel-border);
+  background: rgba(58, 122, 254, 0.1);
+  color: var(--accent);
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 4px 7px;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: all 0.2s;
+}
+.td-trade:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+th[data-sort] { cursor: pointer; user-select: none; }
+th[data-sort]:hover { color: var(--text); }
+th[data-sort]::after { content: ' ⇅'; font-size: 10px; opacity: 0.45; }
+th[data-sort].sorted-asc::after { content: ' ↑'; opacity: 1; color: var(--accent); }
+th[data-sort].sorted-desc::after { content: ' ↓'; opacity: 1; color: var(--accent); }
+.chart-toggle .trade-btn { border-color: rgba(58, 122, 254, 0.5); color: var(--accent); font-weight: 600; }
+.chart-toggle .trade-btn:hover { background: rgba(58, 122, 254, 0.12); }
+.dragon-table-wrap { overflow-x: auto; }
+.dragon-table-wrap .dragon-table { min-width: 640px; }
 
 /* 图表容器高度（ECharts 需要显式高度，否则渲染空白） */
 #chart { height: 440px; width: 100%; }

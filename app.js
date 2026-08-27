@@ -19,13 +19,32 @@ let strategyList = [];   // strategies.json 动态列表
 const SIGNAL_CLASS = { strong: 's-strong', bullish: 's-bullish', neutral: 's-neutral', bearish: 's-bearish', weak: 's-weak' };
 
 let strategyMode = localStorage.getItem('strategyMode') || 'mean_reversion';
+
+// 策略名归一化：yaml/strategies.json 里龙头叫 dragon_head，前端统一用 dragon
+function normalizeStrategy(name) {
+  return name === 'dragon_head' ? 'dragon' : name;
+}
+strategyMode = normalizeStrategy(strategyMode);
 let dragonData = null;
 let dragonMap = {};
 
-async function loadJSON(url) {
-  const r = await fetch(url, { cache: 'no-store' });
-  if (!r.ok) throw new Error(url + ' → ' + r.status);
-  return r.json();
+async function loadJSON(url, timeoutMs = 12000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const r = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+    if (!r.ok) throw new Error(url + ' → ' + r.status);
+    return await r.json();
+  } finally { clearTimeout(timer); }
+}
+
+function ensureEcharts(timeoutMs = 8000) {
+  if (window.echarts) return Promise.resolve(true);
+  return new Promise((res) => {
+    const done = () => { window.removeEventListener('echarts-ready', done); res(!!window.echarts); };
+    window.addEventListener('echarts-ready', done);
+    setTimeout(done, timeoutMs);
+  });
 }
 
 function fmt(n, d = 2) {
@@ -33,8 +52,40 @@ function fmt(n, d = 2) {
   return Number(n).toFixed(d);
 }
 
+function fmtTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  if (isNaN(d)) return ts;
+  const now = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  if (d.toDateString() === now.toDateString()) return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+// 涨停判断：创业板/科创板 20%，主板 10%（ST 5% 未纳入，按 9.8% 阈值）
+function isLimitUp(q) {
+  const c = q.code || '';
+  const thr = /^(300|301|688)/.test(c) ? 19.8 : 9.8;
+  return q.change_pct != null && q.change_pct >= thr;
+}
+
+// 按当前打法取评分
+function scoreOf(q) {
+  if (strategyMode === 'momentum') return q.momentum_score;
+  if (strategyMode === 'ma_golden_cross') return q.ma_score;
+  if (strategyMode === 'shrink_pullback') return q.shrink_score;
+  if (strategyMode === 'dragon') { const dg = dragonMap[q.code]; return dg ? dg.dragon_score : null; }
+  return q.score;
+}
+
 function showChartEmpty(msg) {
-  if (!chart) chart = echarts.init($('#chart'));
+  const el = $('#chart');
+  if (!el) return;
+  if (!window.echarts) {
+    el.innerHTML = `<div class="empty" style="height:100%;display:flex;align-items:center;justify-content:center;">${msg}</div>`;
+    return;
+  }
+  if (!chart) chart = echarts.init(el);
   chart.clear();
   chart.setOption({
     backgroundColor: 'transparent',
@@ -42,68 +93,94 @@ function showChartEmpty(msg) {
   }, true);
 }
 
+let sortKey = null, sortDir = 1;
+
+function selectRow(q) {
+  document.querySelectorAll('tbody tr').forEach((r) => r.classList.remove('active'));
+  const tr = document.querySelector(`tbody tr[data-code="${q.code}"]`);
+  if (tr) tr.classList.add('active');
+  loadChart(q);
+}
+
+function scoreSignalOf(q) {
+  let score = null, signal = '-', sigKey = 'neutral';
+  if (strategyMode === 'momentum') {
+    score = q.momentum_score;
+    signal = q.momentum_signal || '-';
+    sigKey = q.momentum_score >= 70 ? 'strong' : (q.momentum_score >= 55 ? 'bullish' : (q.momentum_score >= 40 ? 'neutral' : 'weak'));
+  } else if (strategyMode === 'ma_golden_cross') {
+    score = q.ma_score;
+    signal = q.ma_signal || '-';
+    sigKey = score >= 70 ? 'strong' : (score >= 55 ? 'bullish' : 'neutral');
+  } else if (strategyMode === 'shrink_pullback') {
+    score = q.shrink_score;
+    signal = q.shrink_signal || '-';
+    sigKey = score >= 70 ? 'strong' : (score >= 55 ? 'bullish' : 'neutral');
+  } else if (strategyMode === 'dragon') {
+    const dg = dragonMap[q.code];
+    if (dg) {
+      score = dg.dragon_score;
+      signal = `${dg.lbc}连板`;
+      sigKey = dg.tier === 'S' ? 'strong' : (dg.tier === 'A' ? 'bullish' : (dg.tier === 'B' ? 'neutral' : 'weak'));
+    } else {
+      score = null;
+      signal = isLimitUp(q) ? '涨停未入池' : '非涨停';
+      sigKey = isLimitUp(q) ? 'bullish' : 'neutral';
+    }
+  } else {
+    score = q.score;
+    signal = q.signal || '-';
+    sigKey = q.signal_key || 'neutral';
+  }
+  return { score, signal, sigKey };
+}
+
 function renderWatchlist(quotes) {
   const tbody = $('tbody');
+  const rows = quotes.slice();
+  if (sortKey) {
+    rows.sort((a, b) => {
+      let va = a[sortKey], vb = b[sortKey];
+      if (sortKey === 'score') { va = scoreOf(a); vb = scoreOf(b); }
+      if (va === null || va === undefined) va = -Infinity;
+      if (vb === null || vb === undefined) vb = -Infinity;
+      return (va - vb) * sortDir;
+    });
+  }
   tbody.innerHTML = '';
-  quotes.forEach((q) => {
+  rows.forEach((q) => {
     const cp = q.change_pct;
     const cls = cp >= 0 ? 'up' : 'down';
-    // 按打法模式取评分/信号
-    let score = null, signal = '-', sigKey = 'neutral';
-    if (strategyMode === 'momentum') {
-      score = q.momentum_score;
-      signal = q.momentum_signal || '-';
-      sigKey = q.momentum_score >= 70 ? 'strong' : (q.momentum_score >= 55 ? 'bullish' : (q.momentum_score >= 40 ? 'neutral' : 'weak'));
-    } else if (strategyMode === 'ma_golden_cross') {
-      score = q.ma_score;
-      signal = q.ma_signal || '-';
-      sigKey = score >= 70 ? 'strong' : (score >= 55 ? 'bullish' : 'neutral');
-    } else if (strategyMode === 'shrink_pullback') {
-      score = q.shrink_score;
-      signal = q.shrink_signal || '-';
-      sigKey = score >= 70 ? 'strong' : (score >= 55 ? 'bullish' : 'neutral');
-    } else if (strategyMode === 'dragon') {
-      const dg = dragonMap[q.code];
-      if (dg) {
-        score = dg.dragon_score;
-        signal = `${dg.lbc}连板`;
-        sigKey = dg.tier === 'S' ? 'strong' : (dg.tier === 'A' ? 'bullish' : (dg.tier === 'B' ? 'neutral' : 'weak'));
-      } else {
-        score = null;
-        signal = '非涨停';
-        sigKey = 'neutral';
-      }
-    } else {
-      score = q.score;
-      signal = q.signal || '-';
-      sigKey = q.signal_key || 'neutral';
-    }
+    const { score, signal, sigKey } = scoreSignalOf(q);
     const sigCls = SIGNAL_CLASS[sigKey] || 's-neutral';
     const tr = document.createElement('tr');
     tr.dataset.code = q.code;
     tr.innerHTML =
       `<td>${q.code}</td>` +
-      `<td>${q.name || '-'}</td>` +
+      `<td><span class="stk-name">${q.name || '-'}</span><button class="td-trade" title="买入/卖出 ${q.name || q.code}">💰</button></td>` +
       `<td class="num">${fmt(q.price)}</td>` +
       `<td class="num ${cls}">${cp >= 0 ? '+' : ''}${fmt(cp)}%</td>` +
       `<td class="num score">${score != null ? Number(score).toFixed(0) : '-'}</td>` +
       `<td><span class="sig ${sigCls}">${signal}</span></td>`;
-    tr.addEventListener('click', () => {
-      document.querySelectorAll('tbody tr').forEach((r) => r.classList.remove('active'));
-      tr.classList.add('active');
-      loadChart(q);
+    tr.addEventListener('click', () => selectRow(q));
+    tr.querySelector('.td-trade').addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectRow(q);
       openTradeModal(q);
     });
     tbody.appendChild(tr);
   });
 
-  if (quotes.length) loadChart(quotes[0]);
+  if (quotes.length && (!activeStock || !quotes.some((x) => x.code === activeStock.code))) {
+    loadChart(quotes[0]);
+  }
 }
 
 async function loadChart(q) {
   activeStock = q;
   activeCode = q.code;
   drawFactor(q);
+  if (!window.echarts) { showChartEmpty('图表库加载失败，请刷新重试'); return; }
   if (chartMode === 'intraday') await loadIntraday(q);
   else await loadDaily(q);
 }
@@ -131,6 +208,12 @@ function drawFundamental(q) {
 
 function drawFactor(q) {
   $('#factor-title').textContent = `${q.name || q.code} (${q.code}) 量化因子`;
+  if (!window.echarts) {
+    $('#factor-score').innerHTML = '';
+    $('#factor-radar').innerHTML = '<div class="empty" style="height:100%;display:flex;align-items:center;justify-content:center;">图表库加载失败</div>';
+    drawFundamental(q);
+    return;
+  }
   let factors = null, labels = FACTOR_LABELS, score = null, sigKey = 'neutral', sigText = '';
   if (strategyMode === 'momentum') {
     factors = q.momentum_indicators;
@@ -153,7 +236,7 @@ function drawFactor(q) {
   } else if (strategyMode === 'dragon') {
     const dg = dragonMap[q.code];
     score = dg ? dg.dragon_score : null;
-    sigText = dg ? `${dg.lbc}连板 · ${dg.tier}级` : '非涨停股';
+    sigText = dg ? `${dg.lbc}连板 · ${dg.tier}级` : (isLimitUp(q) ? '涨停未入池' : '非涨停股');
     sigKey = dg && dg.tier === 'S' ? 'strong' : (dg && dg.tier === 'A' ? 'bullish' : 'neutral');
     if (dg) {
       const f = (v, max) => Math.min(100, Math.round((v || 0) / max * 100));
@@ -185,7 +268,7 @@ function drawFactor(q) {
     if (radarChart) { try { radarChart.dispose(); } catch (e) {} radarChart = null; }
     const fel = $('#factor-radar');
     if (fel) fel.innerHTML = `<div class="empty" style="height:100%;display:flex;align-items:center;justify-content:center;">${
-      strategyMode === 'dragon' ? '非涨停股无龙头分 — 切换到其他策略查看因子' : '暂无因子数据'}</div>`;
+      strategyMode === 'dragon' ? (isLimitUp(q) ? '涨停未入池 — 无龙头分，切其他策略看因子' : '非涨停股无龙头分 — 切换到其他策略查看因子') : '暂无因子数据'}</div>`;
     drawFundamental(q);
     return;
   }
@@ -543,7 +626,7 @@ function renderDragon() {
       </tr>`).join('');
     return `<div class="tier-block">
       <h3>${tierNames[k]}（${list.length}）</h3>
-      ${rows ? `<table class="dragon-table"><thead><tr><th>名称</th><th>代码</th><th>连板</th><th>强度分</th><th>封单</th><th>首板</th><th>炸板</th><th>板块</th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="empty">无</div>'}
+      ${rows ? `<div class="dragon-table-wrap"><table class="dragon-table"><thead><tr><th>名称</th><th>代码</th><th>连板</th><th>强度分</th><th>封单</th><th>首板</th><th>炸板</th><th>板块</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="empty">无</div>'}
     </div>`;
   }).join('');
 
@@ -552,7 +635,7 @@ function renderDragon() {
     blEl.innerHTML = '<div class="empty">今日无断板低吸候选</div>';
     return;
   }
-  blEl.innerHTML = `<table class="dragon-table"><thead><tr><th>名称</th><th>代码</th><th>昨连板</th><th>昨强度</th><th>现价</th><th>支撑位</th><th>守住率</th><th>风险评分</th><th>板块</th></tr></thead><tbody>` +
+  blEl.innerHTML = `<div class="dragon-table-wrap"><table class="dragon-table"><thead><tr><th>名称</th><th>代码</th><th>昨连板</th><th>昨强度</th><th>现价</th><th>支撑位</th><th>守住率</th><th>风险评分</th><th>板块</th></tr></thead><tbody>` +
     bl.map((c) =>
       `<tr>
         <td>${c.name}</td><td>${c.code}</td>
@@ -563,7 +646,7 @@ function renderDragon() {
         <td class="num ${c.support_held != null && c.support_held >= 60 ? 'up' : ''}">${c.support_held != null ? c.support_held + '%' : '-'}</td>
         <td class="num ${c.risk_score != null && c.risk_score >= 65 ? 'up' : (c.risk_score != null && c.risk_score < 40 ? 'down' : '')}">${c.risk_score != null ? c.risk_score + '(' + (c.risk_level || '') + ')' : '-'}</td>
         <td>${c.hybk || '-'}</td>
-      </tr>`).join('') + `</tbody></table>`;
+      </tr>`).join('') + `</tbody></table></div>`;
 }
 
 function applyStrategyMode() {
@@ -577,12 +660,13 @@ function applyStrategyMode() {
 function renderStrategyButtons() {
   const wrap = document.querySelector('.strategy-toggle');
   if (!wrap || !strategyList.length) return;
-  wrap.innerHTML = strategyList.map((s) =>
-    `<button data-strategy="${s.name}" class="${s.name === strategyMode ? 'active' : ''}">${s.display_name}</button>`
-  ).join('');
+  wrap.innerHTML = strategyList.map((s) => {
+    const key = normalizeStrategy(s.name);
+    return `<button data-strategy="${key}" class="${key === strategyMode ? 'active' : ''}">${s.display_name}</button>`;
+  }).join('');
   wrap.querySelectorAll('button').forEach((b) => {
     b.addEventListener('click', () => {
-      strategyMode = b.dataset.strategy;
+      strategyMode = normalizeStrategy(b.dataset.strategy);
       localStorage.setItem('strategyMode', strategyMode);
       applyStrategyMode();
       const snap2 = window.__snapQuotes || [];
@@ -663,14 +747,11 @@ function loadTrade() {
         p.realized += t.shares;
       }
     });
-    // 现价
+    // 现价（只拉一次 snapshot，别每只持仓拉一遍）
     const codes = Object.keys(pos);
-    Promise.all(codes.map((c) => loadJSON('data/snapshot.json').then((s) => {
-      const q = (s.quotes || []).find((x) => x.code === c);
-      return q ? { code: c, price: q.price } : null;
-    }).catch(() => null))).then((quotes) => {
+    loadJSON('data/snapshot.json').catch(() => null).then((s) => {
       const qm = {};
-      quotes.forEach((x) => { if (x) qm[x.code] = x.price; });
+      if (s) (s.quotes || []).forEach((x) => { if (codes.includes(x.code)) qm[x.code] = x.price; });
       renderPositions(pos, qm);
     });
     renderTradeList(trades.slice(-15).reverse());
@@ -930,48 +1011,88 @@ async function loadPicks() {
   }
 }
 
+// 把 quant/moneyflow/sector/support_resistance/signals 合并进快照行情
+async function enrichQuotes(snap) {
+  const [quantData, mfData, sectorData, srData, sigData] = await Promise.all([
+    loadJSON('data/quant.json').catch(() => null),
+    loadJSON('data/moneyflow.json').catch(() => null),
+    loadJSON('data/sectors.json').catch(() => null),
+    loadJSON('data/support_resistance.json').catch(() => null),
+    loadJSON('data/signals.json').catch(() => null),
+  ]);
+  const quantMap = {};
+  ((quantData && quantData.stocks) || []).forEach((s) => { quantMap[s.code] = s; });
+  const mfMap = {};
+  ((mfData && mfData.stocks) || []).forEach((s) => { mfMap[s.code] = s; });
+  const sectorMap = (sectorData && sectorData.stock_sector) || {};
+  const srMap = {};
+  ((srData && srData.stocks) || []).forEach((s) => { srMap[s.code] = s; });
+  const sigMap = {};
+  ((sigData && sigData.stocks) || []).forEach((s) => { sigMap[s.code] = s; });
+  (snap.quotes || []).forEach((q) => {
+    const s = quantMap[q.code];
+    if (s) {
+      // 全部策略字段（默认/动量/金叉/缩量）一并合并，切打法不再丢评分
+      ['score', 'signal', 'signal_key', 'factors', 'momentum_score', 'momentum_signal', 'momentum_indicators',
+        'ma_score', 'ma_signal', 'ma_factors', 'shrink_score', 'shrink_signal', 'shrink_factors'].forEach((k) => {
+        if (s[k] !== undefined) q[k] = s[k];
+      });
+    }
+    const m = mfMap[q.code];
+    if (m) { q.netamount = m.netamount; q.r0_net = m.r0_net; }
+    q.sector = sectorMap[q.code] || '';
+    const sr = srMap[q.code];
+    if (sr) { q.supports = sr.supports; q.resistances = sr.resistances; q.sr_risk = sr.risk; }
+    const sg = sigMap[q.code];
+    if (sg) { q.daily_buy = sg.daily_buy; q.daily_sell = sg.daily_sell; q.intraday_buy = sg.intraday_buy; q.intraday_sell = sg.intraday_sell; }
+  });
+  return snap;
+}
+
+let lastSnapTs = '';
+let refreshTimer = null;
+
+// 盘中静默自动刷新：只更新表格/评分，不打断图表与操作
+async function refreshQuotes() {
+  try {
+    const snap = await loadJSON('data/snapshot.json');
+    if (!snap || !snap.quotes || !snap.quotes.length) return;
+    const ts = snap.updated_at || '';
+    if (ts && ts === lastSnapTs) return;   // 数据没变就跳过重绘
+    lastSnapTs = ts;
+    await enrichQuotes(snap);
+    window.__snapQuotes = snap.quotes;
+    $('#updated').textContent = '更新于 ' + fmtTime(ts) + '（自动刷新）';
+    renderWatchlist(snap.quotes);
+    const nq = snap.quotes.find((x) => x.code === (activeStock && activeStock.code));
+    if (nq) { activeStock = nq; drawFactor(nq); }
+  } catch (e) { /* 静默失败，下轮再试 */ }
+}
+
+function startAutoRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(refreshQuotes, 60000);
+}
+
 async function init() {
+  // 等图表库就绪（jsdelivr 失败会走 staticfile 回退），失败则表格仍可用
+  await ensureEcharts();
   try {
     const cfg = await loadJSON('config.json').catch(() => null);
     if (cfg && cfg.strategy && cfg.strategy.active && !localStorage.getItem('strategyMode')) {
-      strategyMode = cfg.strategy.active;
+      strategyMode = normalizeStrategy(cfg.strategy.active);
     }
     const snap = await loadJSON('data/snapshot.json').catch(() => null);
-    if (!snap) { $('#updated').textContent = '数据未采集(等 GitHub Actions 更新)'; return; }
-    const quantData = await loadJSON('data/quant.json').catch(() => null);
-    const mfData = await loadJSON('data/moneyflow.json').catch(() => null);
-    const sectorData = await loadJSON('data/sectors.json').catch(() => null);
-    const srData = await loadJSON('data/support_resistance.json').catch(() => null);
-    const sigData = await loadJSON('data/signals.json').catch(() => null);
-    const quantMap = {};
-    ((quantData && quantData.stocks) || []).forEach((s) => { quantMap[s.code] = s; });
-    const mfMap = {};
-    ((mfData && mfData.stocks) || []).forEach((s) => { mfMap[s.code] = s; });
-    const sectorMap = (sectorData && sectorData.stock_sector) || {};
-    const srMap = {};
-    ((srData && srData.stocks) || []).forEach((s) => { srMap[s.code] = s; });
-    const sigMap = {};
-    ((sigData && sigData.stocks) || []).forEach((s) => { sigMap[s.code] = s; });
-    (snap.quotes || []).forEach((q) => {
-      const s = quantMap[q.code];
-      if (s) { q.score = s.score; q.signal = s.signal; q.signal_key = s.signal_key; q.factors = s.factors; }
-      const m = mfMap[q.code];
-      if (m) { q.netamount = m.netamount; q.r0_net = m.r0_net; }
-      q.sector = sectorMap[q.code] || '';
-      const sr = srMap[q.code];
-      if (sr) { q.supports = sr.supports; q.resistances = sr.resistances; q.sr_risk = sr.risk; }
-      const sg = sigMap[q.code];
-      if (sg) { q.daily_buy = sg.daily_buy; q.daily_sell = sg.daily_sell; q.intraday_buy = sg.intraday_buy; q.intraday_sell = sg.intraday_sell; }
-    });
-    $('#updated').textContent = snap.updated_at
-      ? '更新于 ' + snap.updated_at
-      : '等待首次采集';
-    window.__snapQuotes = snap.quotes || [];
-    if (snap.quotes && snap.quotes.length) {
+    window.__snapQuotes = (snap && snap.quotes) || [];
+    if (snap && snap.quotes && snap.quotes.length) {
+      await enrichQuotes(snap);
+      lastSnapTs = snap.updated_at || '';
+      $('#updated').textContent = snap.updated_at ? '更新于 ' + fmtTime(snap.updated_at) : '等待首次采集';
       renderWatchlist(snap.quotes);
     } else {
+      $('#updated').textContent = '数据未采集（等 GitHub Actions 更新）';
       $('tbody').innerHTML =
-        '<tr><td colspan="6" class="empty">暂无数据，等待首次采集</td></tr>';
+        '<tr><td colspan="6" class="empty">暂无数据，等待首次采集（导航等操作仍可用）</td></tr>';
     }
     const al = await loadJSON('data/alerts.json').catch(() => null);
     renderAlerts((al && al.items) || []);
@@ -986,6 +1107,7 @@ async function init() {
   }
   // UI 绑定独立于数据加载——即使某个数据源失败，按钮也必须可点
   bindUI();
+  startAutoRefresh();
   const initView = (location.hash || '').replace('#', '');
   if (['trade', 'review'].includes(initView)) showView(initView);
 }
@@ -1004,6 +1126,21 @@ function bindUI() {
       if (snap2.length) loadChart(snap2[0]);
     });
   });
+  // 表头排序
+  document.querySelectorAll('th[data-sort]').forEach((th) => {
+    th.addEventListener('click', () => {
+      const k = th.dataset.sort;
+      if (sortKey === k) sortDir = -sortDir;
+      else { sortKey = k; sortDir = 1; }
+      document.querySelectorAll('th[data-sort]').forEach((t) => t.classList.remove('sorted-asc', 'sorted-desc'));
+      th.classList.add(sortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+      const snap2 = window.__snapQuotes || [];
+      if (snap2.length) renderWatchlist(snap2);
+    });
+  });
+  // 图表区交易按钮
+  const tb = $('#chart-trade-btn');
+  if (tb) tb.addEventListener('click', () => { if (activeStock) openTradeModal(activeStock); });
   applyStrategyMode();
 }
 

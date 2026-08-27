@@ -5,7 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A股盯盘助手</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script>
+    // ECharts 国内可用性兜底：jsdelivr 失败 → 切七牛 staticfile，再失败页面降级提示
+    function loadEChartsFallback() {
+      if (window.echarts) { window.dispatchEvent(new Event('echarts-ready')); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdn.staticfile.org/echarts/5.4.3/echarts.min.js';
+      s.onload = () => window.dispatchEvent(new Event('echarts-ready'));
+      s.onerror = () => window.dispatchEvent(new Event('echarts-ready'));
+      document.head.appendChild(s);
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" onerror="loadEChartsFallback()" onload="window.dispatchEvent(new Event('echarts-ready'))"></script>
 </head>
 <body>
   <header>
@@ -25,12 +36,14 @@
     <div id="view-board">
     <section class="panel">
       <h2>自选股</h2>
+      <div class="watch-wrap">
       <table id="watchlist">
         <thead>
-          <tr><th>代码</th><th>名称</th><th>最新价</th><th>涨跌幅</th><th>评分</th><th>信号</th></tr>
+          <tr><th data-sort="code">代码</th><th>名称</th><th data-sort="price">最新价</th><th data-sort="change_pct">涨跌幅</th><th data-sort="score">评分</th><th>信号</th></tr>
         </thead>
         <tbody></tbody>
       </table>
+      </div>
     </section>
 
     <section class="panel">
@@ -39,6 +52,7 @@
         <div class="chart-toggle">
           <button id="btn-intraday" class="active">分时</button>
           <button id="btn-daily">日K</button>
+          <button id="chart-trade-btn" class="trade-btn">💰 交易</button>
         </div>
       </div>
       <div id="chart"></div>
