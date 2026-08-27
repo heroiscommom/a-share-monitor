@@ -115,8 +115,11 @@ def send_email(subject, body):
         return False
 
 
-def market_section():
-    """市场状态 + 情绪周期 + 龙头摘要"""
+EMO_POS_CAP = {"冰点": 20, "回暖": 50, "活跃": 70, "高潮": 50}
+
+
+def market_section(pos_ratio=None):
+    """市场状态 + 情绪周期 + 龙头摘要 + 仓位约束偏差（P2+）"""
     lines = []
     q = load_json(os.path.join(DATA_DIR, "quant.json"), {})
     regime = q.get("market_regime") or {}
@@ -133,6 +136,16 @@ def market_section():
         lines.append(f"情绪周期: {t.get('state', '-')}（涨停{t.get('zt_count', '-')}只/最高{t.get('max_lbc', '-')}板 {zbc_txt}，{sm.get('direction', '')}）｜ {s.get('trend', {}).get('desc', '')}")
         if sm.get("position_advice"):
             lines.append(f"仓位建议: {sm['position_advice']}")
+        # 仓位约束偏差：情绪状态机上限 vs 实际持仓占比
+        if pos_ratio is not None and sm.get("state"):
+            cap = EMO_POS_CAP.get(sm["state"])
+            if cap:
+                if pos_ratio > cap:
+                    lines.append(f"仓位约束: {sm['state']}市上限{cap}%，当前持仓{pos_ratio}% → ⚠️ 超配{pos_ratio - cap:.0f}%，建议减仓至{cap}%以内")
+                elif pos_ratio < cap * 0.6:
+                    lines.append(f"仓位约束: {sm['state']}市上限{cap}%，当前持仓{pos_ratio}% → 低配，可加仓空间{cap - pos_ratio:.0f}%（≤{cap}%）")
+                else:
+                    lines.append(f"仓位约束: {sm['state']}市上限{cap}%，当前持仓{pos_ratio}% → 结构合理")
     tiers = d.get("tiers") or {}
     if tiers.get("S") or tiers.get("A"):
         sa = (tiers.get("S") or [])[:2] + (tiers.get("A") or [])[:3]
@@ -216,7 +229,7 @@ def build_report():
             signal_history.record_signals(advices)
         except Exception as e:
             print(f"[warn] 信号落库失败: {e}")
-    extra = [("市场与情绪", market_section()), ("回测摘要", backtest_section())]
+    extra = [("市场与情绪", market_section(overall.get("pos_ratio"))), ("回测摘要", backtest_section())]
     if check_lines:
         extra.append(("昨日建议对照（初判）", "\n".join(check_lines)))
     if stat_line and not stat_line.startswith("建议命中统计：数据积累中"):

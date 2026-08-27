@@ -437,6 +437,17 @@ footer {
   transition: all 0.2s;
 }
 .td-trade:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.res-badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 5px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(245, 166, 35, 0.18);
+  color: #f5a623;
+  cursor: help;
+}
 th[data-sort] { cursor: pointer; user-select: none; }
 th[data-sort]:hover { color: var(--text); }
 th[data-sort]::after { content: ' ⇅'; font-size: 10px; opacity: 0.45; }

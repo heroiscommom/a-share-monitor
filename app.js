@@ -69,6 +69,13 @@ function isLimitUp(q) {
   return q.change_pct != null && q.change_pct >= thr;
 }
 
+// 策略共振徽标（跨策略多因子确认）
+function resBadge(q) {
+  const r = q && q.resonance;
+  if (!r || !r.count || r.count < 2) return '';
+  return `<span class="res-badge" title="${(r.list || []).join('+')} 共振">🔥${r.count}</span>`;
+}
+
 // 按当前打法取评分
 function scoreOf(q) {
   if (strategyMode === 'momentum') return q.momentum_score;
@@ -161,7 +168,7 @@ function renderWatchlist(quotes) {
       `<td class="num">${fmt(q.price)}</td>` +
       `<td class="num ${cls}">${cp >= 0 ? '+' : ''}${fmt(cp)}%</td>` +
       `<td class="num score">${score != null ? Number(score).toFixed(0) : '-'}</td>` +
-      `<td><span class="sig ${sigCls}">${signal}</span></td>`;
+      `<td><span class="sig ${sigCls}">${signal}</span>${resBadge(q)}</td>`;
     tr.addEventListener('click', () => selectRow(q));
     tr.querySelector('.td-trade').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -568,6 +575,24 @@ function renderSentiment() {
   const st = t.state;
   const sm = s.state_machine || {};
   const zbcTxt = sm.zbc_rate != null ? Math.round(sm.zbc_rate * 100) + '%' : '-';
+  // 当前实际仓位（reviewPos/reviewCash 由 loadReviewBasics 预计算）
+  let posRatio = null, posHint = '';
+  if (reviewPos) {
+    const qm = {};
+    (window.__snapQuotes || []).forEach((q) => { qm[q.code] = q.price; });
+    let mv = 0;
+    Object.values(reviewPos).forEach((p) => { mv += p.shares * (qm[p.code] || 0); });
+    const total = (reviewCash || 0) + mv;
+    if (total > 0) {
+      posRatio = mv / total * 100;
+      const cap = { 冰点: 20, 回暖: 50, 活跃: 70, 高潮: 50 }[st];
+      if (cap) {
+        if (posRatio > cap) posHint = `（当前${posRatio.toFixed(0)}% 超配${(posRatio - cap).toFixed(0)}%）`;
+        else if (posRatio < cap * 0.6) posHint = `（当前${posRatio.toFixed(0)}% 可加${(cap - posRatio).toFixed(0)}%）`;
+        else posHint = `（当前${posRatio.toFixed(0)}% 合理）`;
+      }
+    }
+  }
   barEl.innerHTML =
     `<div class="sentiment-card">
       <div class="sent-item"><span class="sent-label">今日涨停</span><span class="sent-num">${t.zt_count}</span></div>
@@ -576,7 +601,8 @@ function renderSentiment() {
       <div class="sent-item"><span class="sent-label">炸板率</span><span class="sent-num">${zbcTxt}</span></div>
       <div class="sent-item"><span class="sent-label">5日/20日均</span><span class="sent-num">${s.trend.zt5}/${s.trend.zt20}</span></div>
       <div class="sent-item"><span class="sent-label">趋势</span><span class="sig ${s.trend.rising ? 's-strong' : 's-weak'}">${s.trend.desc}</span></div>
-      <div class="sent-item sent-pos"><span class="sent-label">💡 仓位建议</span><span class="sent-pos-txt">${sm.position_advice || '-'}</span></div>
+      ${posRatio != null ? `<div class="sent-item"><span class="sent-label">当前仓位</span><span class="sent-num">${posRatio.toFixed(1)}%</span></div>` : ''}
+      <div class="sent-item sent-pos"><span class="sent-label">💡 仓位建议</span><span class="sent-pos-txt">${sm.position_advice || '-'}${posHint}</span></div>
     </div>`;
   // 30 日涨停家数迷你曲线
   const hist = (s.history || []).slice(-30);
@@ -958,18 +984,26 @@ function deriveCash(trades, baseCash) {
   return (baseCash || 0) + flow;
 }
 
-function loadReview() {
-  loadJSON('data/trades.json').then((d) => {
+function loadReviewBasics() {
+  // 预计算持仓/现金（复盘页与情绪卡共用）
+  return loadJSON('data/trades.json').catch(() => null).then((d) => {
     const trades = (d && d.trades) || [];
     reviewPos = derivePositions(trades);
-    loadJSON('config.json').catch(() => null).then((cfg) => {
+    return loadJSON('config.json').catch(() => null).then((cfg) => {
       reviewCash = deriveCash(trades, (cfg && cfg.capital && cfg.capital.cash) || 0);
-      renderReviewCards(trades);
+      return { reviewPos, reviewCash };
     });
-    renderStockSummary(trades);
-    renderAllTrades(trades);
-  }).catch(() => {
-    document.getElementById('review-cards').innerHTML = '<div class="empty">暂无交易记录</div>';
+  });
+}
+
+function loadReview() {
+  loadReviewBasics().then(() => {
+    loadJSON('data/trades.json').catch(() => null).then((d) => {
+      const all = (d && d.trades) || [];
+      renderReviewCards(all);
+      renderStockSummary(all);
+      renderAllTrades(all);
+    });
   });
   loadEquity();
   loadDecisionClosed();
@@ -1334,6 +1368,7 @@ async function init() {
   // UI 绑定独立于数据加载——即使某个数据源失败，按钮也必须可点
   bindUI();
   startAutoRefresh();
+  loadReviewBasics();   // 预计算持仓/现金（情绪卡当前仓位用）
   const initView = (location.hash || '').replace('#', '');
   if (['trade', 'review'].includes(initView)) showView(initView);
 }

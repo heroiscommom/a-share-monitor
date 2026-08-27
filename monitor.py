@@ -378,6 +378,7 @@ ALERT_TIERS = {
     "break_high": "A", "break_low": "A",
     "moneyflow_in": "A", "moneyflow_out": "A",
     "sector_anomaly": "B",
+    "strategy_resonance": "A",
     "near_支撑": "B", "near_压力": "B",
     "rsi_overbought": "B", "rsi_oversold": "B",
     "intraday_spike_up": "B", "intraday_spike_down": "B",
@@ -647,6 +648,19 @@ def main():
             quant_results[-1]["shrink_factors"] = sf
             quant_results[-1]["shrink_signal"] = ("缩量低吸" if (quant_results[-1]["shrink_score"] or 0) >= 70 else
                                                  ("接近" if (quant_results[-1]["shrink_score"] or 0) >= 55 else "无"))
+            # 策略共振（2026-08-27 新增）：多个策略同时看多 → 多因子确认
+            res = []
+            if score is not None and score >= 70:
+                res.append("超跌")
+            if mscore is not None and mscore >= 55:
+                res.append("动量")
+            if (quant_results[-1]["ma_score"] or 0) >= 55:
+                res.append("金叉")
+            if (quant_results[-1]["shrink_score"] or 0) >= 55:
+                res.append("缩量")
+            quant_results[-1]["resonance"] = {"count": len(res), "list": res}
+            if len(res) >= 3:
+                alerts.append(("strategy_resonance", f"🔥 {len(res)}策略共振（{'+'.join(res)}），多因子确认，信号更可靠"))
         except Exception:
             pass
         if sig_key == "strong":
