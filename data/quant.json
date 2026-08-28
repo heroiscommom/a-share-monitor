@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-28 20:23:58",
+  "updated_at": "2026-08-29 03:53:50",
   "market_regime": {
     "regime": "震荡",
     "mom20": 0.5,
@@ -233,48 +233,48 @@
     {
       "code": "159582",
       "name": "半导体ETF博时",
-      "score": 50.5,
+      "score": 51.9,
       "signal": "中性",
       "signal_key": "neutral",
-      "momentum_score": 51.0,
+      "momentum_score": 47.2,
       "momentum_signal": "中性",
       "factors": {
         "rsi": 60,
-        "drawdown": 40,
-        "deviation": 54,
-        "position": 68,
+        "drawdown": 42,
+        "deviation": 57,
+        "position": 70,
         "volume": 45,
         "volatility": 0
       },
       "indicators": {
-        "rsi": 41.9,
-        "mom20": 4.05,
-        "deviation": -0.73,
-        "pos60": 31.5,
+        "rsi": 41.2,
+        "mom20": 3.38,
+        "deviation": -1.35,
+        "pos60": 30.4,
         "vol_ratio": 0.75,
-        "volatility": 4.0
+        "volatility": 4.02
       },
       "momentum_indicators": {
-        "mom20": 4.05,
-        "mom60": 11.76,
-        "rsi": 41.9,
-        "pos60": 31.5,
+        "mom20": 3.38,
+        "mom60": 11.03,
+        "rsi": 41.2,
+        "pos60": 30.4,
         "vol_ratio": 0.75,
-        "volatility": 4.0
+        "volatility": 4.02
       },
-      "ma_score": 27.2,
+      "ma_score": 30.4,
       "ma_factors": {
         "cross": 0,
         "slope": 0,
         "vol": 65,
-        "hold": 71
+        "hold": 87
       },
       "ma_signal": "未金叉",
-      "shrink_score": 45.1,
+      "shrink_score": 44.5,
       "shrink_factors": {
         "trend": 0,
         "shrink": 53,
-        "pullback": 96,
+        "pullback": 93,
         "support": 50
       },
       "shrink_signal": "无",
@@ -924,6 +924,62 @@
         "shrink": 0,
         "pullback": 0,
         "support": 50
+      },
+      "shrink_signal": "无",
+      "resonance": {
+        "count": 2,
+        "list": [
+          "动量",
+          "金叉"
+        ]
+      }
+    },
+    {
+      "code": "600721",
+      "name": "百花医药",
+      "score": 9.3,
+      "signal": "高位风险",
+      "signal_key": "weak",
+      "momentum_score": 98.2,
+      "momentum_signal": "强势突破",
+      "factors": {
+        "rsi": 30,
+        "drawdown": 0,
+        "deviation": 0,
+        "position": 12,
+        "volume": 0,
+        "volatility": 0
+      },
+      "indicators": {
+        "rsi": 69.9,
+        "mom20": 119.63,
+        "deviation": 21.0,
+        "pos60": 88.1,
+        "vol_ratio": 1.42,
+        "volatility": 5.73
+      },
+      "momentum_indicators": {
+        "mom20": 119.63,
+        "mom60": 117.46,
+        "rsi": 69.9,
+        "pos60": 88.1,
+        "vol_ratio": 1.42,
+        "volatility": 5.73
+      },
+      "ma_score": 94.0,
+      "ma_factors": {
+        "cross": 100,
+        "slope": 100,
+        "vol": 100,
+        "hold": 70
+      },
+      "ma_signal": "强势金叉",
+      "shrink_score": 41.0,
+      "shrink_factors": {
+        "trend": 100,
+        "shrink": 0,
+        "pullback": 0,
+        "support": 55
       },
       "shrink_signal": "无",
       "resonance": {

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-28 20:23:58",
+  "updated_at": "2026-08-29 03:53:50",
   "stocks": [
     {
       "code": "600664",
@@ -204,15 +204,15 @@
       ],
       "daily_sell": [
         {
+          "price": 0.77,
+          "strength": "弱"
+        },
+        {
           "price": 0.79,
           "strength": "弱"
         },
         {
           "price": 0.84,
-          "strength": "中"
-        },
-        {
-          "price": 0.88,
           "strength": "中"
         }
       ],
@@ -841,6 +841,51 @@
         },
         {
           "price": 23.5,
+          "type": "日内高点"
+        }
+      ]
+    },
+    {
+      "code": "600721",
+      "name": "百花医药",
+      "price": 15.44,
+      "daily_buy": [
+        {
+          "price": 15.09,
+          "strength": "弱"
+        },
+        {
+          "price": 13.86,
+          "strength": "弱"
+        },
+        {
+          "price": 12.56,
+          "strength": "弱"
+        }
+      ],
+      "daily_sell": [
+        {
+          "price": 16.68,
+          "strength": "中"
+        }
+      ],
+      "intraday_buy": [
+        {
+          "price": 15.01,
+          "type": "日内低点"
+        },
+        {
+          "price": 15.83,
+          "type": "分时均价线"
+        }
+      ],
+      "intraday_sell": [
+        {
+          "price": 16.15,
+          "type": "均价线+2%"
+        },
+        {
+          "price": 16.59,
           "type": "日内高点"
         }
       ]
