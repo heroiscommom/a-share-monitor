@@ -6,10 +6,8 @@
 推送格式与通道解耦：format_top5() 只负责排版，send_xxx() 只负责发送。
 """
 import os
-import json
-import urllib.parse
-import urllib.request
 
+from notify import send_wechat  # 复用根目录 notify.send_wechat（Server酱）
 from . import config
 
 
@@ -32,27 +30,6 @@ def format_top5(payload, top_n=None):
     lines.append("")
     lines.append(f"（全量 {len(payload.get('stocks', []))} 条已入库 data/sentiment/）")
     return "\n".join(lines)
-
-
-def send_wechat(title, desp):
-    key = os.environ.get("SERVERCHAN_KEY")
-    if not key:
-        print("[notify] 未配置 SERVERCHAN_KEY，跳过微信推送")
-        return False
-    url = f"https://sctapi.ftqq.com/{key}.send"
-    data = urllib.parse.urlencode({"title": title, "desp": desp}).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"User-Agent": "Mozilla/5.0"})
-    try:
-        with urllib.request.urlopen(req, timeout=15) as r:
-            resp = json.loads(r.read().decode("utf-8"))
-        if resp.get("code") == 0:
-            print("[notify] 微信已推送")
-            return True
-        print(f"[notify] 推送失败: {resp}")
-        return False
-    except Exception as e:
-        print(f"[notify] 推送异常: {e}")
-        return False
 
 
 def push(payload):

@@ -29,19 +29,7 @@ import quant
 import support_resistance
 import zone_history
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data")
-CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
-
-
-def load_json(path, default):
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            pass
-    return default
+from common import load_json, market_of, CONFIG_PATH
 
 
 def load_portfolio():
@@ -61,7 +49,7 @@ def load_portfolio():
             for code, p in pos.items():
                 if (p.get("shares") or 0) <= 0:
                     continue  # 已清仓不参与建议
-                market = "sh" if code.startswith("6") else ("bj" if code.startswith(("4", "8")) else "sz")
+                market = market_of(code)
                 portfolio.append({
                     "code": code, "market": market,
                     "name": p.get("name") or code,

@@ -23,6 +23,9 @@ import json
 import datetime
 import urllib.request
 
+from common import load_json
+from notify import send_email
+
 API_URL = "https://api.deepseek.com/chat/completions"
 MODEL = "deepseek-chat"
 
@@ -38,16 +41,6 @@ SYSTEM_PROMPT = """你是A股量化分析助手。你只根据用户提供的结
    【建议复盘】如有 advice_check 命中率数据：一句话点评历史建议命中情况，点名最近打脸案例（没有则写"数据积累中"）
 4. 语言精炼口语化，像资深交易员复盘，不用寒暄。
 5. 结尾固定一行：⚠️ 本报告由AI基于量化数据生成，仅供参考，不构成投资建议。"""
-
-
-def load_json(path, default):
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            pass
-    return default
 
 
 def build_data_payload():
@@ -137,33 +130,6 @@ def call_deepseek(payload, temperature=0.4, max_tokens=900):
     except Exception as e:
         print(f"[ai] 调用失败: {e}")
         return None
-
-
-def send_email(subject, body):
-    user = os.environ.get("SMTP_USER")
-    pw = os.environ.get("SMTP_PASS")
-    to = os.environ.get("SMTP_TO")
-    if not (user and pw and to):
-        print("[notify] 未配置 SMTP_USER/SMTP_PASS/SMTP_TO，跳过发信")
-        return False
-    import smtplib
-    from email.mime.text import MIMEText
-    from email.header import Header
-    msg = MIMEText(body, "plain", "utf-8")
-    msg["Subject"] = Header(subject, "utf-8")
-    msg["From"] = user
-    msg["To"] = to
-    try:
-        host = os.environ.get("SMTP_HOST") or "smtp.qq.com"
-        port = int(os.environ.get("SMTP_PORT") or 465)
-        with smtplib.SMTP_SSL(host, port, timeout=30) as server:
-            server.login(user, pw)
-            server.sendmail(user, [to], msg.as_string())
-        print("[notify] 邮件已发送")
-        return True
-    except Exception as e:
-        print(f"[notify] 发信失败: {e}")
-        return False
 
 
 def main():

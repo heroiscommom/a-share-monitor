@@ -27,7 +27,6 @@ import sys
 import json
 import datetime
 import time
-import urllib.request
 
 import quant
 import backtest
@@ -37,213 +36,15 @@ import signals
 import zone_history
 import strategy_index
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data")
-HISTORY_DIR = os.path.join(DATA_DIR, "history")
-CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
+from common import DATA_DIR, HISTORY_DIR, INTRADAY_DIR, CONFIG_PATH, load_json, save_json, market_of
+import datafeed
+from notify import send_wechat, is_trading_time
 
 SNAPSHOT_PATH = os.path.join(DATA_DIR, "snapshot.json")
 ALERTS_PATH = os.path.join(DATA_DIR, "alerts.json")
 STATE_PATH = os.path.join(DATA_DIR, "state.json")
 DIGEST_PATH = os.path.join(DATA_DIR, "digest.json")
-INTRADAY_DIR = os.path.join(DATA_DIR, "intraday")
 INTRADAY_COOLDOWN_MINUTES = 30
-
-HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-
-
-def _to_float(s):
-    """字符串转 float，失败返回 None"""
-    if s is None or s == "" or s == "-":
-        return None
-    try:
-        return float(s)
-    except (TypeError, ValueError):
-        return None
-
-
-def http_get(url, encoding="utf-8"):
-    """GET 请求，返回解码后的文本"""
-    req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=20) as resp:
-        return resp.read().decode(encoding, errors="replace")
-
-
-def fetch_quotes(watchlist):
-    """
-    批量拉取实时行情（腾讯，一次请求拿全部）。
-    返回 {code: {...}}
-    """
-    symbols = [f"{s['market']}{s['code']}" for s in watchlist]
-    text = http_get("https://qt.gtimg.cn/q=" + ",".join(symbols), encoding="gbk")
-
-    quotes = {}
-    for line in text.strip().split(";"):
-        line = line.strip()
-        if not line or "=" not in line:
-            continue
-        _, _, payload = line.partition("=")
-        parts = payload.strip().strip('"').split("~")
-        if len(parts) < 50:
-            continue
-        code = parts[2]
-        amount_wan = _to_float(parts[37])  # 成交额，单位：万元
-        quotes[code] = {
-            "name": parts[1],
-            "price": _to_float(parts[3]),
-            "prev_close": _to_float(parts[4]),
-            "open": _to_float(parts[5]),
-            "volume": _to_float(parts[6]),       # 手
-            "change": _to_float(parts[31]),
-            "change_pct": _to_float(parts[32]),  # %
-            "high": _to_float(parts[33]),
-            "low": _to_float(parts[34]),
-            "amount": amount_wan * 10000 if amount_wan is not None else None,  # 元
-            "turnover_rate": _to_float(parts[38]) if len(parts) > 38 else None,  # 换手率%
-            "pe": _to_float(parts[39]) if len(parts) > 39 else None,            # 市盈率
-            "float_mktcap": _to_float(parts[44]) if len(parts) > 44 else None,  # 流通市值(亿)
-            "total_mktcap": _to_float(parts[45]) if len(parts) > 45 else None,  # 总市值(亿)
-            "pb": _to_float(parts[46]) if len(parts) > 46 else None,            # 市净率
-        }
-    return quotes
-
-
-def fetch_history(code, market, days=60):
-    """
-    拉取前复权日K（腾讯），返回 [{date,open,close,high,low,volume}, ...]
-    最后一根是“今天”（盘中为当日实时K线）。
-    """
-    symbol = f"{market}{code}"
-    url = (
-        "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param="
-        f"{symbol},day,,,{days},qfq"
-    )
-    data = json.loads(http_get(url))
-    node = (data.get("data") or {}).get(symbol) or {}
-    klines = node.get("qfqday") or node.get("day") or []
-    out = []
-    for k in klines:
-        if len(k) < 6:
-            continue
-        out.append({
-            "date": k[0],
-            "open": _to_float(k[1]),
-            "close": _to_float(k[2]),
-            "high": _to_float(k[3]),
-            "low": _to_float(k[4]),
-            "volume": _to_float(k[5]),
-        })
-    return out
-
-
-def fetch_intraday(code, market):
-    """拉取当日分时数据（腾讯），返回 {date, prev_close, minutes:[{t,p,avg,v}]}"""
-    symbol = f"{market}{code}"
-    url = f"https://web.ifzq.gtimg.cn/appstock/app/minute/query?code={symbol}"
-    data = json.loads(http_get(url))
-    node = (data.get("data") or {}).get(symbol) or {}
-    inner = node.get("data") or {}
-    date = inner.get("date", "")
-    raw = inner.get("data") or []
-    qt = (node.get("qt") or {}).get(symbol) or []
-    prev_close = _to_float(qt[4]) if len(qt) > 4 else None
-
-    minutes = []
-    prev_vol = 0.0
-    for m in raw:
-        parts = m.split()
-        if len(parts) < 4:
-            continue
-        price = _to_float(parts[1])
-        cum_vol = _to_float(parts[2]) or 0.0
-        cum_amt = _to_float(parts[3])
-        avg = None
-        if cum_vol > 0 and cum_amt is not None:
-            avg = cum_amt / (cum_vol * 100)
-        minutes.append({
-            "t": f"{parts[0][:2]}:{parts[0][2:]}",
-            "p": price,
-            "avg": round(avg, 3) if avg is not None else None,
-            "v": round(cum_vol - prev_vol),
-        })
-        prev_vol = cum_vol
-    return {"date": date, "prev_close": prev_close, "minutes": minutes}
-
-
-def fetch_index(days=250):
-    """沪深300 日K（腾讯），当日缓存到 data/index_cache.json（与 pool_backtest 共用）"""
-    cache = load_json(os.path.join(DATA_DIR, "index_cache.json"), None)
-    today = datetime.date.today().isoformat()
-    if cache and cache.get("date") == today and cache.get("closes") and len(cache["closes"]) >= days * 0.9:
-        return cache
-    symbol = "sh000300"
-    url = (
-        "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param="
-        f"{symbol},day,,,{days},qfq"
-    )
-    data = json.loads(http_get(url))
-    node = (data.get("data") or {}).get(symbol) or {}
-    klines = node.get("qfqday") or node.get("day") or []
-    closes = [float(k[2]) for k in klines if len(k) >= 3]
-    dates = [k[0] for k in klines if len(k) >= 3]
-    obj = {"date": today, "closes": closes, "dates": dates}
-    save_json(os.path.join(DATA_DIR, "index_cache.json"), obj)
-    return obj
-
-
-def fetch_moneyflow(code, market):
-    """新浪主力资金流，返回 {date, netamount(元), r0_net(元), turnover, change_pct} 或 None"""
-    symbol = f"{market}{code}"
-    url = ("https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/"
-           f"MoneyFlow.ssl_qsfx_zjlrqs?page=1&num=1&sort=opendate&asc=0&daima={symbol}")
-    req = urllib.request.Request(url, headers={
-        "User-Agent": "Mozilla/5.0", "Referer": "https://finance.sina.com.cn/",
-    })
-    with urllib.request.urlopen(req, timeout=15) as r:
-        data = json.loads(r.read().decode("utf-8", errors="replace"))
-    if not data or not isinstance(data, list):
-        return None
-    d = data[0]
-    cr = d.get("changeratio")
-    return {
-        "date": d.get("opendate"),
-        "netamount": _to_float(d.get("netamount")),       # 主力净流入(元)
-        "r0_net": _to_float(d.get("r0_net")),             # 特大单净流入(元)
-        "change_pct": round(cr * 100, 2) if isinstance(cr, (int, float)) else None,
-    }
-
-
-def load_json(path, default):
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            pass
-    return default
-
-
-def save_json(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
-
-
-def calc_rsi(closes, period=14):
-    """简单移动平均 RSI"""
-    if len(closes) < period + 1:
-        return None
-    gains, losses = [], []
-    for i in range(1, len(closes)):
-        d = closes[i] - closes[i - 1]
-        gains.append(max(d, 0.0))
-        losses.append(max(-d, 0.0))
-    avg_gain = sum(gains[-period:]) / period
-    avg_loss = sum(losses[-period:]) / period
-    if avg_loss == 0:
-        return 100.0
-    rs = avg_gain / avg_loss
-    return 100.0 - 100.0 / (1.0 + rs)
 
 
 def detect_alerts(quote, history, rules):
@@ -292,7 +93,7 @@ def detect_alerts(quote, history, rules):
                 alerts.append(("volume_ratio", f"📊 放量，量比 {ratio:.2f}（阈值 {vr}）"))
 
     # 4. RSI 超买 / 超卖
-    rsi = calc_rsi(closes)
+    rsi = quant.calc_rsi(closes)
     if rsi is not None:
         ob = rules.get("rsi_overbought")
         os_ = rules.get("rsi_oversold")
@@ -407,109 +208,24 @@ def effective_tier(rule_key, regime):
     return tier_for(rule_key)
 
 
-def send_email(subject, body):
-    """QQ 邮箱 SMTP 发信，凭据从环境变量读取"""
-    user = os.environ.get("SMTP_USER")
-    pw = os.environ.get("SMTP_PASS")
-    to = os.environ.get("SMTP_TO")
-    if not (user and pw and to):
-        print("[notify] 未配置 SMTP_USER/SMTP_PASS/SMTP_TO，跳过发信")
-        return False
-
-    import smtplib
-    from email.mime.text import MIMEText
-    from email.header import Header
-
-    msg = MIMEText(body, "plain", "utf-8")
-    msg["Subject"] = Header(subject, "utf-8")
-    msg["From"] = user
-    msg["To"] = to
-    try:
-        with smtplib.SMTP_SSL("smtp.qq.com", 465, timeout=30) as server:
-            server.login(user, pw)
-            server.sendmail(user, [to], msg.as_string())
-        print("[notify] 邮件已发送")
-        return True
-    except Exception as e:
-        print(f"[notify] 发信失败: {e}")
-        return False
-
-
-def send_wechat(title, desp):
-    """Server酱 微信推送，凭据从环境变量 SERVERCHAN_KEY 读取"""
-    key = os.environ.get("SERVERCHAN_KEY")
-    if not key:
-        print("[wechat] 未配置 SERVERCHAN_KEY，跳过")
-        return False
-    import urllib.parse
-    url = f"https://sctapi.ftqq.com/{key}.send"
-    data = urllib.parse.urlencode({"title": title, "desp": desp}).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"User-Agent": "Mozilla/5.0"})
-    try:
-        with urllib.request.urlopen(req, timeout=15) as r:
-            resp = json.loads(r.read().decode("utf-8"))
-        if resp.get("code") == 0:
-            print("[wechat] 微信已推送")
-            return True
-        print(f"[wechat] 推送失败: {resp}")
-        return False
-    except Exception as e:
-        print(f"[wechat] 推送异常: {e}")
-        return False
-
-
-def is_trading_time(now):
-    """A股交易时段（含盘前盘后缓冲）：周一至周五 9:20-11:40 / 12:50-15:10"""
-    if now.weekday() >= 5:
-        return False
-    t = now.hour * 60 + now.minute
-    return (9 * 60 + 20 <= t <= 11 * 60 + 40) or (12 * 60 + 50 <= t <= 15 * 60 + 10)
-
-
-def main():
-    args = sys.argv[1:]
-    force = "--force" in args
-    fast = "--fast" in args
-    data_only = "--data-only" in args
-    config = load_json(CONFIG_PATH, {})
-    watchlist = config.get("watchlist", [])
-    rules = config.get("rules", {})
-    history_days = config.get("history_days", 60)
-
-    if not watchlist:
-        print("config.json 的 watchlist 为空，请先添加自选股")
-        return
-
-    now = datetime.datetime.now()
-    today = now.strftime("%Y-%m-%d")
-
-    # 非交易时段 + 非 force：仍然更新看板数据，但跳过推送/日报（避免盘后噪音）
-    push_enabled = (not data_only) and (is_trading_time(now) or force)
-    if data_only:
-        print("[mode] data-only：仅更新看板数据，不推送")
-    elif fast:
-        print("[mode] fast：快扫模式（跳过回测/资金流缓存）")
-
-    print(f"[fetch] 拉取 {len(watchlist)} 只自选股行情 ...")
-    quotes = fetch_quotes(watchlist)
-
-    # 市场状态（沪深300 20日趋势+波动率）
+def get_market_regime(history_days):
+    """市场状态（沪深300 20日趋势+波动率）"""
     regime = {"regime": "未知", "mom20": None, "vol20": None, "desc": "指数数据不可用"}
     try:
-        idx = fetch_index(max(history_days, 250))
+        idx = datafeed.fetch_index(max(history_days, 250))
         regime = quant.market_regime(idx.get("closes") or [])
     except Exception as e:
         print(f"[warn] 市场状态获取失败: {e}")
     print(f"[regime] {regime['desc']}")
+    return regime
 
-    state = load_json(STATE_PATH, {})
-    alerts_log = load_json(ALERTS_PATH, {"updated_at": "", "items": []})
-    triggered = []
-    quant_results = []
-    money_results = []
-    sr_results = []
-    sig_results = []
 
+def process_stocks(watchlist, quotes, rules, history_days, fast, now, regime, force,
+                   state, triggered, quant_results, sr_results, sig_results, money_results):
+    """
+    处理全部自选股：历史/支撑压力/分时/资金流/评分 → 更新各结果列表并触发告警。
+    （从原 main() 循环体抽取，逻辑不变）
+    """
     for stock in watchlist:
         code = stock["code"]
         quote = quotes.get(code)
@@ -519,7 +235,7 @@ def main():
 
         history = []
         try:
-            history = fetch_history(code, stock["market"], history_days)
+            history = datafeed.fetch_history(code, stock["market"], history_days)
             save_json(os.path.join(HISTORY_DIR, f"{code}.json"), history)
         except Exception as e:
             print(f"[warn] {code} 拉取历史失败，用缓存: {e}")
@@ -548,7 +264,7 @@ def main():
 
         intraday = None
         try:
-            intraday = fetch_intraday(code, stock["market"])
+            intraday = datafeed.fetch_intraday(code, stock["market"])
             save_json(os.path.join(INTRADAY_DIR, f"{code}.json"), intraday)
         except Exception as e:
             print(f"[warn] {code} 拉取分时失败: {e}")
@@ -581,7 +297,7 @@ def main():
                         "r0_net": hit.get("r0_net"), "change_pct": hit.get("change_pct"),
                     }
             else:
-                mf = fetch_moneyflow(code, stock["market"])
+                mf = datafeed.fetch_moneyflow(code, stock["market"])
                 if mf:
                     money_results.append({"code": code, "name": stock["name"], **mf})
         except Exception as e:
@@ -699,6 +415,45 @@ def main():
                 "tier": effective_tier(rule_key, regime["regime"]),
             })
 
+def main():
+    args = sys.argv[1:]
+    force = "--force" in args
+    fast = "--fast" in args
+    data_only = "--data-only" in args
+    config = load_json(CONFIG_PATH, {})
+    watchlist = config.get("watchlist", [])
+    rules = config.get("rules", {})
+    history_days = config.get("history_days", 60)
+
+    if not watchlist:
+        print("config.json 的 watchlist 为空，请先添加自选股")
+        return
+
+    now = datetime.datetime.now()
+
+    # 非交易时段 + 非 force：仍然更新看板数据，但跳过推送/日报（避免盘后噪音）
+    push_enabled = (not data_only) and (is_trading_time(now) or force)
+    if data_only:
+        print("[mode] data-only：仅更新看板数据，不推送")
+    elif fast:
+        print("[mode] fast：快扫模式（跳过回测/资金流缓存）")
+
+    print(f"[fetch] 拉取 {len(watchlist)} 只自选股行情 ...")
+    quotes = datafeed.fetch_quotes(watchlist)
+
+    regime = get_market_regime(history_days)
+
+    state = load_json(STATE_PATH, {})
+    alerts_log = load_json(ALERTS_PATH, {"updated_at": "", "items": []})
+    triggered = []
+    quant_results = []
+    money_results = []
+    sr_results = []
+    sig_results = []
+
+    process_stocks(watchlist, quotes, rules, history_days, fast, now, regime, force,
+                   state, triggered, quant_results, sr_results, sig_results, money_results)
+
     save_json(os.path.join(DATA_DIR, "quant.json"), {
         "updated_at": now.strftime("%Y-%m-%d %H:%M:%S"),
         "market_regime": regime,
@@ -714,7 +469,42 @@ def main():
     except Exception as e:
         print(f"[warn] 策略索引失败: {e}")
 
-    # ══════════ 龙头战法（2026-08-26 新增）══════════
+    run_dragon(now)
+
+    if money_results:
+        save_json(os.path.join(DATA_DIR, "moneyflow.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": money_results})
+
+    run_sector(rules, now, state, watchlist, triggered, force)
+
+    # 回测（fast 模式跳过，避免每分钟跑；data-only 保留给看板）
+    if not fast:
+        try:
+            bt = backtest.run()
+            print(f"[backtest] 样本 {bt['total_samples']} 个，IC {bt.get('ic')}")
+        except Exception as e:
+            print(f"[warn] 回测失败: {e}")
+
+    snapshot = build_snapshot(watchlist, quotes, now)
+    save_json(SNAPSHOT_PATH, snapshot)
+
+    # 更新告警日志（保留最近 200 条）
+    if triggered:
+        items = triggered + alerts_log.get("items", [])
+        alerts_log["items"] = items[:200]
+        alerts_log["updated_at"] = now.strftime("%Y-%m-%d %H:%M:%S")
+        save_json(ALERTS_PATH, alerts_log)
+
+    # data-only 模式：不写 state、不推送、不累积日报（状态归属推送方）
+    if data_only:
+        print(f"[done] data-only 更新 {len(snapshot['quotes'])} 只，触发 {len(triggered)} 条（仅看板）")
+        return
+
+    save_json(STATE_PATH, state)
+    push_signals(triggered, now, push_enabled)
+
+
+def run_dragon(now):
+    """龙头战法：涨停池 → 梯队 + 断板低吸 + 情绪温度计 → data/dragon_head.json"""
     try:
         import dragon_head as dh
         today_pool = dh.fetch_zt_pool(now.strftime("%Y%m%d"))
@@ -726,9 +516,9 @@ def main():
         break_low = []
         for c in dh.find_break_low(today_pool, yest_pool):
             code = c["code"]
-            market = "sh" if code.startswith("6") else ("bj" if code.startswith(("4", "8")) else "sz")
+            market = market_of(code)
             try:
-                chist = fetch_history(code, market, 250)
+                chist = datafeed.fetch_history(code, market, 250)
                 if len(chist) >= 60:
                     lv = support_resistance.compute_levels(chist)
                     ctx = zone_history.build_zone_context(chist, lv)
@@ -774,10 +564,9 @@ def main():
     except Exception as e:
         print(f"[warn] 龙头战法数据失败: {e}")
 
-    if money_results:
-        save_json(os.path.join(DATA_DIR, "moneyflow.json"), {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "stocks": money_results})
 
-    # 板块分析（30分钟缓存，避免频繁拉取新浪）
+def run_sector(rules, now, state, watchlist, triggered, force):
+    """板块分析（30分钟缓存）→ data/sectors.json，异动进告警列表"""
     stock_sector = {}
     sector_anomalies = []
     sectors = []
@@ -825,15 +614,9 @@ def main():
                 "tier": "B",
             })
 
-    # 回测（fast 模式跳过，避免每分钟跑；data-only 保留给看板）
-    if not fast:
-        try:
-            bt = backtest.run()
-            print(f"[backtest] 样本 {bt['total_samples']} 个，IC {bt.get('ic')}")
-        except Exception as e:
-            print(f"[warn] 回测失败: {e}")
 
-    # 落盘快照
+def build_snapshot(watchlist, quotes, now):
+    """落盘快照 data/snapshot.json"""
     snapshot = {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "quotes": []}
     for s in watchlist:
         q = quotes.get(s["code"]) or {}
@@ -856,26 +639,11 @@ def main():
             "float_mktcap": q.get("float_mktcap"),
             "total_mktcap": q.get("total_mktcap"),
         })
-    save_json(SNAPSHOT_PATH, snapshot)
+    return snapshot
 
-    # 更新告警日志（保留最近 200 条）
-    if triggered:
-        items = triggered + alerts_log.get("items", [])
-        alerts_log["items"] = items[:200]
-        alerts_log["updated_at"] = now.strftime("%Y-%m-%d %H:%M:%S")
-        save_json(ALERTS_PATH, alerts_log)
 
-    # data-only 模式：不写 state、不推送、不累积日报（状态归属推送方）
-    if data_only:
-        print(f"[done] data-only 更新 {len(snapshot['quotes'])} 只，触发 {len(triggered)} 条（仅看板）")
-        return
-
-    save_json(STATE_PATH, state)
-
-    # 分级推送 v2（2026-08-17 降噪）：
-    #   S/A 级 → 逐条微信实时推送（不攒批、不发邮件）
-    #   S/A/B 级 → 累积到 digest.json，收盘后 digest.py 一封邮件汇总
-    #   C 级（涨跌幅/量比等）→ 只进看板 alerts.json，不推送不进日报
+def push_signals(triggered, now, push_enabled):
+    """分级推送 v2：S/A 微信实时 / S/A/B 进 digest 收盘邮件汇总 / C 仅看板"""
     immediate = [t for t in triggered if t.get("tier", tier_for(t["rule"])) in ("S", "A")]
     digest_items = [dict(t, tier=t.get("tier", tier_for(t["rule"]))) for t in triggered if t.get("tier", tier_for(t["rule"])) in ("S", "A", "B")]
     c_count = sum(1 for t in triggered if t.get("tier", tier_for(t["rule"])) == "C")
@@ -890,7 +658,7 @@ def main():
         digest["c_count"] = digest.get("c_count", 0) + c_count
         save_json(DIGEST_PATH, digest)
 
-    print(f"[done] 更新 {len(snapshot['quotes'])} 只，触发 {len(triggered)} 条（S/A {len(immediate)} 实时推送，日报 {len(digest_items)}，C级参考 {c_count}）")
+    print(f"[done] 信号分级：S/A {len(immediate)} 实时推送，日报 {len(digest_items)}，C级参考 {c_count}")
 
     if immediate and push_enabled:
         # 每个信号单独发一条短微信，保证手表/手环能完整显示（每条间隔3秒）

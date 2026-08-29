@@ -18,7 +18,10 @@ import sys
 import json
 import time
 import datetime
-import urllib.request
+
+from common import load_json, save_json
+import datafeed
+from notify import send_email
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -26,67 +29,10 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 import portfolio as pf
 import trade as tr
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-
-
-def http_get(url):
-    req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=20) as r:
-        return r.read().decode("utf-8", errors="replace")
-
 
 def fetch_quote(code, market):
-    try:
-        raw = http_get(f"https://qt.gtimg.cn/q={market}{code}")
-        parts = raw.split("~")
-        if len(parts) > 4:
-            return {"price": float(parts[3]), "change_pct": float(parts[32]) if len(parts) > 32 else None}
-    except Exception:
-        pass
-    return None
-
-
-def load_json(path, default):
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            pass
-    return default
-
-
-def save_json(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
-
-
-def send_email(subject, body):
-    user = os.environ.get("SMTP_USER")
-    pw = os.environ.get("SMTP_PASS")
-    to = os.environ.get("SMTP_TO")
-    if not (user and pw and to):
-        print("[notify] 未配置 SMTP_USER/SMTP_PASS/SMTP_TO，跳过发信")
-        return False
-    import smtplib
-    from email.mime.text import MIMEText
-    from email.header import Header
-    msg = MIMEText(body, "plain", "utf-8")
-    msg["Subject"] = Header(subject, "utf-8")
-    msg["From"] = user
-    msg["To"] = to
-    try:
-        host = os.environ.get("SMTP_HOST") or "smtp.qq.com"
-        port = int(os.environ.get("SMTP_PORT") or 465)
-        with smtplib.SMTP_SSL(host, port, timeout=30) as server:
-            server.login(user, pw)
-            server.sendmail(user, [to], msg.as_string())
-        print("[notify] 邮件已发送")
-        return True
-    except Exception as e:
-        print(f"[notify] 发信失败: {e}")
-        return False
+    """腾讯实时行情（持仓不在自选时用）"""
+    return datafeed.fetch_quote(code, market)
 
 
 def main():

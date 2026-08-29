@@ -61,8 +61,16 @@ a-share-monitor/
 │   ├── monitor.yml            # 盯盘+评分+S/A微信推送(每5分钟,交易时段)
 │   ├── digest.yml             # 收盘日报:一封邮件汇总 S/A/B/C(15:30)
 │   ├── manage-watchlist.yml   # 页面自选股管理(Issue 触发)
+│   ├── trade-command.yml      # 交易录入(Issue /trade 命令)
 │   ├── pool-backtest.yml      # 300股池回测(每周一)
-│   └── scanner.yml            # 全A股扫描(每天收盘后)
+│   ├── scanner.yml            # 全A股扫描(每天收盘后)
+│   ├── sentiment.yml          # 舆情热榜扫描(每天收盘后)
+│   ├── morning-report.yml     # 开盘前早报(9:00)
+│   ├── auto-report.yml        # 收盘AI日报(15:35)
+│   └── weekly-review.yml      # 周日周复盘
+├── common.py                  # 公共工具(load_json/save_json/http_get/to_float/market_of/路径常量)
+├── datafeed.py                # 行情数据源(腾讯/新浪 行情/历史/分时/资金流/指数)
+├── notify.py                  # 推送(Server酱微信 + QQ邮箱SMTP + 交易时段判断)
 ├── monitor.py                 # 主脚本(抓数据/检测/评分/推送/落盘)
 ├── digest.py                  # 收盘日报:一封邮件汇总 S/A/B/C
 ├── quant.py                   # 量化因子引擎(6因子加权评分)
@@ -73,8 +81,26 @@ a-share-monitor/
 ├── pool_backtest.py           # 300股池回测
 ├── scanner.py                 # 全A股扫描器
 ├── manage_watchlist.py        # Issue 命令解析(/add /remove)
+├── strategy_index.py          # 策略索引(yaml → strategies.json)
+├── dragon_head.py             # 龙头战法(涨停池/梯队/断板低吸/情绪)
+├── picks.py / portfolio.py / trade.py / trade_command.py ...  # 选股/持仓/交易
 ├── config.json                # 自选股 + 所有规则
-├── index.html / app.js / style.css  # 前端
+├── index.html / style.css     # 页面骨架与样式
+├── js/                        # 前端 ES Modules（无构建步骤）
+│   ├── main.js                # 入口:初始化/视图切换/自动刷新/UI绑定
+│   ├── util.js                # 工具函数与常量(含 esc HTML转义/评分分级/持仓推导)
+│   ├── state.js               # 共享可变状态
+│   ├── charts.js              # ECharts 图表渲染
+│   ├── board.js               # 盯盘看板(自选/异动/回测/板块/扫描/龙头/情绪)
+│   ├── trade.js               # 交易视图与弹窗
+│   ├── review.js              # 复盘视图
+│   └── manage.js              # 自选股管理 + GitHub Issue 通道
+├── tests/                     # 离线测试
+│   ├── test_imports.py        # 全部 Python 模块可导入(重构回归守卫)
+│   ├── test_quant.py          # 量化因子/评分/市场状态单测
+│   ├── test_core.py           # 支撑压力/买卖点/common 单测
+│   └── check_frontend.mjs     # 前端模块加载 + 真实数据渲染冒烟测试
+├── package.json               # 前端类型声明 + 测试脚本
 └── data/                      # 所有数据(快照/评分/信号/板块/回测...)
 ```
 
@@ -250,7 +276,13 @@ Actions → **Stock Monitor** → **Run workflow** 手动触发一次。之后�
 | Stock Monitor | 每5分钟(交易时段 9:30-15:00 周一~五) | 盯盘+双因子评分+市场状态门控+提醒 |
 | Stock Scanner | 每天 16:00(收盘后) | 全A股扫描候选股(750天历史) |
 | Pool Backtest | 每周一 | 300股池回测(严格方法+市场分层+样本外) |
+| Daily Digest | 每天 15:30(收盘后) | 收盘日报邮件 + 选股清单 picks |
+| Auto Report | 每天 15:35(收盘后) | AI 日报（DeepSeek + 持仓建议） |
+| Sentiment Scan | 每天 16:10(收盘后) | 舆情热榜扫描并推送 TOP5 |
+| Morning Report | 每天 9:00(开盘前) | 早报微信推送 |
 | Manage Watchlist | Issue 打开时 | 页面自选股增删 |
+| Trade Command | Issue 打开时(标题/正文含 /trade) | 交易流水录入 |
+| Weekly Review | 每周日 15:30 | 周复盘邮件 + 净值更新 |
 
 > GitHub Actions cron 用 UTC,配置里已换算。节假日照常跑但无害(休市数据静止+去重防刷屏)。
 
@@ -270,6 +302,13 @@ python3 signals.py            # 单独看买卖点
 
 只依赖 Python 标准库,3.x 即可,无需 `pip install`。
 
+**测试（离线，不联网）**：
+
+```bash
+python3 -m unittest discover -s tests   # Python：全部模块导入 + 量化/支撑压力单测
+node tests/check_frontend.mjs           # 前端：模块加载 + 真实数据渲染冒烟
+```
+
 ---
 
 ## FAQ
@@ -278,7 +317,7 @@ python3 signals.py            # 单独看买卖点
 A:是的。代码和行情数据不含敏感信息,邮箱凭据在 Secrets 里。坚持私有可换 Cloudflare Pages / Vercel。
 
 **Q:换微信/Telegram 推送?**
-A:改 `monitor.py` 里的 `send_wechat()`(Server酱)或 `send_email()`。Server酱直接推送到微信,QQ 邮箱也可在微信收「QQ邮箱提醒」通知。
+A:改 `notify.py` 里的 `send_wechat()`(Server酱)或 `send_email()`。Server酱直接推送到微信,QQ 邮箱也可在微信收「QQ邮箱提醒」通知。
 
 **Q:ECharts 加载慢?**
 A:`index.html` 里是 jsdelivr CDN,国内可换 `https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js`。

@@ -13,10 +13,12 @@ import os
 import json
 import time
 import datetime
-import urllib.request
 
 import quant
 import support_resistance
+
+from common import http_get, load_json, save_json
+import datafeed
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 POOL_DIR = os.path.join(BASE_DIR, "data", "pool")
@@ -28,28 +30,6 @@ HISTORY_DAYS = 750      # 3年（2026-08-17 拉长历史）
 MIN_HISTORY = 70
 SCORE_THRESHOLD = 70     # 超跌评分阈值
 SUPPORT_BAND = 3.0       # 价格距支撑位的最大距离%
-
-
-def http_get(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
-    with urllib.request.urlopen(req, timeout=20) as r:
-        return r.read().decode("utf-8", errors="replace")
-
-
-def load_json(path, default):
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            pass
-    return default
-
-
-def save_json(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
 
 
 def fetch_pool_list(size=POOL_SIZE):
@@ -84,21 +64,8 @@ def history_path(code):
 
 
 def fetch_history(code, market, days=HISTORY_DAYS):
-    symbol = f"{market}{code}"
-    url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={symbol},day,,,{days},qfq"
-    data = json.loads(http_get(url))
-    node = (data.get("data") or {}).get(symbol) or {}
-    klines = node.get("qfqday") or node.get("day") or []
-    out = []
-    for k in klines:
-        if len(k) < 6:
-            continue
-        try:
-            out.append({"date": k[0], "open": float(k[1]), "close": float(k[2]),
-                        "high": float(k[3]), "low": float(k[4]), "volume": float(k[5])})
-        except (ValueError, IndexError):
-            continue
-    return out
+    """腾讯前复权日K（默认 750 天，与 datafeed 共用实现）"""
+    return datafeed.fetch_history(code, market, days)
 
 
 def scan():

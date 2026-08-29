@@ -20,24 +20,18 @@ import math
 import os
 import time
 import datetime
-import urllib.request
+
+from common import http_get
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__)) if "__file__" in globals() else "."
 DATA_DIR = os.path.join(BASE_DIR, "data")
 ZT_CACHE = os.path.join(DATA_DIR, "ztpool_cache.json")
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 API = (
     "https://push2ex.eastmoney.com/getTopicZTPool"
     "?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt"
     "&Pageindex={page}&pagesize=100&sort=fbt%3Aasc&date={date}"
 )
-
-
-def http_get(url):
-    req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=20) as r:
-        return r.read().decode("utf-8", errors="replace")
 
 
 def _trade_date_before(date_str, days=1):

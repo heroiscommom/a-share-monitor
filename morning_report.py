@@ -24,54 +24,19 @@ import datetime
 import urllib.request
 import urllib.parse
 
+from common import load_json
+import datafeed
+from notify import send_wechat
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
-
-HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
 EMO_POS_CAP = {"冰点": 20, "回暖": 50, "活跃": 70, "高潮": 50}
 
 
-def load_json(path, default):
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            pass
-    return default
-
-
 def fetch_quote(code, market):
     """腾讯实时行情（持仓不在自选时用）"""
-    try:
-        req = urllib.request.Request(f"https://qt.gtimg.cn/q={market}{code}", headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=15) as r:
-            raw = r.read().decode("gbk", errors="replace")
-        parts = raw.split("~")
-        if len(parts) > 4:
-            return {"price": float(parts[3]), "change_pct": float(parts[32]) if len(parts) > 32 else None}
-    except Exception:
-        pass
-    return None
-
-
-def send_wechat(title, desp):
-    """Server酱 微信推送"""
-    key = os.environ.get("SERVERCHAN_KEY", "").strip()
-    if not key:
-        print("[wechat] 未配置 SERVERCHAN_KEY，跳过")
-        return False
-    try:
-        data = urllib.parse.urlencode({"title": title, "desp": desp}).encode()
-        req = urllib.request.Request("https://sctapi.ftqq.com/" + key + ".send", data=data)
-        with urllib.request.urlopen(req, timeout=15) as r:
-            resp = r.read().decode("utf-8", errors="replace")
-        print(f"[wechat] 微信已推送: {resp[:80]}")
-        return True
-    except Exception as e:
-        print(f"[wechat] 推送异常: {e}")
-        return False
+    return datafeed.fetch_quote(code, market)
 
 
 def market_line():

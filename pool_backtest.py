@@ -12,45 +12,22 @@ import os
 import json
 import time
 import datetime
-import urllib.request
 
 import quant
 import backtest
+
+from common import http_get, load_json, save_json
+import datafeed
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 POOL_DIR = os.path.join(BASE_DIR, "data", "pool")
 POOL_LIST_PATH = os.path.join(BASE_DIR, "data", "pool_list.json")
 POOL_BACKTEST_PATH = os.path.join(BASE_DIR, "data", "pool_backtest.json")
-INDEX_CACHE = os.path.join(BASE_DIR, "data", "index_cache.json")
 
 POOL_SIZE = 300
 FORWARD_DAYS = 10
 MIN_HISTORY = 60
 HISTORY_DAYS = 750      # 3年（2026-08-17 拉长历史）
-
-HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-
-
-def http_get(url):
-    req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=25) as r:
-        return r.read().decode("utf-8", errors="replace")
-
-
-def load_json(path, default):
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            pass
-    return default
-
-
-def save_json(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
 
 
 def fetch_pool_list(size=POOL_SIZE):
@@ -88,27 +65,8 @@ def history_path(code):
 
 
 def fetch_history(code, market, days=HISTORY_DAYS):
-    symbol = f"{market}{code}"
-    url = (
-        "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param="
-        f"{symbol},day,,,{days},qfq"
-    )
-    data = json.loads(http_get(url))
-    node = (data.get("data") or {}).get(symbol) or {}
-    klines = node.get("qfqday") or node.get("day") or []
-    out = []
-    for k in klines:
-        if len(k) < 6:
-            continue
-        try:
-            out.append({
-                "date": k[0],
-                "open": float(k[1]), "close": float(k[2]),
-                "high": float(k[3]), "low": float(k[4]), "volume": float(k[5]),
-            })
-        except (ValueError, IndexError):
-            continue
-    return out
+    """腾讯前复权日K（默认 750 天，与 datafeed 共用实现）"""
+    return datafeed.fetch_history(code, market, days)
 
 
 def threshold_table(samples, key="score", ths=None):
@@ -124,23 +82,8 @@ def threshold_table(samples, key="score", ths=None):
 
 
 def fetch_index(days=HISTORY_DAYS):
-    """沪深300 日K（腾讯），当日缓存"""
-    cache = load_json(INDEX_CACHE, None)
-    today = datetime.date.today().isoformat()
-    if cache and cache.get("date") == today and cache.get("closes") and len(cache["closes"]) >= days * 0.9:
-        return cache
-    url = (
-        "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param="
-        f"sh000300,day,,,{days},qfq"
-    )
-    data = json.loads(http_get(url))
-    node = (data.get("data") or {}).get("sh000300") or {}
-    klines = node.get("qfqday") or node.get("day") or []
-    closes = [float(k[2]) for k in klines if len(k) >= 3]
-    dates = [k[0] for k in klines if len(k) >= 3]
-    obj = {"date": today, "closes": closes, "dates": dates}
-    save_json(INDEX_CACHE, obj)
-    return obj
+    """沪深300 日K（腾讯），当日缓存（与 datafeed 共用实现）"""
+    return datafeed.fetch_index(days)
 
 
 def index_benchmark(closes, forward_days):

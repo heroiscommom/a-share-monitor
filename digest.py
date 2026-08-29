@@ -14,10 +14,9 @@
 import os
 import sys
 import json
-import smtplib
 import datetime
-from email.mime.text import MIMEText
-from email.header import Header
+
+from notify import send_email, send_wechat
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DIGEST_PATH = os.path.join(BASE_DIR, "data", "digest.json")
@@ -28,53 +27,6 @@ TIER_META = {
     "B": ("🟡 预警（B级）", "B"),
     "C": ("⚪ 参考（C级）", "C"),
 }
-
-
-def send_email(subject, body):
-    user = os.environ.get("SMTP_USER")
-    pw = os.environ.get("SMTP_PASS")
-    to = os.environ.get("SMTP_TO")
-    host = os.environ.get("SMTP_HOST") or "smtp.qq.com"  # Actions 未配置时为空串，需兜底
-    port = int(os.environ.get("SMTP_PORT", 465))
-    if not (user and pw and to):
-        print("[notify] 未配置 SMTP_USER/SMTP_PASS/SMTP_TO，跳过发信")
-        return False
-    msg = MIMEText(body, "plain", "utf-8")
-    msg["Subject"] = Header(subject, "utf-8")
-    msg["From"] = user
-    msg["To"] = to
-    try:
-        with smtplib.SMTP_SSL(host, port, timeout=30) as server:
-            server.login(user, pw)
-            server.sendmail(user, [to], msg.as_string())
-        print(f"[notify] 邮件已发送（{host}）")
-        return True
-    except Exception as e:
-        print(f"[notify] 发信失败: {e}")
-        return False
-
-
-def send_wechat(title, desp):
-    key = os.environ.get("SERVERCHAN_KEY")
-    if not key:
-        print("[wechat] 未配置 SERVERCHAN_KEY，跳过")
-        return False
-    import urllib.parse
-    import urllib.request
-    url = f"https://sctapi.ftqq.com/{key}.send"
-    data = urllib.parse.urlencode({"title": title, "desp": desp}).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"User-Agent": "Mozilla/5.0"})
-    try:
-        with urllib.request.urlopen(req, timeout=15) as r:
-            resp = json.loads(r.read().decode("utf-8"))
-        if resp.get("code") == 0:
-            print("[wechat] 微信已推送")
-            return True
-        print(f"[wechat] 推送失败: {resp}")
-        return False
-    except Exception as e:
-        print(f"[wechat] 推送异常: {e}")
-        return False
 
 
 def demo_email():

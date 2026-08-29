@@ -21,6 +21,8 @@ import os
 import json
 import datetime
 
+from common import load_json, save_json
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 SIGNAL_PATH = os.path.join(DATA_DIR, "signal_history.json")
@@ -30,22 +32,6 @@ COST_BUFFER = 0.005  # 0.5% 成本余量
 
 BUY_LEVELS = ("buy",)
 SELL_LEVELS = ("sell", "trim")
-
-
-def load_json(path, default):
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            pass
-    return default
-
-
-def save_json(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
 
 
 def record_signals(advices, date=None):

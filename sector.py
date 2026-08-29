@@ -9,21 +9,21 @@
 """
 
 import json
-import urllib.request
 
-HEADERS = {"User-Agent": "Mozilla/5.0", "Referer": "https://finance.sina.com.cn/"}
+from common import http_get as _http_get
+
+# 新浪接口需要 Referer，覆盖默认 UA
+SECTOR_HEADERS = {"User-Agent": "Mozilla/5.0", "Referer": "https://finance.sina.com.cn/"}
+
+
+def http_get(url):
+    return _http_get(url, headers=SECTOR_HEADERS)
 
 # 申万一级按市值取前 N 只会漏掉小市值股票，这里手动补充已知自选股的板块
 SECTOR_OVERRIDES = {
     "600664": "医药生物",
     "002900": "医药生物",
 }
-
-
-def http_get(url):
-    req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=20) as r:
-        return r.read().decode("utf-8", errors="replace")
 
 
 def fetch_sector_list():

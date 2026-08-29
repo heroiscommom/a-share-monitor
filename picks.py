@@ -24,34 +24,13 @@ import support_resistance
 import pool_backtest as pb
 from portfolio_backtest import fetch_industry_map
 
+from notify import send_wechat
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PICKS_PATH = os.path.join(BASE_DIR, "data", "picks.json")
 DIGEST_PATH = os.path.join(BASE_DIR, "data", "digest.json")
 POOL_SIZE = 300
 MIN_HISTORY = 70
-
-
-def send_wechat(title, desp):
-    key = os.environ.get("SERVERCHAN_KEY")
-    if not key:
-        print("[wechat] 未配置 SERVERCHAN_KEY，跳过")
-        return False
-    import urllib.parse
-    import urllib.request
-    url = f"https://sctapi.ftqq.com/{key}.send"
-    data = urllib.parse.urlencode({"title": title, "desp": desp}).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"User-Agent": "Mozilla/5.0"})
-    try:
-        with urllib.request.urlopen(req, timeout=15) as r:
-            resp = json.loads(r.read().decode("utf-8"))
-        if resp.get("code") == 0:
-            print("[wechat] 微信已推送")
-            return True
-        print(f"[wechat] 推送失败: {resp}")
-        return False
-    except Exception as e:
-        print(f"[wechat] 推送异常: {e}")
-        return False
 
 
 def main():

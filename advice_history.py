@@ -16,7 +16,9 @@
 import os
 import json
 import datetime
-import urllib.request
+
+from common import load_json, save_json, market_of
+import datafeed
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -25,41 +27,10 @@ ADVICE_PATH = os.path.join(DATA_DIR, "advice_history.json")
 EVAL_CALENDAR_DAYS = 14   # ≈10个交易日
 HIT_PCT = 3.0             # 涨跌≥3% 才算应验/打脸
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-
-
-def load_json(path, default):
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            pass
-    return default
-
-
-def save_json(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=1)
-
 
 def fetch_quote(code, market):
     """腾讯实时行情（快，单只）"""
-    try:
-        req = urllib.request.Request(f"https://qt.gtimg.cn/q={market}{code}", headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=15) as r:
-            raw = r.read().decode("gbk", errors="replace")
-        parts = raw.split("~")
-        if len(parts) > 4:
-            return {"price": float(parts[3]), "change_pct": float(parts[32]) if len(parts) > 32 else None}
-    except Exception:
-        pass
-    return None
-
-
-def market_of(code):
-    return "sh" if code.startswith("6") else ("bj" if code.startswith(("4", "8")) else "sz")
+    return datafeed.fetch_quote(code, market)
 
 
 def _item_from_advice(a):

@@ -15,8 +15,9 @@ import re
 import json
 import urllib.request
 
+from common import market_of, CONFIG_PATH
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 
@@ -31,12 +32,8 @@ def save_config(cfg):
 
 
 def detect_market(code):
-    """根据代码前缀判断市场：沪/深/北"""
-    if code.startswith(("6", "5", "9")):
-        return "sh"
-    if code.startswith(("4", "8")):
-        return "bj"
-    return "sz"  # 0/1/2/3 开头 → 深市
+    """根据代码前缀判断市场：沪/深/北（统一走 common.market_of）"""
+    return market_of(code)
 
 
 def fetch_name(code, market):
