@@ -15,6 +15,7 @@ import os
 import sys
 import json
 import smtplib
+import datetime
 from email.mime.text import MIMEText
 from email.header import Header
 
@@ -33,7 +34,7 @@ def send_email(subject, body):
     user = os.environ.get("SMTP_USER")
     pw = os.environ.get("SMTP_PASS")
     to = os.environ.get("SMTP_TO")
-    host = os.environ.get("SMTP_HOST", "smtp.qq.com")
+    host = os.environ.get("SMTP_HOST") or "smtp.qq.com"  # Actions 未配置时为空串，需兜底
     port = int(os.environ.get("SMTP_PORT", 465))
     if not (user and pw and to):
         print("[notify] 未配置 SMTP_USER/SMTP_PASS/SMTP_TO，跳过发信")
@@ -110,10 +111,24 @@ def main():
         except (json.JSONDecodeError, OSError):
             pass
 
+    # 去重标记：GitHub 定时 + 本机兜底双触发时防重复邮件；发送成功才写标记
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    if items:
+        try:
+            date_str = items[0].get("time", date_str)[:10]  # 以信号日期为准（兼容延迟执行）
+        except Exception:
+            pass
+    marker = os.path.join(BASE_DIR, "data", f"digest_sent_{date_str}.txt")
+    if os.path.exists(marker):
+        print(f"[skip] {date_str} 日报已发送过（{marker} 存在），跳过")
+        return
+
+    ok_email = False
+    ok_wechat = False
     if not items:
         body = "今日无任何级别异动，一切平静。\n\n（盘中 S/A 级信号会微信实时推送，此邮件仅收盘汇总）"
-        send_wechat("【日报】今日无预警", "今日无任何级别异动，一切平静。")
-        send_email("【日报】 A股盯盘异动汇总（今日无预警）", body)
+        ok_wechat = send_wechat("【日报】今日无预警", "今日无任何级别异动，一切平静。")
+        ok_email = send_email("【日报】 A股盯盘异动汇总（今日无预警）", body)
     else:
         # 按级别分组
         groups = {}
@@ -142,7 +157,7 @@ def main():
         if c_count:
             lines.append(f"⚪ 另有 {c_count} 条 C 级参考（涨跌幅/量比等，仅看板展示，不逐条列出）\n")
         body = "\n".join(lines)
-        send_email(f"【日报】 A股盯盘异动汇总（{len(items)} 条" + (f" + C级{c_count}" if c_count else "") + "）", body)
+        ok_email = send_email(f"【日报】 A股盯盘异动汇总（{len(items)} 条" + (f" + C级{c_count}" if c_count else "") + "）", body)
 
         # 微信：只发一条摘要（数量 + 各级别 TOP 几条），避免刷屏
         summary = [f"今日异动 {len(items)} 条："]
@@ -158,12 +173,18 @@ def main():
             summary.append(f"{emoji} {t.get('name', '')} {t.get('message', '')}")
         if len(items) > 8:
             summary.append(f"...等共 {len(items)} 条，详见邮件")
-        send_wechat("【日报】 A股盯盘异动汇总", "\n".join(summary))
+        ok_wechat = send_wechat("【日报】 A股盯盘异动汇总", "\n".join(summary))
 
-    # 清空日报
-    with open(DIGEST_PATH, "w", encoding="utf-8") as f:
-        json.dump({"items": [], "c_count": 0}, f, ensure_ascii=False, indent=2)
-    print("[digest] 日报已清空")
+    # 发送成功（邮件或微信任一）才写标记 + 清空；全失败保留数据下次重试
+    if ok_email or ok_wechat:
+        with open(marker, "w", encoding="utf-8") as f:
+            f.write(datetime.datetime.now().isoformat())
+        print(f"[sent] 已发送，写入去重标记 {marker}")
+        with open(DIGEST_PATH, "w", encoding="utf-8") as f:
+            json.dump({"items": [], "c_count": 0}, f, ensure_ascii=False, indent=2)
+        print("[digest] 日报已清空")
+    else:
+        print("[warn] 发送全部失败，保留数据与标记，下次重试")
 
 
 if __name__ == "__main__":

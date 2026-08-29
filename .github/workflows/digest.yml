@@ -47,11 +47,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/digest.json 2>/dev/null || true
+          git add data/digest.json data/digest_sent_*.txt 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "无变更"
           else
             git commit -m "chore: 清空异动日报"
+            # 并发提交 data/ 时 rebase/push 会失败：拉取后若有冲突，以本地(清空)为准
             git pull --rebase origin main 2>/dev/null || true
-            git push
+            git checkout --ours data/digest.json data/digest_sent_*.txt 2>/dev/null || true
+            git add data/digest.json data/digest_sent_*.txt 2>/dev/null || true
+            git -c core.editor=true rebase --continue 2>/dev/null || true
+            git push || { sleep 5; git pull --rebase origin main 2>/dev/null || true; git push; } || echo "⚠️ push 失败，下次 run 重试"
           fi
