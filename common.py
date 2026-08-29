@@ -11,6 +11,7 @@ to_float / 市场推断 / 路径常量）统一收拢到这里，避免每份脚
 
 import os
 import json
+import time
 import urllib.request
 
 # ═══════════════ 路径常量（以仓库根目录为基准） ═══════════════
@@ -34,11 +35,22 @@ def to_float(s):
         return None
 
 
-def http_get(url, encoding="utf-8", timeout=20, headers=None):
-    """GET 请求，返回解码后的文本。headers 可覆盖默认 UA。"""
-    req = urllib.request.Request(url, headers=headers or HEADERS)
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read().decode(encoding, errors="replace")
+def http_get(url, encoding="utf-8", timeout=20, headers=None, retries=2):
+    """
+    GET 请求，返回解码后的文本。headers 可覆盖默认 UA。
+    网络失败自动重试 retries 次（指数退避 0.5s/1s），避免免费接口偶发超时丢数据。
+    """
+    last_exc = None
+    for attempt in range(retries + 1):
+        try:
+            req = urllib.request.Request(url, headers=headers or HEADERS)
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.read().decode(encoding, errors="replace")
+        except Exception as e:  # noqa: BLE001  (URLError/TimeoutError/HTTPError 等)
+            last_exc = e
+            if attempt < retries:
+                time.sleep(0.5 * (2 ** attempt))
+    raise last_exc
 
 
 def load_json(path, default=None):
@@ -53,10 +65,15 @@ def load_json(path, default=None):
 
 
 def save_json(path, obj, indent=2):
-    """写 JSON 文件（自动建目录，UTF-8 不转义中文）。"""
+    """
+    写 JSON 文件（自动建目录，UTF-8 不转义中文）。
+    原子写：先写 *.tmp 再 os.replace，避免进程中断留下半截 JSON。
+    """
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=indent)
+    os.replace(tmp, path)
 
 
 def market_of(code):

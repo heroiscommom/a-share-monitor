@@ -27,6 +27,7 @@ import sys
 import json
 import datetime
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import quant
 import backtest
@@ -224,14 +225,18 @@ def process_stocks(watchlist, quotes, rules, history_days, fast, now, regime, fo
                    state, triggered, quant_results, sr_results, sig_results, money_results):
     """
     处理全部自选股：历史/支撑压力/分时/资金流/评分 → 更新各结果列表并触发告警。
-    （从原 main() 循环体抽取，逻辑不变）
+    线程池并行（IO 密集）：单轮 90+ 个 HTTP 请求从 1~2 分钟降到 ~30 秒，
+    让 5 分钟周期的数据更新更接近实时。共享列表的 append 为原子操作；
+    quant_results 改为「就地构造 item 再一次性 append」，避免跨线程竞争 [-1]。
     """
-    for stock in watchlist:
+    today = now.strftime("%Y-%m-%d")
+
+    def one(stock):
         code = stock["code"]
         quote = quotes.get(code)
         if not quote:
             print(f"[warn] 未取到 {code} 行情，跳过")
-            continue
+            return
 
         history = []
         try:
@@ -340,7 +345,7 @@ def process_stocks(watchlist, quotes, rules, history_days, fast, now, regime, fo
         mind, mfac = quant.momentum_factors(history)
         mscore = quant.momentum_score(mfac)
         m_signal = "强势突破" if mscore >= quant.MOM_STRONG_THRESHOLD else ("偏强" if mscore >= 55 else ("中性" if mscore >= 40 else "偏弱"))
-        quant_results.append({
+        item = {
             "code": code,
             "name": stock["name"],
             "score": score,
@@ -351,34 +356,35 @@ def process_stocks(watchlist, quotes, rules, history_days, fast, now, regime, fo
             "factors": fac,
             "indicators": ind,
             "momentum_indicators": mind,
-        })
-        # 新策略（P1a yaml 化配套）
+        }
+        # 新策略（P1a yaml 化配套）——就地填充 item，最后一次性 append（线程安全）
         try:
             maf = quant.ma_golden_cross_factors(history)
-            quant_results[-1]["ma_score"] = quant.ma_golden_cross_score(maf)
-            quant_results[-1]["ma_factors"] = maf
-            quant_results[-1]["ma_signal"] = ("强势金叉" if (quant_results[-1]["ma_score"] or 0) >= 70 else
-                                              ("金叉" if (quant_results[-1]["ma_score"] or 0) >= 55 else "未金叉"))
+            item["ma_score"] = quant.ma_golden_cross_score(maf)
+            item["ma_factors"] = maf
+            item["ma_signal"] = ("强势金叉" if (item["ma_score"] or 0) >= 70 else
+                                 ("金叉" if (item["ma_score"] or 0) >= 55 else "未金叉"))
             sf = quant.shrink_pullback_factors(history)
-            quant_results[-1]["shrink_score"] = quant.shrink_pullback_score(sf)
-            quant_results[-1]["shrink_factors"] = sf
-            quant_results[-1]["shrink_signal"] = ("缩量低吸" if (quant_results[-1]["shrink_score"] or 0) >= 70 else
-                                                 ("接近" if (quant_results[-1]["shrink_score"] or 0) >= 55 else "无"))
+            item["shrink_score"] = quant.shrink_pullback_score(sf)
+            item["shrink_factors"] = sf
+            item["shrink_signal"] = ("缩量低吸" if (item["shrink_score"] or 0) >= 70 else
+                                     ("接近" if (item["shrink_score"] or 0) >= 55 else "无"))
             # 策略共振（2026-08-27 新增）：多个策略同时看多 → 多因子确认
             res = []
             if score is not None and score >= 70:
                 res.append("超跌")
             if mscore is not None and mscore >= 55:
                 res.append("动量")
-            if (quant_results[-1]["ma_score"] or 0) >= 55:
+            if (item["ma_score"] or 0) >= 55:
                 res.append("金叉")
-            if (quant_results[-1]["shrink_score"] or 0) >= 55:
+            if (item["shrink_score"] or 0) >= 55:
                 res.append("缩量")
-            quant_results[-1]["resonance"] = {"count": len(res), "list": res}
+            item["resonance"] = {"count": len(res), "list": res}
             if len(res) >= 3:
                 alerts.append(("strategy_resonance", f"🔥 {len(res)}策略共振（{'+'.join(res)}），多因子确认，信号更可靠"))
         except Exception:
             pass
+        quant_results.append(item)
         if sig_key == "strong":
             note = ""
             if regime["regime"] == "下跌":
@@ -414,6 +420,9 @@ def process_stocks(watchlist, quotes, rules, history_days, fast, now, regime, fo
                 "change_pct": quote.get("change_pct"),
                 "tier": effective_tier(rule_key, regime["regime"]),
             })
+
+    with ThreadPoolExecutor(max_workers=6, thread_name_prefix="stock") as pool:
+        list(pool.map(one, watchlist))
 
 def main():
     args = sys.argv[1:]

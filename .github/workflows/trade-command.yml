@@ -17,10 +17,10 @@ jobs:
       TZ: Asia/Shanghai
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.12'
 
@@ -32,17 +32,10 @@ jobs:
           python3 trade_command.py | tee result.txt
 
       - name: Commit trades
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/trades.json
-          if git diff --cached --quiet; then
-            echo "无变更"
-          else
-            git commit -m "chore: 交易流水更新 (issue #${{ github.event.issue.number }})"
-            git pull --rebase origin main 2>/dev/null || true
-            git push
-          fi
+        uses: ./.github/actions/commit-data
+        with:
+          files: data/trades.json
+          message: 'chore: 交易流水更新 (issue #${{ github.event.issue.number }})'
 
       - name: Comment on issue
         if: always()

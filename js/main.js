@@ -68,6 +68,16 @@ async function enrichQuotes(snap) {
   return snap;
 }
 
+// 顶部"更新于"显示 + 数据过期警示（>30 分钟视为采集中断/休市，高亮提示）
+const STALE_MS = 30 * 60 * 1000;
+function setUpdated(ts, suffix) {
+  const el = $('#updated');
+  el.textContent = ts ? '更新于 ' + fmtTime(ts) + (suffix || '') : (suffix || '等待首次采集');
+  const age = ts ? Date.now() - new Date(ts).getTime() : Infinity;
+  el.classList.toggle('stale', age > STALE_MS);
+  el.title = ts ? '最新数据时间：' + ts + (age > STALE_MS ? '（已过期，可能采集中断）' : '') : '';
+}
+
 // 盘中静默自动刷新：只更新表格/评分，不打断图表与操作
 async function refreshQuotes() {
   try {
@@ -78,7 +88,7 @@ async function refreshQuotes() {
     state.lastSnapTs = ts;
     await enrichQuotes(snap);
     window.__snapQuotes = snap.quotes;
-    $('#updated').textContent = '更新于 ' + fmtTime(ts) + '（自动刷新）';
+    setUpdated(ts, '（自动刷新）');
     renderWatchlist(snap.quotes);
     const nq = snap.quotes.find((x) => x.code === (state.activeStock && state.activeStock.code));
     if (nq) { state.activeStock = nq; drawFactor(nq); }
@@ -103,10 +113,10 @@ async function init() {
     if (snap && snap.quotes && snap.quotes.length) {
       await enrichQuotes(snap);
       state.lastSnapTs = snap.updated_at || '';
-      $('#updated').textContent = snap.updated_at ? '更新于 ' + fmtTime(snap.updated_at) : '等待首次采集';
+      setUpdated(snap.updated_at, '');
       renderWatchlist(snap.quotes);
     } else {
-      $('#updated').textContent = '数据未采集（等 GitHub Actions 更新）';
+      setUpdated(null, '数据未采集（等 GitHub Actions 更新）');
       $('tbody').innerHTML =
         '<tr><td colspan="6" class="empty">暂无数据，等待首次采集（导航等操作仍可用）</td></tr>';
     }

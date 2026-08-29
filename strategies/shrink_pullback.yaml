@@ -6,6 +6,8 @@ market_regimes: [上涨, 震荡]
 signal_rules:
   strong: 70
   bullish: 55
+  neutral: 0
+  weak: 0
 factors:
   - {key: trend, label: 趋势向上, weight: 30}
   - {key: shrink, label: 缩量程度, weight: 30}

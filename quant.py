@@ -64,6 +64,39 @@ WEIGHTS = {
 BUY_THRESHOLD = 82
 RISK_THRESHOLD = 32
 
+# ═══════════════════════════════════════════
+# 策略分级阈值（2026-08 重构：yaml 单一事实源）
+# strategies/*.yaml 的 signal_rules 优先；此处为缺省兜底，与历史行为一致。
+# ═══════════════════════════════════════════
+DEFAULT_SIGNAL_RULES = {
+    "mean_reversion": {"strong": 82, "bullish": 62, "neutral": 45, "bearish": 32, "weak": 0},
+    "momentum": {"strong": 70, "bullish": 55, "neutral": 40, "weak": 0},
+    "ma_golden_cross": {"strong": 70, "bullish": 55, "neutral": 0, "weak": 0},
+    "shrink_pullback": {"strong": 70, "bullish": 55, "neutral": 0, "weak": 0},
+}
+
+_RULES_CACHE = None
+
+
+def signal_rules(name="mean_reversion"):
+    """
+    返回某策略的评分分级阈值 {strong, bullish, neutral, bearish, weak}。
+    优先读 strategies/*.yaml 的 signal_rules，缺失键用 DEFAULT_SIGNAL_RULES 兜底。
+    """
+    global _RULES_CACHE
+    if _RULES_CACHE is None:
+        try:
+            import strategy_index
+            _RULES_CACHE = {
+                (s.get("name") or ""): (s.get("signal_rules") or {})
+                for s in strategy_index.build_index()
+            }
+        except Exception:
+            _RULES_CACHE = {}
+    rules = dict(DEFAULT_SIGNAL_RULES.get(name, {}))
+    rules.update(_RULES_CACHE.get(name, {}) or {})
+    return rules
+
 
 def compute_factors(history):
     """返回 (indicators, factors)，factors 各维度 0-100"""
@@ -146,14 +179,17 @@ def compute_score(factors):
     return round(sum(factors[k] * w for k, w in WEIGHTS.items()), 1)
 
 
-def signal_from_score(score, buy_threshold=BUY_THRESHOLD, risk_threshold=RISK_THRESHOLD):
-    if score >= buy_threshold:
+def signal_from_score(score, rules=None):
+    """评分 → (信号文案, 档位)。rules 默认读 mean_reversion 的 yaml/默认阈值。"""
+    if rules is None:
+        rules = signal_rules("mean_reversion")
+    if score >= rules.get("strong", BUY_THRESHOLD):
         return "超跌机会", "strong"
-    if score >= 62:
+    if score >= rules.get("bullish", 62):
         return "偏多", "bullish"
-    if score >= 45:
+    if score >= rules.get("neutral", 45):
         return "中性", "neutral"
-    if score >= risk_threshold:
+    if score >= rules.get("bearish", RISK_THRESHOLD):
         return "偏空", "bearish"
     return "高位风险", "weak"
 

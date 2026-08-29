@@ -66,6 +66,8 @@ header .title {
 }
 
 header .updated { color: var(--muted); font-size: 12px; }
+/* 数据过期警示（>30 分钟未更新） */
+header .updated.stale { color: #f59e0b; font-weight: 600; }
 .header-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
 
 #manage-btn {

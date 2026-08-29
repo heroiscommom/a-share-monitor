@@ -1,5 +1,10 @@
 # 📈 A股量化盯盘平台
 
+![monitor](https://github.com/heroiscommom/a-share-monitor/actions/workflows/monitor.yml/badge.svg)
+![close-report](https://github.com/heroiscommom/a-share-monitor/actions/workflows/close-report.yml/badge.svg)
+![pool-backtest](https://github.com/heroiscommom/a-share-monitor/actions/workflows/pool-backtest.yml/badge.svg)
+![weekly-review](https://github.com/heroiscommom/a-share-monitor/actions/workflows/weekly-review.yml/badge.svg)
+
 一套 **A股量化盯盘 + 辅助决策** 系统:自动盯自选股、量化评分、支撑压力位、买卖点、全A股扫描、板块热力图。
 
 **推送机制 v2**:GitHub Actions 每 5 分钟盯盘(交易时段),S/A 级信号触发时**逐条 Server酱微信推送**(不攒批);收盘后**一封邮件汇总当天全部 S/A/B/C 信号**。零服务器、零成本。
@@ -40,7 +45,7 @@
 
 **核心思路**:GitHub Pages 是纯静态托管(不能跑后端/定时/发邮件),所以后端由 GitHub Actions 完成:定时拉数据 → 量化检测 → 写 `data/*.json` commit 回仓库,前端读这些 JSON 渲染。
 
-**推送机制 v2**:S/A 级信号(超跌机会/高位风险/突破支撑压力/主力资金异动等)在每轮检测后**逐条 Server酱微信推送**,不再攒批、盘中不发邮件;所有级别信号累积到 `data/digest.json`,收盘后 `digest.yml` 发**一封汇总邮件**(QQ 邮箱 SMTP)。
+**推送机制 v2**:S/A 级信号(超跌机会/高位风险/突破支撑压力/主力资金异动等)在每轮检测后**逐条 Server酱微信推送**,不再攒批、盘中不发邮件;所有级别信号累积到 `data/digest.json`,收盘后 `close-report.yml` 发**一封汇总邮件**(QQ 邮箱 SMTP)。
 
 > ⚠️ GitHub Actions 的 cron 是「尽力而为」调度(最短 5 分钟、高峰可能延迟),适合分钟级盯盘;如需秒级实时需常驻服务器/本机。
 
@@ -57,50 +62,50 @@
 
 ```
 a-share-monitor/
-├── .github/workflows/
-│   ├── monitor.yml            # 盯盘+评分+S/A微信推送(每5分钟,交易时段)
-│   ├── digest.yml             # 收盘日报:一封邮件汇总 S/A/B/C(15:30)
-│   ├── manage-watchlist.yml   # 页面自选股管理(Issue 触发)
-│   ├── trade-command.yml      # 交易录入(Issue /trade 命令)
-│   ├── pool-backtest.yml      # 300股池回测(每周一)
-│   ├── scanner.yml            # 全A股扫描(每天收盘后)
-│   ├── sentiment.yml          # 舆情热榜扫描(每天收盘后)
-│   ├── morning-report.yml     # 开盘前早报(9:00)
-│   ├── auto-report.yml        # 收盘AI日报(15:35)
-│   └── weekly-review.yml      # 周日周复盘
-├── common.py                  # 公共工具(load_json/save_json/http_get/to_float/market_of/路径常量)
-├── datafeed.py                # 行情数据源(腾讯/新浪 行情/历史/分时/资金流/指数)
+├── .github/
+│   ├── actions/commit-data/action.yml   # 统一「提交+并发容错推送」复合动作
+│   └── workflows/
+│       ├── monitor.yml            # 盯盘+评分+S/A微信推送(每5分钟,交易时段)
+│       ├── close-report.yml       # 收盘一站式(15:30):选股清单+日报邮件+AI报告+扫描+舆情
+│       ├── manage-watchlist.yml   # 页面自选股管理(Issue 触发)
+│       ├── trade-command.yml      # 交易录入(Issue /trade 命令)
+│       ├── pool-backtest.yml      # 300股池回测(每周一)
+│       ├── morning-report.yml     # 开盘前早报(9:00)
+│       └── weekly-review.yml      # 周日周复盘
+├── common.py                  # 公共工具(load_json/save_json原子写/http_get重试/to_float/market_of/路径常量)
+├── datafeed.py                # 行情数据源(腾讯/新浪 行情/历史/分时/资金流/指数, 纯解析函数可单测)
 ├── notify.py                  # 推送(Server酱微信 + QQ邮箱SMTP + 交易时段判断)
-├── monitor.py                 # 主脚本(抓数据/检测/评分/推送/落盘)
+├── monitor.py                 # 主脚本(线程池并行拉取/检测/评分/推送/落盘)
 ├── digest.py                  # 收盘日报:一封邮件汇总 S/A/B/C
-├── quant.py                   # 量化因子引擎(6因子加权评分)
+├── quant.py                   # 量化因子引擎(阈值读 strategies/*.yaml，yaml 单一事实源)
 ├── support_resistance.py      # 支撑位/压力位计算
 ├── signals.py                 # 买卖点引擎(日线+分时)
 ├── sector.py                  # 板块分析(申万一级 + 异动)
-├── backtest.py                # 滚动回测引擎
+├── backtest.py                # 滚动回测引擎(成本可配置 BACKTEST_COST_PCT)
 ├── pool_backtest.py           # 300股池回测
-├── scanner.py                 # 全A股扫描器
+├── scanner.py                 # 全A股扫描器(8线程并行)
 ├── manage_watchlist.py        # Issue 命令解析(/add /remove)
-├── strategy_index.py          # 策略索引(yaml → strategies.json)
+├── strategy_index.py          # 策略索引(yaml → strategies.json, 迷你解析器)
 ├── dragon_head.py             # 龙头战法(涨停池/梯队/断板低吸/情绪)
 ├── picks.py / portfolio.py / trade.py / trade_command.py ...  # 选股/持仓/交易
 ├── config.json                # 自选股 + 所有规则
-├── index.html / style.css     # 页面骨架与样式
+├── index.html / style.css     # 页面骨架与样式(PWA: manifest + 图标 + 数据过期警示)
 ├── js/                        # 前端 ES Modules（无构建步骤）
-│   ├── main.js                # 入口:初始化/视图切换/自动刷新/UI绑定
-│   ├── util.js                # 工具函数与常量(含 esc HTML转义/评分分级/持仓推导)
+│   ├── main.js                # 入口:初始化/视图切换/自动刷新/UI绑定/过期警示
+│   ├── util.js                # 工具函数与常量(esc 转义/评分分级读 yaml/持仓推导)
 │   ├── state.js               # 共享可变状态
 │   ├── charts.js              # ECharts 图表渲染
 │   ├── board.js               # 盯盘看板(自选/异动/回测/板块/扫描/龙头/情绪)
 │   ├── trade.js               # 交易视图与弹窗
 │   ├── review.js              # 复盘视图
 │   └── manage.js              # 自选股管理 + GitHub Issue 通道
-├── tests/                     # 离线测试
-│   ├── test_imports.py        # 全部 Python 模块可导入(重构回归守卫)
-│   ├── test_quant.py          # 量化因子/评分/市场状态单测
-│   ├── test_core.py           # 支撑压力/买卖点/common 单测
-│   └── check_frontend.mjs     # 前端模块加载 + 真实数据渲染冒烟测试
+├── strategies/*.yaml          # 策略定义(含 signal_rules 分级阈值 —— 唯一事实源)
+├── tests/                     # 离线测试(31 项: 模块导入/量化/支撑压力/解析/建议规则/前端冒烟)
+│   ├── test_imports.py / test_quant.py / test_core.py
+│   └── check_frontend.mjs
 ├── package.json               # 前端类型声明 + 测试脚本
+├── manifest.webmanifest       # PWA 清单(移动端"添加到主屏幕")
+├── icon.svg                   # 站点图标
 └── data/                      # 所有数据(快照/评分/信号/板块/回测...)
 ```
 
@@ -179,11 +184,22 @@ Actions → **Stock Monitor** → **Run workflow** 手动触发一次。之后�
 | `moneyflow_threshold` | 50000000 | 主力净流入/流出超5000万提醒 |
 | `sector_threshold` | 2.0 | 板块涨跌幅超2%异动提醒 |
 
-### 量化评分阈值(quant.py 顶部)
+### 量化评分阈值(单一事实源 = strategies/*.yaml)
 
-- `BUY_THRESHOLD = 82`:均值回归评分 ≥82 =「超跌机会」信号
-- `RISK_THRESHOLD = 32`:评分 ≤32 =「高位风险」信号
-- `MOM_STRONG_THRESHOLD = 70`:动量评分 ≥70 =「强势突破」信号
+2026-08 重构后，各策略的**评分分级阈值只维护在 `strategies/*.yaml` 的 `signal_rules`**，
+Python（`quant.signal_rules()`）与前端（`gradeScore`）都从这里读取，缺省值兜底：
+
+- `mean_reversion`: strong 82 / bullish 62 / neutral 45 / bearish 32
+- `momentum`: strong 70 / bullish 55 / neutral 40
+- `ma_golden_cross` / `shrink_pullback`: strong 70 / bullish 55
+- `dragon_head`: S 70 / A 60 / B 45（龙头分级）
+
+改阈值 = 改一个 yaml 文件，前后端自动生效。
+
+### 回测成本（backtest.py，可配置）
+
+默认双边成本 `0.25%`（佣金万2.5×2 + 印花税0.05%卖出 + 滑点，偏保守）。
+敏感性分析可用环境变量覆盖：`BACKTEST_COST_PCT=0.15 python3 pool_backtest.py`。
 
 ---
 
@@ -243,7 +259,7 @@ Actions → **Stock Monitor** → **Run workflow** 手动触发一次。之后�
 **结论**：
 - 行业中性化有效（B 大幅优于 A：Sharpe 1.45 vs 0.93，回撤还更低）——去掉行业 beta 后剩下的是真 alpha
 - 市场状态组合最优（D）：上涨市用动量、下跌/震荡用中性化均值回归，Sharpe 1.84
-- ⚠️ **幸存者偏差**：股票池为当前市值 Top300（包含期内大涨的赢家），绝对收益偏高；相对比较方向可信，实盘需用点时间股票池验证
+- ⚠️ **幸存者偏差**：股票池为当前市值 Top300（包含期内大涨的赢家），绝对收益偏高；相对比较方向可信，实盘需用点时间股票池验证。详见 [docs/幸存者偏差说明.md](docs/幸存者偏差说明.md)
 
 ### 支撑压力位 / 买卖点
 
@@ -273,12 +289,9 @@ Actions → **Stock Monitor** → **Run workflow** 手动触发一次。之后�
 
 | Workflow | 频率 | 说明 |
 |----------|------|------|
-| Stock Monitor | 每5分钟(交易时段 9:30-15:00 周一~五) | 盯盘+双因子评分+市场状态门控+提醒 |
-| Stock Scanner | 每天 16:00(收盘后) | 全A股扫描候选股(750天历史) |
+| Stock Monitor | 每5分钟(交易时段 9:30-15:00 周一~五) | 盯盘+双因子评分+市场状态门控+提醒（线程池并行拉取） |
+| Close Report | 每天 15:30(收盘后) | 一站式：选股清单 + 日报邮件 + AI 报告 + 全市场扫描 + 舆情热榜 |
 | Pool Backtest | 每周一 | 300股池回测(严格方法+市场分层+样本外) |
-| Daily Digest | 每天 15:30(收盘后) | 收盘日报邮件 + 选股清单 picks |
-| Auto Report | 每天 15:35(收盘后) | AI 日报（DeepSeek + 持仓建议） |
-| Sentiment Scan | 每天 16:10(收盘后) | 舆情热榜扫描并推送 TOP5 |
 | Morning Report | 每天 9:00(开盘前) | 早报微信推送 |
 | Manage Watchlist | Issue 打开时 | 页面自选股增删 |
 | Trade Command | Issue 打开时(标题/正文含 /trade) | 交易流水录入 |

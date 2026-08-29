@@ -9,17 +9,42 @@
         "回暖",
         "活跃"
       ],
-      "signal_rules": "",
-      "S": 70,
-      "A": 60,
-      "B": 45,
+      "signal_rules": {
+        "S": 70,
+        "A": 60,
+        "B": 45
+      },
       "factors": [
-        "key: lbc, label: 连板高度, weight: 30}",
-        "key: seal, label: 封板强度, weight: 25}",
-        "key: fbt, label: 首板时间, weight: 15}",
-        "key: zbc, label: 炸板, weight: 10}",
-        "key: sector, label: 板块共振, weight: 10}",
-        "key: hs, label: 换手, weight: 10}"
+        {
+          "key": "lbc",
+          "label": "连板高度",
+          "weight": 30
+        },
+        {
+          "key": "seal",
+          "label": "封板强度",
+          "weight": 25
+        },
+        {
+          "key": "fbt",
+          "label": "首板时间",
+          "weight": 15
+        },
+        {
+          "key": "zbc",
+          "label": "炸板",
+          "weight": 10
+        },
+        {
+          "key": "sector",
+          "label": "板块共振",
+          "weight": 10
+        },
+        {
+          "key": "hs",
+          "label": "换手",
+          "weight": 10
+        }
       ],
       "file": "dragon_head.yaml"
     },
@@ -32,14 +57,33 @@
         "震荡",
         "上涨"
       ],
-      "signal_rules": "",
-      "strong": 70,
-      "bullish": 55,
+      "signal_rules": {
+        "strong": 70,
+        "bullish": 55,
+        "neutral": 0,
+        "weak": 0
+      },
       "factors": [
-        "key: cross, label: 金叉强度, weight: 35}",
-        "key: slope, label: 均线斜率, weight: 25}",
-        "key: vol, label: 量能确认, weight: 20}",
-        "key: hold, label: 回踩守住, weight: 20}"
+        {
+          "key": "cross",
+          "label": "金叉强度",
+          "weight": 35
+        },
+        {
+          "key": "slope",
+          "label": "均线斜率",
+          "weight": 25
+        },
+        {
+          "key": "vol",
+          "label": "量能确认",
+          "weight": 20
+        },
+        {
+          "key": "hold",
+          "label": "回踩守住",
+          "weight": 20
+        }
       ],
       "file": "ma_golden_cross.yaml"
     },
@@ -52,17 +96,44 @@
         "下跌",
         "震荡"
       ],
-      "signal_rules": "",
-      "buy": 82,
-      "bullish": 62,
-      "bearish": 45,
+      "signal_rules": {
+        "strong": 82,
+        "bullish": 62,
+        "neutral": 45,
+        "bearish": 32,
+        "weak": 0
+      },
       "factors": [
-        "key: rsi, label: 超卖, weight: 25}",
-        "key: drawdown, label: 超跌, weight: 25}",
-        "key: deviation, label: 偏离, weight: 20}",
-        "key: position, label: 低位, weight: 15}",
-        "key: volume, label: 量能, weight: 10}",
-        "key: volatility, label: 稳定, weight: 5}"
+        {
+          "key": "rsi",
+          "label": "超卖",
+          "weight": 25
+        },
+        {
+          "key": "drawdown",
+          "label": "超跌",
+          "weight": 25
+        },
+        {
+          "key": "deviation",
+          "label": "偏离",
+          "weight": 20
+        },
+        {
+          "key": "position",
+          "label": "低位",
+          "weight": 15
+        },
+        {
+          "key": "volume",
+          "label": "量能",
+          "weight": 10
+        },
+        {
+          "key": "volatility",
+          "label": "稳定",
+          "weight": 5
+        }
       ],
       "file": "mean_reversion.yaml"
     },
@@ -74,15 +145,43 @@
       "market_regimes": [
         "上涨"
       ],
-      "signal_rules": "",
-      "strong": 70,
+      "signal_rules": {
+        "strong": 70,
+        "bullish": 55,
+        "neutral": 40,
+        "weak": 0
+      },
       "factors": [
-        "key: mom20, label: 20日动量, weight: 25}",
-        "key: mom60, label: 60日动量, weight: 20}",
-        "key: rsi, label: RSI强势, weight: 20}",
-        "key: pos60, label: 60日位置, weight: 15}",
-        "key: vol_ratio, label: 量比, weight: 10}",
-        "key: volatility, label: 活跃度, weight: 10}"
+        {
+          "key": "mom20",
+          "label": "20日动量",
+          "weight": 25
+        },
+        {
+          "key": "mom60",
+          "label": "60日动量",
+          "weight": 20
+        },
+        {
+          "key": "rsi",
+          "label": "RSI强势",
+          "weight": 20
+        },
+        {
+          "key": "pos60",
+          "label": "60日位置",
+          "weight": 15
+        },
+        {
+          "key": "vol_ratio",
+          "label": "量比",
+          "weight": 10
+        },
+        {
+          "key": "volatility",
+          "label": "活跃度",
+          "weight": 10
+        }
       ],
       "file": "momentum.yaml"
     },
@@ -95,14 +194,33 @@
         "上涨",
         "震荡"
       ],
-      "signal_rules": "",
-      "strong": 70,
-      "bullish": 55,
+      "signal_rules": {
+        "strong": 70,
+        "bullish": 55,
+        "neutral": 0,
+        "weak": 0
+      },
       "factors": [
-        "key: trend, label: 趋势向上, weight: 30}",
-        "key: shrink, label: 缩量程度, weight: 30}",
-        "key: pullback, label: 回调深度, weight: 20}",
-        "key: support, label: 近支撑, weight: 20}"
+        {
+          "key": "trend",
+          "label": "趋势向上",
+          "weight": 30
+        },
+        {
+          "key": "shrink",
+          "label": "缩量程度",
+          "weight": 30
+        },
+        {
+          "key": "pullback",
+          "label": "回调深度",
+          "weight": 20
+        },
+        {
+          "key": "support",
+          "label": "近支撑",
+          "weight": 20
+        }
       ],
       "file": "shrink_pullback.yaml"
     }

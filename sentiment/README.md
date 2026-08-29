@@ -29,7 +29,7 @@ python3 -m sentiment.runner            # 采集→打分→入库→推送TOP5
 python3 -m sentiment.runner --no-push  # 只扫描入库（本地调试）
 ```
 
-定时：GitHub Actions `sentiment.yml`，每天 16:10 北京时间（收盘后）。
+定时：GitHub Actions `close-report.yml`，每天 15:30 北京时间（收盘后，与日报/扫描合并执行）。
 
 ## 数据文件
 

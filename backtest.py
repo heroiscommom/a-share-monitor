@@ -26,7 +26,14 @@ FORWARD_DAYS = 10      # 未来持有天数
 MIN_HISTORY = 60       # 因子计算所需最少历史
 
 # ===== 严谨性设置（2026-08-17 优化）=====
-COST_PCT = 0.25        # 双边交易成本 %（佣金万2.5×2 + 印花税0.05%卖出 + 滑点）
+# 交易成本拆分为可配置组件（2026-08 重构）：
+#   A股实盘参考：佣金万2.5×2=0.05% + 印花税0.05%(卖出) + 过户费0.002% + 滑点0.1~0.2%
+#   → 实际双边约 0.15%~0.25%。默认 0.25% 偏保守（低估策略收益，结论更可信）。
+# 敏感性分析：BACKTEST_COST_PCT=0.15 python3 pool_backtest.py
+COMMISSION_PCT = 0.05      # 佣金 双边 %
+STAMP_PCT = 0.05           # 印花税（卖出）%
+SLIPPAGE_PCT = 0.15        # 滑点 %
+COST_PCT = float(os.environ.get("BACKTEST_COST_PCT", COMMISSION_PCT + STAMP_PCT + SLIPPAGE_PCT))
 NON_OVERLAP = True     # 非重叠抽样：每 FORWARD_DAYS 日取 1 个样本（消除自相关）
 
 

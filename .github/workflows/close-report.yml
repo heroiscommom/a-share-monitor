@@ -1,0 +1,72 @@
+name: Close Report
+
+on:
+  schedule:
+    - cron: '30 7 * * 1-5'   # 15:30 北京时间（收盘后），周一至周五
+  workflow_dispatch:
+    inputs:
+      demo:
+        description: '发送演示邮件（测试分级格式）'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: close-report
+  cancel-in-progress: false
+
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      TZ: Asia/Shanghai
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+
+      # 原 digest.yml（15:30）+ auto-report.yml（15:35）+ scanner.yml（16:00）+ sentiment.yml（16:10）
+      # 合并为单 job：一次 setup，日志集中；某一步失败不阻塞后续与提交
+      - name: Daily digest (picks + email)
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_TO: ${{ secrets.SMTP_TO }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+        run: |
+          if [ "${{ github.event.inputs.demo }}" = "true" ]; then
+            python3 digest.py --demo
+          else
+            python3 picks.py || echo "[warn] picks.py 失败，继续"
+            python3 digest.py || echo "[warn] digest.py 失败，继续"
+          fi
+
+      - name: Auto AI report
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_TO: ${{ secrets.SMTP_TO }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: python3 auto_report.py || echo "[warn] auto_report.py 失败，继续"
+
+      - name: Full market scan
+        run: python3 scanner.py || echo "[warn] scanner.py 失败，继续"
+
+      - name: Sentiment scan
+        env:
+          SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+        run: python3 -m sentiment.runner || echo "[warn] sentiment 失败，继续"
+
+      - name: Commit data
+        uses: ./.github/actions/commit-data
+        with:
+          files: data/
+          message: 'chore: 收盘数据更新'

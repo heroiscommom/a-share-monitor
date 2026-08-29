@@ -21,6 +21,54 @@ from common import http_get, load_json, save_json, to_float, DATA_DIR
 INDEX_CACHE = os.path.join(DATA_DIR, "index_cache.json")
 
 
+def parse_quote_payload(payload):
+    """
+    解析单只股票的腾讯行情负载（~ 分隔，≥50 字段），返回完整 quote dict 或 None。
+    纯函数：字段索引脆弱（接口改版会变），用 tests/test_core.py 的 fixture 守护。
+    """
+    parts = payload.strip().strip('"').split("~")
+    if len(parts) < 50:
+        return None
+    code = parts[2]
+    amount_wan = to_float(parts[37])  # 成交额，单位：万元
+    return {
+        "code": code,
+        "name": parts[1],
+        "price": to_float(parts[3]),
+        "prev_close": to_float(parts[4]),
+        "open": to_float(parts[5]),
+        "volume": to_float(parts[6]),       # 手
+        "change": to_float(parts[31]),
+        "change_pct": to_float(parts[32]),  # %
+        "high": to_float(parts[33]),
+        "low": to_float(parts[34]),
+        "amount": amount_wan * 10000 if amount_wan is not None else None,  # 元
+        "turnover_rate": to_float(parts[38]) if len(parts) > 38 else None,  # 换手率%
+        "pe": to_float(parts[39]) if len(parts) > 39 else None,            # 市盈率
+        "float_mktcap": to_float(parts[44]) if len(parts) > 44 else None,  # 流通市值(亿)
+        "total_mktcap": to_float(parts[45]) if len(parts) > 45 else None,  # 总市值(亿)
+        "pb": to_float(parts[46]) if len(parts) > 46 else None,            # 市净率
+    }
+
+
+def parse_fqkline(node):
+    """解析腾讯日K节点（qfqday/day）→ [{date, open, close, high, low, volume}, ...]"""
+    klines = node.get("qfqday") or node.get("day") or []
+    out = []
+    for k in klines:
+        if len(k) < 6:
+            continue
+        out.append({
+            "date": k[0],
+            "open": to_float(k[1]),
+            "close": to_float(k[2]),
+            "high": to_float(k[3]),
+            "low": to_float(k[4]),
+            "volume": to_float(k[5]),
+        })
+    return out
+
+
 def fetch_quote(code, market):
     """腾讯实时行情（单只，快），返回 {"price", "change_pct"} 或 None"""
     try:
@@ -50,28 +98,9 @@ def fetch_quotes(watchlist):
         if not line or "=" not in line:
             continue
         _, _, payload = line.partition("=")
-        parts = payload.strip().strip('"').split("~")
-        if len(parts) < 50:
-            continue
-        code = parts[2]
-        amount_wan = to_float(parts[37])  # 成交额，单位：万元
-        quotes[code] = {
-            "name": parts[1],
-            "price": to_float(parts[3]),
-            "prev_close": to_float(parts[4]),
-            "open": to_float(parts[5]),
-            "volume": to_float(parts[6]),       # 手
-            "change": to_float(parts[31]),
-            "change_pct": to_float(parts[32]),  # %
-            "high": to_float(parts[33]),
-            "low": to_float(parts[34]),
-            "amount": amount_wan * 10000 if amount_wan is not None else None,  # 元
-            "turnover_rate": to_float(parts[38]) if len(parts) > 38 else None,  # 换手率%
-            "pe": to_float(parts[39]) if len(parts) > 39 else None,            # 市盈率
-            "float_mktcap": to_float(parts[44]) if len(parts) > 44 else None,  # 流通市值(亿)
-            "total_mktcap": to_float(parts[45]) if len(parts) > 45 else None,  # 总市值(亿)
-            "pb": to_float(parts[46]) if len(parts) > 46 else None,            # 市净率
-        }
+        q = parse_quote_payload(payload)
+        if q:
+            quotes[q["code"]] = q
     return quotes
 
 
@@ -87,20 +116,7 @@ def fetch_history(code, market, days=60):
     )
     data = json.loads(http_get(url))
     node = (data.get("data") or {}).get(symbol) or {}
-    klines = node.get("qfqday") or node.get("day") or []
-    out = []
-    for k in klines:
-        if len(k) < 6:
-            continue
-        out.append({
-            "date": k[0],
-            "open": to_float(k[1]),
-            "close": to_float(k[2]),
-            "high": to_float(k[3]),
-            "low": to_float(k[4]),
-            "volume": to_float(k[5]),
-        })
-    return out
+    return parse_fqkline(node)
 
 
 def fetch_intraday(code, market):

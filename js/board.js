@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import {
-  $, fmt, fmtTime, esc, isLimitUp, loadJSON, normalizeStrategy, SIGNAL_CLASS, gradeScore,
+  $, fmt, fmtTime, esc, isLimitUp, loadJSON, normalizeStrategy, setStrategyGrades, SIGNAL_CLASS, gradeScore,
 } from './util.js';
 import { state } from './state.js';
 import { loadChart, drawBacktestChart, drawThresholdChart, drawSectorHeatmap } from './charts.js';
@@ -320,6 +320,21 @@ export function loadStrategies() {
   return loadJSON('data/strategies.json').then((d) => {
     state.strategyList = d.strategies || [];
     renderStrategyButtons();
+    // yaml → 前端分级阈值（signal_rules），让策略阈值只维护在 strategies/*.yaml
+    const grades = {};
+    (d.strategies || []).forEach((s) => {
+      const rules = s.signal_rules || {};
+      const key = normalizeStrategy(s.name);
+      if (rules.strong != null || rules.buy != null) {
+        grades[key] = {
+          strong: rules.strong ?? rules.buy ?? 0,
+          bullish: rules.bullish ?? 0,
+          neutral: rules.neutral ?? 0,
+          weak: rules.weak ?? 0,
+        };
+      }
+    });
+    setStrategyGrades(grades);
   }).catch(() => { state.strategyList = []; });
 }
 

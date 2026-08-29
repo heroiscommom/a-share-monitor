@@ -5,6 +5,9 @@ description: 强势突破，动量延续。20/60日动量+RSI强势+距60日高�
 market_regimes: [上涨]
 signal_rules:
   strong: 70
+  bullish: 55
+  neutral: 40
+  weak: 0
 factors:
   - {key: mom20, label: 20日动量, weight: 25}
   - {key: mom60, label: 60日动量, weight: 20}

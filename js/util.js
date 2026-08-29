@@ -14,25 +14,31 @@ export const SHRINK_LABELS = { trend: '趋势向上', shrink: '缩量程度', pu
 
 export const SIGNAL_CLASS = { strong: 's-strong', bullish: 's-bullish', neutral: 's-neutral', bearish: 's-bearish', weak: 's-weak' };
 
-// 策略评分分级阈值（与后端 quant.py / monitor.py 保持一致）
-export const STRATEGY_GRADES = {
-  momentum: { strong: 70, bullish: 55, neutral: 40 },
-  ma_golden_cross: { strong: 70, bullish: 55, neutral: 0 },
-  shrink_pullback: { strong: 70, bullish: 55, neutral: 0 },
+// 策略评分分级阈值：默认与后端 quant.py 一致；运行时由 strategies.json 的
+// signal_rules（来自 strategies/*.yaml）通过 setStrategyGrades 覆盖 —— 单一事实源
+const DEFAULT_STRATEGY_GRADES = {
+  momentum: { strong: 70, bullish: 55, neutral: 40, weak: 0 },
+  ma_golden_cross: { strong: 70, bullish: 55, neutral: 0, weak: 0 },
+  shrink_pullback: { strong: 70, bullish: 55, neutral: 0, weak: 0 },
 };
+let strategyGrades = DEFAULT_STRATEGY_GRADES;
+
+export function setStrategyGrades(grades) {
+  strategyGrades = grades && Object.keys(grades).length ? grades : DEFAULT_STRATEGY_GRADES;
+}
 
 // 策略名归一化：yaml/strategies.json 里龙头叫 dragon_head，前端统一用 dragon
 export function normalizeStrategy(name) {
   return name === 'dragon_head' ? 'dragon' : name;
 }
 
-// 按策略评分得出信号档位（strong/bullish/neutral/weak），集中管理阈值
+// 按策略评分得出信号档位（strong/bullish/neutral/weak），阈值来自 yaml/默认
 export function gradeScore(strategy, score) {
   if (score === null || score === undefined || Number.isNaN(score)) return 'neutral';
-  const g = STRATEGY_GRADES[strategy];
+  const g = strategyGrades[strategy];
   if (!g) return 'neutral';
-  if (score >= g.strong) return 'strong';
-  if (score >= g.bullish) return 'bullish';
+  if (score >= (g.strong ?? Infinity)) return 'strong';
+  if (score >= (g.bullish ?? Infinity)) return 'bullish';
   if (g.neutral !== undefined && score >= g.neutral) return 'neutral';
   return 'weak';
 }
@@ -41,7 +47,9 @@ export async function loadJSON(url, timeoutMs = 12000) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    const r = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+    // cache:'no-cache' = 每次强制走服务器校验（GitHub Pages 有 ETag → 304），
+    // 既保证盘中数据新鲜，又避免 no-store 每次全量重下（省移动端流量）
+    const r = await fetch(url, { cache: 'no-cache', signal: ctrl.signal });
     if (!r.ok) throw new Error(url + ' → ' + r.status);
     return await r.json();
   } finally { clearTimeout(timer); }

@@ -75,9 +75,14 @@ def scan():
         save_json(SCANNER_POOL, pool)
     print(f"[scan] 股票池 {len(pool)} 只")
 
-    candidates = []
+    # 8 线程并行：历史拉取/缓存 + 因子计算（IO 密集），800 只从 ~4 分钟降到 ~1 分钟
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+    scanned_lock = threading.Lock()
     scanned = 0
-    for i, s in enumerate(pool):
+
+    def one(s):
+        nonlocal scanned
         hist = load_json(history_path(s["code"]), None)
         if hist is None:
             try:
@@ -86,35 +91,39 @@ def scan():
                     save_json(history_path(s["code"]), hist)
             except Exception:
                 hist = []
-            time.sleep(0.05)
+            time.sleep(0.05)  # 礼貌限速（并发下分摊到各线程）
         if not hist or len(hist) < MIN_HISTORY:
-            continue
+            return None
         try:
             _, fac = quant.compute_factors(hist)
             score = quant.compute_score(fac)
             sr = support_resistance.compute_levels(hist)
         except Exception:
-            continue
-        scanned += 1
+            return None
+        with scanned_lock:
+            scanned += 1
         if score < SCORE_THRESHOLD or not sr["supports"]:
-            continue
+            return None
         price = hist[-1]["close"]
         nearest = sr["supports"][0]
         dist = (price - nearest["price"]) / price * 100  # 价格距支撑位距离%
-        if 0 <= dist <= SUPPORT_BAND:
-            bonus = (SUPPORT_BAND - dist) * 3
-            candidates.append({
-                "code": s["code"], "name": s["name"],
-                "score": score,
-                "signal": quant.signal_from_score(score)[0],
-                "price": round(price, 2),
-                "support": nearest["price"],
-                "support_strength": nearest["strength"],
-                "dist_to_support": round(dist, 2),
-                "candidate_score": round(score + bonus, 1),
-            })
-        if (i + 1) % 200 == 0:
-            print(f"  进度 {i + 1}/{len(pool)}，已扫 {scanned} 只，候选 {len(candidates)}")
+        if not (0 <= dist <= SUPPORT_BAND):
+            return None
+        bonus = (SUPPORT_BAND - dist) * 3
+        return {
+            "code": s["code"], "name": s["name"],
+            "score": score,
+            "signal": quant.signal_from_score(score)[0],
+            "price": round(price, 2),
+            "support": nearest["price"],
+            "support_strength": nearest["strength"],
+            "dist_to_support": round(dist, 2),
+            "candidate_score": round(score + bonus, 1),
+        }
+
+    with ThreadPoolExecutor(max_workers=8, thread_name_prefix="scan") as pool_exec:
+        results = list(pool_exec.map(one, pool))
+    candidates = [c for c in results if c is not None]
 
     candidates.sort(key=lambda x: -x["candidate_score"])
     result = {

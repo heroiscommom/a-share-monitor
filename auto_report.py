@@ -15,7 +15,7 @@
   - data/snapshot.json    自选股行情（持仓不在自选时现场拉）
   - data/history/*.json   日K（持仓不在自选时现场拉 250 天）
 
-GitHub Actions 定时：auto-report.yml 每天 15:35（收盘后）自动执行。
+GitHub Actions 定时：close-report.yml（收盘一站式）每天 15:30 自动执行。
 """
 
 import os
