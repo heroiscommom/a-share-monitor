@@ -1,105 +1,64 @@
 {
-  "updated_at": "2026-09-01 18:43:59",
+  "updated_at": "2026-09-02 13:17:12",
   "stocks": [
     {
       "code": "159582",
       "name": "半导体ETF博时",
-      "price": 0.751,
+      "price": 0.742,
       "daily_buy": [
         {
           "price": 0.72,
-          "strength": "弱"
-        },
-        {
-          "price": 0.71,
-          "strength": "弱"
+          "strength": "中"
         },
         {
           "price": 0.69,
           "strength": "弱"
+        },
+        {
+          "price": 0.67,
+          "strength": "中"
         }
       ],
       "daily_sell": [
         {
           "price": 0.77,
+          "strength": "弱"
+        },
+        {
+          "price": 0.78,
           "strength": "弱"
         },
         {
           "price": 0.79,
           "strength": "弱"
-        },
-        {
-          "price": 0.84,
-          "strength": "中"
         }
       ],
       "intraday_buy": [
+        {
+          "price": 0.73,
+          "type": "日内低点"
+        },
+        {
+          "price": 0.74,
+          "type": "分时均价线"
+        }
+      ],
+      "intraday_sell": [
+        {
+          "price": 0.74,
+          "type": "日内高点"
+        },
         {
           "price": 0.75,
-          "type": "日内低点"
-        },
-        {
-          "price": 0.76,
-          "type": "分时均价线"
-        }
-      ],
-      "intraday_sell": [
-        {
-          "price": 0.77,
-          "type": "日内高点"
-        }
-      ]
-    },
-    {
-      "code": "600664",
-      "name": "哈药股份",
-      "price": 9.49,
-      "daily_buy": [
-        {
-          "price": 9.27,
-          "strength": "弱"
-        },
-        {
-          "price": 8.9,
-          "strength": "弱"
-        },
-        {
-          "price": 7.9,
-          "strength": "弱"
-        }
-      ],
-      "daily_sell": [
-        {
-          "price": 9.5,
-          "strength": "中"
-        }
-      ],
-      "intraday_buy": [
-        {
-          "price": 9.06,
-          "type": "日内低点"
-        },
-        {
-          "price": 9.33,
-          "type": "分时均价线"
-        }
-      ],
-      "intraday_sell": [
-        {
-          "price": 9.49,
-          "type": "日内高点"
+          "type": "均价线+2%"
         }
       ]
     },
     {
       "code": "001289",
       "name": "龙源电力",
-      "price": 15.22,
+      "price": 15.11,
       "daily_buy": [
-        {
-          "price": 15.21,
-          "strength": "中"
-        },
         {
           "price": 15.02,
           "strength": "强"
@@ -107,12 +66,16 @@
         {
           "price": 14.81,
           "strength": "弱"
+        },
+        {
+          "price": 14.54,
+          "strength": "弱"
         }
       ],
       "daily_sell": [
         {
-          "price": 15.24,
-          "strength": "弱"
+          "price": 15.21,
+          "strength": "中"
         },
         {
           "price": 15.45,
@@ -125,78 +88,25 @@
       ],
       "intraday_buy": [
         {
-          "price": 15.15,
+          "price": 15.08,
           "type": "日内低点"
         }
       ],
       "intraday_sell": [
         {
-          "price": 15.26,
+          "price": 15.19,
           "type": "日内高点"
         },
         {
-          "price": 15.53,
+          "price": 15.42,
           "type": "均价线+2%"
-        }
-      ]
-    },
-    {
-      "code": "600667",
-      "name": "太极实业",
-      "price": 18.52,
-      "daily_buy": [
-        {
-          "price": 17.19,
-          "strength": "强"
-        },
-        {
-          "price": 15.66,
-          "strength": "弱"
-        },
-        {
-          "price": 14.54,
-          "strength": "弱"
-        }
-      ],
-      "daily_sell": [
-        {
-          "price": 19.05,
-          "strength": "弱"
-        },
-        {
-          "price": 19.45,
-          "strength": "弱"
-        },
-        {
-          "price": 22.32,
-          "strength": "弱"
-        }
-      ],
-      "intraday_buy": [
-        {
-          "price": 18.39,
-          "type": "日内低点"
-        },
-        {
-          "price": 18.68,
-          "type": "分时均价线"
-        }
-      ],
-      "intraday_sell": [
-        {
-          "price": 19.06,
-          "type": "均价线+2%"
-        },
-        {
-          "price": 19.41,
-          "type": "日内高点"
         }
       ]
     },
     {
       "code": "601700",
       "name": "风范股份",
-      "price": 8.4,
+      "price": 8.18,
       "daily_buy": [
         {
           "price": 7.94,
@@ -219,7 +129,7 @@
       ],
       "intraday_buy": [
         {
-          "price": 7.91,
+          "price": 8.11,
           "type": "日内低点"
         },
         {
@@ -231,18 +141,18 @@
         {
           "price": 8.46,
           "type": "均价线+2%"
-        },
-        {
-          "price": 8.72,
-          "type": "日内高点"
         }
       ]
     },
     {
       "code": "002437",
       "name": "誉衡药业",
-      "price": 4.35,
+      "price": 4.51,
       "daily_buy": [
+        {
+          "price": 4.42,
+          "strength": "弱"
+        },
         {
           "price": 4.08,
           "strength": "弱"
@@ -250,15 +160,11 @@
         {
           "price": 3.99,
           "strength": "弱"
-        },
-        {
-          "price": 3.91,
-          "strength": "弱"
         }
       ],
       "daily_sell": [
         {
-          "price": 4.42,
+          "price": 4.86,
           "strength": "弱"
         },
         {
@@ -268,34 +174,120 @@
       ],
       "intraday_buy": [
         {
-          "price": 4.12,
+          "price": 4.25,
           "type": "日内低点"
         },
         {
-          "price": 4.37,
+          "price": 4.58,
           "type": "分时均价线"
         }
       ],
       "intraday_sell": [
         {
-          "price": 4.46,
+          "price": 4.67,
           "type": "均价线+2%"
         },
         {
-          "price": 4.56,
+          "price": 4.72,
           "type": "日内高点"
+        }
+      ]
+    },
+    {
+      "code": "600664",
+      "name": "哈药股份",
+      "price": 9.26,
+      "daily_buy": [
+        {
+          "price": 8.91,
+          "strength": "弱"
+        },
+        {
+          "price": 7.9,
+          "strength": "弱"
+        },
+        {
+          "price": 6.35,
+          "strength": "弱"
+        }
+      ],
+      "daily_sell": [
+        {
+          "price": 9.51,
+          "strength": "中"
+        }
+      ],
+      "intraday_buy": [
+        {
+          "price": 9.2,
+          "type": "日内低点"
+        },
+        {
+          "price": 9.35,
+          "type": "分时均价线"
+        }
+      ],
+      "intraday_sell": [
+        {
+          "price": 9.5,
+          "type": "日内高点"
+        }
+      ]
+    },
+    {
+      "code": "600667",
+      "name": "太极实业",
+      "price": 18.17,
+      "daily_buy": [
+        {
+          "price": 17.75,
+          "strength": "弱"
+        },
+        {
+          "price": 17.16,
+          "strength": "中"
+        },
+        {
+          "price": 15.66,
+          "strength": "弱"
+        }
+      ],
+      "daily_sell": [
+        {
+          "price": 19.05,
+          "strength": "弱"
+        },
+        {
+          "price": 19.45,
+          "strength": "弱"
+        },
+        {
+          "price": 20.44,
+          "strength": "弱"
+        }
+      ],
+      "intraday_buy": [
+        {
+          "price": 17.85,
+          "type": "日内低点"
+        },
+        {
+          "price": 18.04,
+          "type": "分时均价线"
+        }
+      ],
+      "intraday_sell": [
+        {
+          "price": 18.4,
+          "type": "均价线+2%"
         }
       ]
     },
     {
       "code": "001258",
       "name": "立新能源",
-      "price": 13.8,
+      "price": 12.83,
       "daily_buy": [
-        {
-          "price": 13.2,
-          "strength": "弱"
-        },
         {
           "price": 12.3,
           "strength": "弱"
@@ -303,9 +295,17 @@
         {
           "price": 11.85,
           "strength": "弱"
+        },
+        {
+          "price": 11.59,
+          "strength": "强"
         }
       ],
       "daily_sell": [
+        {
+          "price": 13.2,
+          "strength": "弱"
+        },
         {
           "price": 14.24,
           "strength": "弱"
@@ -313,82 +313,25 @@
         {
           "price": 15.73,
           "strength": "弱"
-        },
-        {
-          "price": 16.88,
-          "strength": "强"
         }
       ],
       "intraday_buy": [
         {
-          "price": 12.92,
+          "price": 12.69,
           "type": "日内低点"
         },
         {
-          "price": 13.49,
+          "price": 13.22,
           "type": "分时均价线"
         }
       ],
       "intraday_sell": [
         {
-          "price": 13.76,
+          "price": 13.48,
           "type": "均价线+2%"
         },
         {
-          "price": 13.9,
-          "type": "日内高点"
-        }
-      ]
-    },
-    {
-      "code": "000657",
-      "name": "中钨高新",
-      "price": 62.33,
-      "daily_buy": [
-        {
-          "price": 62.0,
-          "strength": "弱"
-        },
-        {
-          "price": 61.07,
-          "strength": "中"
-        },
-        {
-          "price": 53.53,
-          "strength": "弱"
-        }
-      ],
-      "daily_sell": [
-        {
-          "price": 63.07,
-          "strength": "弱"
-        },
-        {
-          "price": 64.08,
-          "strength": "中"
-        },
-        {
-          "price": 68.02,
-          "strength": "弱"
-        }
-      ],
-      "intraday_buy": [
-        {
-          "price": 62.28,
-          "type": "日内低点"
-        },
-        {
-          "price": 63.06,
-          "type": "分时均价线"
-        }
-      ],
-      "intraday_sell": [
-        {
-          "price": 64.32,
-          "type": "均价线+2%"
-        },
-        {
-          "price": 65.78,
+          "price": 14.0,
           "type": "日内高点"
         }
       ]
@@ -396,52 +339,52 @@
     {
       "code": "688036",
       "name": "传音控股",
-      "price": 58.19,
+      "price": 56.17,
       "daily_buy": [
         {
-          "price": 57.97,
-          "strength": "中"
-        },
-        {
-          "price": 56.99,
+          "price": 56.14,
           "strength": "弱"
         },
         {
-          "price": 56.22,
-          "strength": "中"
+          "price": 55.37,
+          "strength": "弱"
+        },
+        {
+          "price": 54.32,
+          "strength": "弱"
         }
       ],
       "daily_sell": [
         {
-          "price": 58.7,
-          "strength": "强"
+          "price": 56.22,
+          "strength": "弱"
         },
         {
-          "price": 59.46,
+          "price": 56.99,
           "strength": "中"
         },
         {
-          "price": 60.28,
+          "price": 57.75,
           "strength": "弱"
         }
       ],
       "intraday_buy": [
         {
-          "price": 0.58,
+          "price": 0.57,
           "type": "分时均价线"
         },
         {
-          "price": 56.81,
+          "price": 56.12,
           "type": "日内低点"
         }
       ],
       "intraday_sell": [
         {
-          "price": 0.6,
+          "price": 0.58,
           "type": "均价线+2%"
         },
         {
-          "price": 59.11,
+          "price": 58.66,
           "type": "日内高点"
         }
       ]
@@ -449,14 +392,14 @@
     {
       "code": "001965",
       "name": "招商公路",
-      "price": 9.89,
+      "price": 9.85,
       "daily_buy": [
         {
-          "price": 9.87,
+          "price": 9.82,
           "strength": "强"
         },
         {
-          "price": 9.75,
+          "price": 9.7,
           "strength": "中"
         },
         {
@@ -466,7 +409,7 @@
       ],
       "daily_sell": [
         {
-          "price": 9.9,
+          "price": 9.87,
           "strength": "强"
         },
         {
@@ -480,97 +423,93 @@
       ],
       "intraday_buy": [
         {
-          "price": 9.81,
+          "price": 9.83,
           "type": "日内低点"
-        },
-        {
-          "price": 9.88,
-          "type": "分时均价线"
         }
       ],
       "intraday_sell": [
         {
-          "price": 9.95,
+          "price": 9.92,
           "type": "日内高点"
         },
         {
-          "price": 10.08,
+          "price": 10.07,
           "type": "均价线+2%"
         }
       ]
     },
     {
-      "code": "600011",
-      "name": "华能国际",
-      "price": 6.8,
+      "code": "000657",
+      "name": "中钨高新",
+      "price": 59.83,
       "daily_buy": [
         {
-          "price": 6.79,
-          "strength": "中"
+          "price": 59.3,
+          "strength": "弱"
         },
         {
-          "price": 6.68,
-          "strength": "中"
+          "price": 53.53,
+          "strength": "弱"
         },
         {
-          "price": 6.59,
-          "strength": "强"
+          "price": 52.3,
+          "strength": "弱"
         }
       ],
       "daily_sell": [
         {
-          "price": 6.82,
+          "price": 60.52,
           "strength": "中"
         },
         {
-          "price": 6.91,
-          "strength": "中"
+          "price": 62.0,
+          "strength": "弱"
         },
         {
-          "price": 7.02,
-          "strength": "中"
+          "price": 63.07,
+          "strength": "弱"
         }
       ],
       "intraday_buy": [
         {
-          "price": 6.68,
+          "price": 59.35,
           "type": "日内低点"
         },
         {
-          "price": 6.77,
+          "price": 60.01,
           "type": "分时均价线"
         }
       ],
       "intraday_sell": [
         {
-          "price": 6.82,
+          "price": 60.95,
           "type": "日内高点"
-        },
-        {
-          "price": 6.91,
-          "type": "均价线+2%"
         }
       ]
     },
     {
       "code": "600012",
       "name": "皖通高速",
-      "price": 16.91,
+      "price": 16.71,
       "daily_buy": [
         {
-          "price": 16.82,
+          "price": 16.65,
           "strength": "弱"
         },
         {
-          "price": 16.58,
+          "price": 16.42,
           "strength": "弱"
         },
         {
-          "price": 16.28,
+          "price": 16.18,
           "strength": "中"
         }
       ],
       "daily_sell": [
+        {
+          "price": 16.72,
+          "strength": "弱"
+        },
         {
           "price": 16.94,
           "strength": "中"
@@ -578,29 +517,172 @@
         {
           "price": 17.22,
           "strength": "中"
-        },
-        {
-          "price": 18.64,
-          "strength": "弱"
         }
       ],
       "intraday_buy": [
         {
-          "price": 16.62,
+          "price": 16.52,
           "type": "日内低点"
         },
         {
-          "price": 16.82,
+          "price": 16.68,
           "type": "分时均价线"
         }
       ],
       "intraday_sell": [
         {
-          "price": 16.99,
+          "price": 17.02,
+          "type": "均价线+2%"
+        }
+      ]
+    },
+    {
+      "code": "600011",
+      "name": "华能国际",
+      "price": 6.78,
+      "daily_buy": [
+        {
+          "price": 6.74,
+          "strength": "中"
+        },
+        {
+          "price": 6.64,
+          "strength": "中"
+        },
+        {
+          "price": 6.54,
+          "strength": "强"
+        }
+      ],
+      "daily_sell": [
+        {
+          "price": 6.79,
+          "strength": "中"
+        },
+        {
+          "price": 6.88,
+          "strength": "中"
+        },
+        {
+          "price": 6.97,
+          "strength": "中"
+        }
+      ],
+      "intraday_buy": [
+        {
+          "price": 6.76,
+          "type": "日内低点"
+        }
+      ],
+      "intraday_sell": [
+        {
+          "price": 6.81,
           "type": "日内高点"
         },
         {
-          "price": 17.16,
+          "price": 6.92,
+          "type": "均价线+2%"
+        }
+      ]
+    },
+    {
+      "code": "600350",
+      "name": "山东高速",
+      "price": 10.13,
+      "daily_buy": [
+        {
+          "price": 10.11,
+          "strength": "强"
+        },
+        {
+          "price": 9.97,
+          "strength": "中"
+        },
+        {
+          "price": 9.81,
+          "strength": "中"
+        }
+      ],
+      "daily_sell": [
+        {
+          "price": 10.15,
+          "strength": "弱"
+        },
+        {
+          "price": 10.32,
+          "strength": "中"
+        },
+        {
+          "price": 10.58,
+          "strength": "中"
+        }
+      ],
+      "intraday_buy": [
+        {
+          "price": 10.11,
+          "type": "日内低点"
+        }
+      ],
+      "intraday_sell": [
+        {
+          "price": 10.26,
+          "type": "日内高点"
+        },
+        {
+          "price": 10.36,
+          "type": "均价线+2%"
+        }
+      ]
+    },
+    {
+      "code": "600584",
+      "name": "长电科技",
+      "price": 71.5,
+      "daily_buy": [
+        {
+          "price": 71.06,
+          "strength": "弱"
+        },
+        {
+          "price": 69.6,
+          "strength": "弱"
+        },
+        {
+          "price": 67.85,
+          "strength": "弱"
+        }
+      ],
+      "daily_sell": [
+        {
+          "price": 72.55,
+          "strength": "弱"
+        },
+        {
+          "price": 76.4,
+          "strength": "弱"
+        },
+        {
+          "price": 77.98,
+          "strength": "中"
+        }
+      ],
+      "intraday_buy": [
+        {
+          "price": 71.11,
+          "type": "日内低点"
+        },
+        {
+          "price": 71.6,
+          "type": "分时均价线"
+        }
+      ],
+      "intraday_sell": [
+        {
+          "price": 72.3,
+          "type": "日内高点"
+        },
+        {
+          "price": 73.03,
           "type": "均价线+2%"
         }
       ]
@@ -608,7 +690,7 @@
     {
       "code": "000725",
       "name": "京东方A",
-      "price": 5.91,
+      "price": 5.8,
       "daily_buy": [
         {
           "price": 5.71,
@@ -639,142 +721,40 @@
       ],
       "intraday_buy": [
         {
-          "price": 5.89,
+          "price": 5.78,
           "type": "日内低点"
+        },
+        {
+          "price": 5.81,
+          "type": "分时均价线"
+        }
+      ],
+      "intraday_sell": [
+        {
+          "price": 5.84,
+          "type": "日内高点"
         },
         {
           "price": 5.92,
-          "type": "分时均价线"
-        }
-      ],
-      "intraday_sell": [
-        {
-          "price": 6.01,
-          "type": "日内高点"
-        }
-      ]
-    },
-    {
-      "code": "000959",
-      "name": "首钢股份",
-      "price": 3.76,
-      "daily_buy": [
-        {
-          "price": 3.68,
-          "strength": "中"
-        },
-        {
-          "price": 3.63,
-          "strength": "中"
-        },
-        {
-          "price": 3.58,
-          "strength": "中"
-        }
-      ],
-      "daily_sell": [
-        {
-          "price": 3.77,
-          "strength": "中"
-        },
-        {
-          "price": 3.83,
-          "strength": "强"
-        },
-        {
-          "price": 3.88,
-          "strength": "中"
-        }
-      ],
-      "intraday_buy": [
-        {
-          "price": 3.73,
-          "type": "日内低点"
-        },
-        {
-          "price": 3.77,
-          "type": "分时均价线"
-        }
-      ],
-      "intraday_sell": [
-        {
-          "price": 3.79,
-          "type": "日内高点"
-        },
-        {
-          "price": 3.84,
           "type": "均价线+2%"
-        }
-      ]
-    },
-    {
-      "code": "600584",
-      "name": "长电科技",
-      "price": 73.29,
-      "daily_buy": [
-        {
-          "price": 72.55,
-          "strength": "弱"
-        },
-        {
-          "price": 71.06,
-          "strength": "弱"
-        },
-        {
-          "price": 69.6,
-          "strength": "弱"
-        }
-      ],
-      "daily_sell": [
-        {
-          "price": 76.4,
-          "strength": "弱"
-        },
-        {
-          "price": 78.34,
-          "strength": "弱"
-        },
-        {
-          "price": 87.5,
-          "strength": "强"
-        }
-      ],
-      "intraday_buy": [
-        {
-          "price": 73.03,
-          "type": "日内低点"
-        },
-        {
-          "price": 73.94,
-          "type": "分时均价线"
-        }
-      ],
-      "intraday_sell": [
-        {
-          "price": 75.42,
-          "type": "均价线+2%"
-        },
-        {
-          "price": 75.81,
-          "type": "日内高点"
         }
       ]
     },
     {
       "code": "002491",
       "name": "通鼎互联",
-      "price": 21.15,
+      "price": 21.79,
       "daily_buy": [
         {
           "price": 20.72,
-          "strength": "中"
-        },
-        {
-          "price": 20.01,
-          "strength": "弱"
+          "strength": "强"
         },
         {
           "price": 18.2,
+          "strength": "弱"
+        },
+        {
+          "price": 17.18,
           "strength": "弱"
         }
       ],
@@ -794,66 +774,70 @@
       ],
       "intraday_buy": [
         {
-          "price": 21.15,
+          "price": 20.74,
           "type": "日内低点"
         },
         {
-          "price": 21.47,
+          "price": 21.39,
           "type": "分时均价线"
         }
       ],
       "intraday_sell": [
         {
-          "price": 21.9,
+          "price": 21.82,
           "type": "均价线+2%"
+        },
+        {
+          "price": 21.94,
+          "type": "日内高点"
         }
       ]
     },
     {
-      "code": "600350",
-      "name": "山东高速",
-      "price": 10.25,
+      "code": "000959",
+      "name": "首钢股份",
+      "price": 3.64,
       "daily_buy": [
         {
-          "price": 10.2,
+          "price": 3.61,
+          "strength": "中"
+        },
+        {
+          "price": 3.55,
           "strength": "强"
         },
         {
-          "price": 10.06,
-          "strength": "强"
-        },
-        {
-          "price": 9.81,
+          "price": 3.5,
           "strength": "中"
         }
       ],
       "daily_sell": [
         {
-          "price": 10.32,
+          "price": 3.65,
           "strength": "中"
         },
         {
-          "price": 10.58,
-          "strength": "中"
+          "price": 3.76,
+          "strength": "强"
         },
         {
-          "price": 10.73,
-          "strength": "中"
+          "price": 3.83,
+          "strength": "强"
         }
       ],
       "intraday_buy": [
         {
-          "price": 10.21,
+          "price": 3.61,
           "type": "日内低点"
         },
         {
-          "price": 10.32,
+          "price": 3.65,
           "type": "分时均价线"
         }
       ],
       "intraday_sell": [
         {
-          "price": 10.49,
+          "price": 3.73,
           "type": "日内高点"
         }
       ]
@@ -861,12 +845,8 @@
     {
       "code": "600721",
       "name": "百花医药",
-      "price": 13.19,
+      "price": 12.34,
       "daily_buy": [
-        {
-          "price": 12.56,
-          "strength": "弱"
-        },
         {
           "price": 12.29,
           "strength": "弱"
@@ -874,9 +854,17 @@
         {
           "price": 11.73,
           "strength": "弱"
+        },
+        {
+          "price": 11.42,
+          "strength": "弱"
         }
       ],
       "daily_sell": [
+        {
+          "price": 12.56,
+          "strength": "弱"
+        },
         {
           "price": 13.66,
           "strength": "弱"
@@ -884,29 +872,25 @@
         {
           "price": 15.09,
           "strength": "弱"
-        },
-        {
-          "price": 16.68,
-          "strength": "强"
         }
       ],
       "intraday_buy": [
         {
-          "price": 12.84,
+          "price": 11.9,
           "type": "日内低点"
         },
         {
-          "price": 13.32,
+          "price": 12.29,
           "type": "分时均价线"
         }
       ],
       "intraday_sell": [
         {
-          "price": 13.58,
+          "price": 12.54,
           "type": "均价线+2%"
         },
         {
-          "price": 13.97,
+          "price": 12.9,
           "type": "日内高点"
         }
       ]

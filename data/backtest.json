@@ -1,63 +1,63 @@
 {
   "forward_days": 10,
-  "total_samples": 1189,
+  "total_samples": 1195,
   "groups": [
     {
       "label": "<45",
-      "count": 539,
-      "avg_return": 0.58,
-      "win_rate": 46.9
+      "count": 541,
+      "avg_return": 1.23,
+      "win_rate": 48.6
     },
     {
       "label": "45-55",
-      "count": 192,
-      "avg_return": 2.47,
-      "win_rate": 52.6
+      "count": 201,
+      "avg_return": 1.99,
+      "win_rate": 53.2
     },
     {
       "label": "55-65",
-      "count": 207,
-      "avg_return": 1.03,
-      "win_rate": 51.2
+      "count": 212,
+      "avg_return": 0.83,
+      "win_rate": 49.5
     },
     {
       "label": "65-75",
-      "count": 149,
-      "avg_return": 0.67,
-      "win_rate": 51.7
+      "count": 143,
+      "avg_return": 0.64,
+      "win_rate": 51.0
     },
     {
       "label": "≥75",
-      "count": 102,
-      "avg_return": 1.02,
-      "win_rate": 48.0
+      "count": 98,
+      "avg_return": 0.52,
+      "win_rate": 44.9
     }
   ],
-  "ic": 0.032,
+  "ic": -0.03,
   "per_stock": [
     {
       "code": "600664",
       "name": "哈药股份",
-      "samples": 68,
-      "avg_fwd_return": 1.73
+      "samples": 69,
+      "avg_fwd_return": 1.82
     },
     {
       "code": "001289",
       "name": "龙源电力",
-      "samples": 68,
-      "avg_fwd_return": -0.44
+      "samples": 69,
+      "avg_fwd_return": -0.47
     },
     {
       "code": "601700",
       "name": "风范股份",
-      "samples": 65,
-      "avg_fwd_return": 1.29
+      "samples": 66,
+      "avg_fwd_return": 1.57
     },
     {
       "code": "002437",
       "name": "誉衡药业",
-      "samples": 66,
-      "avg_fwd_return": 0.86
+      "samples": 67,
+      "avg_fwd_return": 0.91
     },
     {
       "code": "159582",
@@ -68,83 +68,83 @@
     {
       "code": "600667",
       "name": "太极实业",
-      "samples": 66,
-      "avg_fwd_return": 2.16
+      "samples": 67,
+      "avg_fwd_return": 1.8
     },
     {
       "code": "000657",
       "name": "中钨高新",
-      "samples": 68,
-      "avg_fwd_return": 3.59
+      "samples": 65,
+      "avg_fwd_return": 3.57
     },
     {
       "code": "001258",
       "name": "立新能源",
       "samples": 66,
-      "avg_fwd_return": 0.91
+      "avg_fwd_return": 1.24
     },
     {
       "code": "688036",
       "name": "传音控股",
-      "samples": 68,
+      "samples": 69,
       "avg_fwd_return": -0.57
     },
     {
       "code": "001965",
       "name": "招商公路",
-      "samples": 68,
-      "avg_fwd_return": 0.09
+      "samples": 69,
+      "avg_fwd_return": 0.18
     },
     {
       "code": "600012",
       "name": "皖通高速",
       "samples": 69,
-      "avg_fwd_return": 0.99
+      "avg_fwd_return": 0.94
     },
     {
       "code": "600011",
       "name": "华能国际",
-      "samples": 68,
-      "avg_fwd_return": -0.1
+      "samples": 69,
+      "avg_fwd_return": -0.09
     },
     {
       "code": "600350",
       "name": "山东高速",
-      "samples": 69,
-      "avg_fwd_return": 0.87
+      "samples": 68,
+      "avg_fwd_return": 1.06
     },
     {
       "code": "000959",
       "name": "首钢股份",
       "samples": 69,
-      "avg_fwd_return": 0.03
+      "avg_fwd_return": -0.04
     },
     {
       "code": "600584",
       "name": "长电科技",
-      "samples": 66,
-      "avg_fwd_return": 1.9
+      "samples": 67,
+      "avg_fwd_return": 2.07
     },
     {
       "code": "000725",
       "name": "京东方A",
       "samples": 69,
-      "avg_fwd_return": 0.58
+      "avg_fwd_return": 0.6
     },
     {
       "code": "002491",
       "name": "通鼎互联",
       "samples": 63,
-      "avg_fwd_return": 1.4
+      "avg_fwd_return": 3.75
     },
     {
       "code": "600721",
       "name": "百花医药",
-      "samples": 64,
-      "avg_fwd_return": 0.24
+      "samples": 65,
+      "avg_fwd_return": 0.07
     }
   ],
-  "conclusion": "各组收益差异不大（0.58% ~ 1.02%），评分区分度低；线性 IC=0.032",
-  "updated_at": "2026-09-01 18:46:01",
+  "conclusion": "强势股（1.23%）跑赢超跌股（0.52%），动量有效；线性 IC=-0.030",
+  "updated_at": "2026-09-02 13:19:29",
   "methodology": "非重叠抽样(每10日1样本) · 双边成本0.25% · 剔除一字涨停买入/一字跌停卖出"
 }
