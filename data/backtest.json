@@ -1,63 +1,63 @@
 {
   "forward_days": 10,
-  "total_samples": 1199,
+  "total_samples": 1184,
   "groups": [
     {
       "label": "<45",
-      "count": 543,
-      "avg_return": 1.28,
-      "win_rate": 46.8
+      "count": 531,
+      "avg_return": 1.19,
+      "win_rate": 49.5
     },
     {
       "label": "45-55",
-      "count": 205,
-      "avg_return": 0.3,
-      "win_rate": 40.0
+      "count": 194,
+      "avg_return": 1.22,
+      "win_rate": 48.5
     },
     {
       "label": "55-65",
-      "count": 193,
-      "avg_return": 1.5,
-      "win_rate": 49.2
+      "count": 196,
+      "avg_return": 0.39,
+      "win_rate": 44.9
     },
     {
       "label": "65-75",
-      "count": 165,
-      "avg_return": 0.86,
-      "win_rate": 47.9
+      "count": 145,
+      "avg_return": 1.78,
+      "win_rate": 54.5
     },
     {
       "label": "≥75",
-      "count": 93,
-      "avg_return": 0.55,
-      "win_rate": 41.9
+      "count": 118,
+      "avg_return": 1.36,
+      "win_rate": 47.5
     }
   ],
-  "ic": 0.013,
+  "ic": 0.003,
   "per_stock": [
     {
       "code": "600664",
       "name": "哈药股份",
-      "samples": 68,
-      "avg_fwd_return": 1.44
+      "samples": 65,
+      "avg_fwd_return": 1.41
     },
     {
       "code": "001289",
       "name": "龙源电力",
-      "samples": 69,
-      "avg_fwd_return": -0.43
+      "samples": 68,
+      "avg_fwd_return": -0.42
     },
     {
       "code": "601700",
       "name": "风范股份",
-      "samples": 67,
-      "avg_fwd_return": 0.48
+      "samples": 66,
+      "avg_fwd_return": 0.79
     },
     {
       "code": "002437",
       "name": "誉衡药业",
-      "samples": 68,
-      "avg_fwd_return": 0.47
+      "samples": 66,
+      "avg_fwd_return": 0.39
     },
     {
       "code": "159582",
@@ -68,83 +68,83 @@
     {
       "code": "600667",
       "name": "太极实业",
-      "samples": 65,
-      "avg_fwd_return": 2.79
+      "samples": 61,
+      "avg_fwd_return": 3.09
     },
     {
       "code": "000657",
       "name": "中钨高新",
       "samples": 67,
-      "avg_fwd_return": 2.85
+      "avg_fwd_return": 3.43
     },
     {
       "code": "001258",
       "name": "立新能源",
-      "samples": 65,
-      "avg_fwd_return": 0.38
+      "samples": 67,
+      "avg_fwd_return": 0.09
     },
     {
       "code": "688036",
       "name": "传音控股",
       "samples": 69,
-      "avg_fwd_return": -0.11
+      "avg_fwd_return": -0.33
     },
     {
       "code": "001965",
       "name": "招商公路",
       "samples": 69,
-      "avg_fwd_return": 0.11
+      "avg_fwd_return": 0.13
     },
     {
       "code": "600012",
       "name": "皖通高速",
       "samples": 69,
-      "avg_fwd_return": 0.83
+      "avg_fwd_return": 0.8
     },
     {
       "code": "600011",
       "name": "华能国际",
       "samples": 69,
-      "avg_fwd_return": -0.02
+      "avg_fwd_return": -0.05
     },
     {
       "code": "600350",
       "name": "山东高速",
       "samples": 69,
-      "avg_fwd_return": 0.77
+      "avg_fwd_return": 0.78
     },
     {
       "code": "000959",
       "name": "首钢股份",
       "samples": 68,
-      "avg_fwd_return": -0.07
+      "avg_fwd_return": 0.23
     },
     {
       "code": "600584",
       "name": "长电科技",
-      "samples": 68,
-      "avg_fwd_return": 1.51
+      "samples": 65,
+      "avg_fwd_return": 2.12
     },
     {
       "code": "000725",
       "name": "京东方A",
-      "samples": 69,
-      "avg_fwd_return": 0.8
+      "samples": 67,
+      "avg_fwd_return": 0.48
     },
     {
       "code": "002491",
       "name": "通鼎互联",
-      "samples": 64,
-      "avg_fwd_return": 2.89
+      "samples": 65,
+      "avg_fwd_return": 3.72
     },
     {
       "code": "600721",
       "name": "百花医药",
-      "samples": 65,
-      "avg_fwd_return": 1.43
+      "samples": 63,
+      "avg_fwd_return": 1.8
     }
   ],
-  "conclusion": "强势股（1.28%）跑赢超跌股（0.55%），动量有效；线性 IC=0.013",
-  "updated_at": "2026-09-23 18:11:52",
+  "conclusion": "U型关系：超跌股（1.36%）和强势股（1.19%）都跑赢中间档（0.39%）；其中「超跌」信号最强、胜率最高；线性 IC=0.003",
+  "updated_at": "2026-09-24 13:42:42",
   "methodology": "非重叠抽样(每10日1样本) · 双边成本0.25% · 剔除一字涨停买入/一字跌停卖出"
 }
