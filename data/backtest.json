@@ -1,39 +1,39 @@
 {
   "forward_days": 10,
-  "total_samples": 1197,
+  "total_samples": 1183,
   "groups": [
     {
       "label": "<45",
-      "count": 538,
-      "avg_return": 0.88,
-      "win_rate": 49.6
+      "count": 529,
+      "avg_return": 1.12,
+      "win_rate": 49.3
     },
     {
       "label": "45-55",
-      "count": 190,
-      "avg_return": 1.68,
-      "win_rate": 46.8
+      "count": 186,
+      "avg_return": 0.43,
+      "win_rate": 45.7
     },
     {
       "label": "55-65",
-      "count": 196,
-      "avg_return": 0.71,
-      "win_rate": 49.0
+      "count": 193,
+      "avg_return": 0.97,
+      "win_rate": 49.7
     },
     {
       "label": "65-75",
-      "count": 154,
-      "avg_return": -0.07,
-      "win_rate": 48.1
+      "count": 167,
+      "avg_return": 1.17,
+      "win_rate": 53.3
     },
     {
       "label": "≥75",
-      "count": 119,
-      "avg_return": 1.51,
-      "win_rate": 47.1
+      "count": 108,
+      "avg_return": 1.89,
+      "win_rate": 50.0
     }
   ],
-  "ic": -0.018,
+  "ic": 0.003,
   "per_stock": [
     {
       "code": "600664",
@@ -44,20 +44,20 @@
     {
       "code": "001289",
       "name": "龙源电力",
-      "samples": 69,
+      "samples": 68,
       "avg_fwd_return": -0.43
     },
     {
       "code": "601700",
       "name": "风范股份",
-      "samples": 67,
-      "avg_fwd_return": 0.64
+      "samples": 65,
+      "avg_fwd_return": 0.02
     },
     {
       "code": "002437",
       "name": "誉衡药业",
       "samples": 66,
-      "avg_fwd_return": 1.31
+      "avg_fwd_return": 1.17
     },
     {
       "code": "159582",
@@ -68,68 +68,68 @@
     {
       "code": "600667",
       "name": "太极实业",
-      "samples": 64,
-      "avg_fwd_return": 0.93
+      "samples": 66,
+      "avg_fwd_return": 3.03
     },
     {
       "code": "000657",
       "name": "中钨高新",
-      "samples": 68,
-      "avg_fwd_return": 3.57
+      "samples": 64,
+      "avg_fwd_return": 4.38
     },
     {
       "code": "001258",
       "name": "立新能源",
-      "samples": 68,
-      "avg_fwd_return": -0.08
+      "samples": 64,
+      "avg_fwd_return": 0.39
     },
     {
       "code": "688036",
       "name": "传音控股",
-      "samples": 69,
-      "avg_fwd_return": -0.32
+      "samples": 68,
+      "avg_fwd_return": -0.47
     },
     {
       "code": "001965",
       "name": "招商公路",
-      "samples": 69,
-      "avg_fwd_return": 0.07
+      "samples": 68,
+      "avg_fwd_return": 0.11
     },
     {
       "code": "600012",
       "name": "皖通高速",
-      "samples": 69,
-      "avg_fwd_return": 0.78
+      "samples": 68,
+      "avg_fwd_return": 0.87
     },
     {
       "code": "600011",
       "name": "华能国际",
-      "samples": 69,
-      "avg_fwd_return": -0.03
+      "samples": 68,
+      "avg_fwd_return": -0.01
     },
     {
       "code": "600350",
       "name": "山东高速",
       "samples": 69,
-      "avg_fwd_return": 0.74
+      "avg_fwd_return": 0.75
     },
     {
       "code": "000959",
       "name": "首钢股份",
-      "samples": 69,
-      "avg_fwd_return": -0.06
+      "samples": 68,
+      "avg_fwd_return": 0.04
     },
     {
       "code": "600584",
       "name": "长电科技",
       "samples": 69,
-      "avg_fwd_return": 1.36
+      "avg_fwd_return": 1.35
     },
     {
       "code": "000725",
       "name": "京东方A",
       "samples": 67,
-      "avg_fwd_return": 0.14
+      "avg_fwd_return": 0.13
     },
     {
       "code": "002491",
@@ -141,10 +141,10 @@
       "code": "600721",
       "name": "百花医药",
       "samples": 64,
-      "avg_fwd_return": 1.25
+      "avg_fwd_return": 1.2
     }
   ],
-  "conclusion": "超跌股（1.51%）跑赢强势股（0.88%），均值回归有效；线性 IC=-0.018",
-  "updated_at": "2026-09-28 14:10:23",
+  "conclusion": "超跌股（1.89%）跑赢强势股（1.12%），均值回归有效；线性 IC=0.003",
+  "updated_at": "2026-09-28 21:49:28",
   "methodology": "非重叠抽样(每10日1样本) · 双边成本0.25% · 剔除一字涨停买入/一字跌停卖出"
 }
