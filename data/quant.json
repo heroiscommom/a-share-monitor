@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-06 15:02:18",
+  "updated_at": "2026-10-06 22:07:14",
   "market_regime": {
     "regime": "下跌",
     "mom20": -5.5,
@@ -7,6 +7,59 @@
     "desc": "沪深300 20日涨跌 -5.5%，波动 0.8% → 下跌市"
   },
   "stocks": [
+    {
+      "code": "600667",
+      "name": "太极实业",
+      "score": 66.7,
+      "signal": "偏多",
+      "signal_key": "bullish",
+      "momentum_score": 23.2,
+      "momentum_signal": "偏弱",
+      "factors": {
+        "rsi": 60,
+        "drawdown": 67,
+        "deviation": 95,
+        "position": 75,
+        "volume": 47,
+        "volatility": 0
+      },
+      "indicators": {
+        "rsi": 45.6,
+        "mom20": -6.64,
+        "deviation": -8.94,
+        "pos60": 25.5,
+        "vol_ratio": 0.73,
+        "volatility": 4.27
+      },
+      "momentum_indicators": {
+        "mom20": -6.64,
+        "mom60": -34.31,
+        "rsi": 45.6,
+        "pos60": 25.5,
+        "vol_ratio": 0.73,
+        "volatility": 4.27
+      },
+      "ma_score": 14.2,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 71,
+        "hold": 0
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 39.5,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 43,
+        "pullback": 54,
+        "support": 79
+      },
+      "shrink_signal": "无",
+      "resonance": {
+        "count": 0,
+        "list": []
+      }
+    },
     {
       "code": "600664",
       "name": "哈药股份",
@@ -63,51 +116,51 @@
       }
     },
     {
-      "code": "600667",
-      "name": "太极实业",
-      "score": 66.7,
+      "code": "159582",
+      "name": "半导体ETF博时",
+      "score": 66.2,
       "signal": "偏多",
       "signal_key": "bullish",
-      "momentum_score": 23.2,
+      "momentum_score": 20.1,
       "momentum_signal": "偏弱",
       "factors": {
         "rsi": 60,
-        "drawdown": 67,
-        "deviation": 95,
-        "position": 75,
-        "volume": 47,
-        "volatility": 0
+        "drawdown": 68,
+        "deviation": 74,
+        "position": 94,
+        "volume": 40,
+        "volatility": 27
       },
       "indicators": {
-        "rsi": 45.6,
-        "mom20": -6.64,
-        "deviation": -8.94,
-        "pos60": 25.5,
-        "vol_ratio": 0.73,
-        "volatility": 4.27
+        "rsi": 45.0,
+        "mom20": -7.32,
+        "deviation": -4.75,
+        "pos60": 6.4,
+        "vol_ratio": 0.8,
+        "volatility": 2.32
       },
       "momentum_indicators": {
-        "mom20": -6.64,
-        "mom60": -34.31,
-        "rsi": 45.6,
-        "pos60": 25.5,
-        "vol_ratio": 0.73,
-        "volatility": 4.27
+        "mom20": -7.32,
+        "mom60": -25.4,
+        "rsi": 45.0,
+        "pos60": 6.4,
+        "vol_ratio": 0.8,
+        "volatility": 2.32
       },
-      "ma_score": 14.2,
+      "ma_score": 15.0,
       "ma_factors": {
         "cross": 0,
         "slope": 0,
-        "vol": 71,
+        "vol": 75,
         "hold": 0
       },
       "ma_signal": "未金叉",
-      "shrink_score": 39.5,
+      "shrink_score": 42.9,
       "shrink_factors": {
         "trend": 0,
-        "shrink": 43,
-        "pullback": 54,
-        "support": 79
+        "shrink": 37,
+        "pullback": 76,
+        "support": 83
       },
       "shrink_signal": "无",
       "resonance": {
@@ -161,6 +214,61 @@
         "shrink": 67,
         "pullback": 94,
         "support": 99
+      },
+      "shrink_signal": "接近",
+      "resonance": {
+        "count": 1,
+        "list": [
+          "缩量"
+        ]
+      }
+    },
+    {
+      "code": "002437",
+      "name": "誉衡药业",
+      "score": 63.0,
+      "signal": "偏多",
+      "signal_key": "bullish",
+      "momentum_score": 45.9,
+      "momentum_signal": "中性",
+      "factors": {
+        "rsi": 60,
+        "drawdown": 90,
+        "deviation": 55,
+        "position": 61,
+        "volume": 54,
+        "volatility": 0
+      },
+      "indicators": {
+        "rsi": 48.2,
+        "mom20": -16.09,
+        "deviation": -1.08,
+        "pos60": 39.1,
+        "vol_ratio": 0.66,
+        "volatility": 4.09
+      },
+      "momentum_indicators": {
+        "mom20": -16.09,
+        "mom60": 21.67,
+        "rsi": 48.2,
+        "pos60": 39.1,
+        "vol_ratio": 0.66,
+        "volatility": 4.09
+      },
+      "ma_score": 11.6,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 49,
+        "hold": 9
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 59.6,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 76,
+        "pullback": 95,
+        "support": 89
       },
       "shrink_signal": "接近",
       "resonance": {
@@ -227,114 +335,6 @@
       }
     },
     {
-      "code": "159582",
-      "name": "半导体ETF博时",
-      "score": 66.2,
-      "signal": "偏多",
-      "signal_key": "bullish",
-      "momentum_score": 20.1,
-      "momentum_signal": "偏弱",
-      "factors": {
-        "rsi": 60,
-        "drawdown": 68,
-        "deviation": 74,
-        "position": 94,
-        "volume": 40,
-        "volatility": 27
-      },
-      "indicators": {
-        "rsi": 45.0,
-        "mom20": -7.32,
-        "deviation": -4.75,
-        "pos60": 6.4,
-        "vol_ratio": 0.8,
-        "volatility": 2.32
-      },
-      "momentum_indicators": {
-        "mom20": -7.32,
-        "mom60": -25.4,
-        "rsi": 45.0,
-        "pos60": 6.4,
-        "vol_ratio": 0.8,
-        "volatility": 2.32
-      },
-      "ma_score": 15.0,
-      "ma_factors": {
-        "cross": 0,
-        "slope": 0,
-        "vol": 75,
-        "hold": 0
-      },
-      "ma_signal": "未金叉",
-      "shrink_score": 42.9,
-      "shrink_factors": {
-        "trend": 0,
-        "shrink": 37,
-        "pullback": 76,
-        "support": 83
-      },
-      "shrink_signal": "无",
-      "resonance": {
-        "count": 0,
-        "list": []
-      }
-    },
-    {
-      "code": "002437",
-      "name": "誉衡药业",
-      "score": 63.0,
-      "signal": "偏多",
-      "signal_key": "bullish",
-      "momentum_score": 45.9,
-      "momentum_signal": "中性",
-      "factors": {
-        "rsi": 60,
-        "drawdown": 90,
-        "deviation": 55,
-        "position": 61,
-        "volume": 54,
-        "volatility": 0
-      },
-      "indicators": {
-        "rsi": 48.2,
-        "mom20": -16.09,
-        "deviation": -1.08,
-        "pos60": 39.1,
-        "vol_ratio": 0.66,
-        "volatility": 4.09
-      },
-      "momentum_indicators": {
-        "mom20": -16.09,
-        "mom60": 21.67,
-        "rsi": 48.2,
-        "pos60": 39.1,
-        "vol_ratio": 0.66,
-        "volatility": 4.09
-      },
-      "ma_score": 11.6,
-      "ma_factors": {
-        "cross": 0,
-        "slope": 0,
-        "vol": 49,
-        "hold": 9
-      },
-      "ma_signal": "未金叉",
-      "shrink_score": 59.6,
-      "shrink_factors": {
-        "trend": 0,
-        "shrink": 76,
-        "pullback": 95,
-        "support": 89
-      },
-      "shrink_signal": "接近",
-      "resonance": {
-        "count": 1,
-        "list": [
-          "缩量"
-        ]
-      }
-    },
-    {
       "code": "000657",
       "name": "中钨高新",
       "score": 82.7,
@@ -390,58 +390,56 @@
       }
     },
     {
-      "code": "600012",
-      "name": "皖通高速",
-      "score": 67.4,
-      "signal": "偏多",
-      "signal_key": "bullish",
-      "momentum_score": 14.1,
+      "code": "688036",
+      "name": "传音控股",
+      "score": 57.6,
+      "signal": "中性",
+      "signal_key": "neutral",
+      "momentum_score": 24.9,
       "momentum_signal": "偏弱",
       "factors": {
-        "rsi": 60,
-        "drawdown": 70,
-        "deviation": 62,
-        "position": 90,
-        "volume": 60,
-        "volatility": 60
+        "rsi": 45,
+        "drawdown": 69,
+        "deviation": 52,
+        "position": 86,
+        "volume": 37,
+        "volatility": 43
       },
       "indicators": {
-        "rsi": 43.0,
-        "mom20": -7.87,
-        "deviation": -2.43,
-        "pos60": 10.2,
-        "vol_ratio": 0.6,
-        "volatility": 1.49
+        "rsi": 54.2,
+        "mom20": -7.54,
+        "deviation": -0.43,
+        "pos60": 13.9,
+        "vol_ratio": 0.83,
+        "volatility": 1.93
       },
       "momentum_indicators": {
-        "mom20": -7.87,
-        "mom60": -4.18,
-        "rsi": 43.0,
-        "pos60": 10.2,
-        "vol_ratio": 0.6,
-        "volatility": 1.49
+        "mom20": -7.54,
+        "mom60": -14.58,
+        "rsi": 54.2,
+        "pos60": 13.9,
+        "vol_ratio": 0.83,
+        "volatility": 1.93
       },
-      "ma_score": 28.2,
+      "ma_score": 38.3,
       "ma_factors": {
-        "cross": 0,
+        "cross": 26,
         "slope": 0,
-        "vol": 56,
-        "hold": 85
+        "vol": 74,
+        "hold": 72
       },
       "ma_signal": "未金叉",
-      "shrink_score": 56.4,
+      "shrink_score": 46.1,
       "shrink_factors": {
         "trend": 0,
-        "shrink": 66,
-        "pullback": 88,
-        "support": 95
+        "shrink": 39,
+        "pullback": 98,
+        "support": 74
       },
-      "shrink_signal": "接近",
+      "shrink_signal": "无",
       "resonance": {
-        "count": 1,
-        "list": [
-          "缩量"
-        ]
+        "count": 0,
+        "list": []
       }
     },
     {
@@ -557,59 +555,6 @@
       }
     },
     {
-      "code": "688036",
-      "name": "传音控股",
-      "score": 57.6,
-      "signal": "中性",
-      "signal_key": "neutral",
-      "momentum_score": 24.9,
-      "momentum_signal": "偏弱",
-      "factors": {
-        "rsi": 45,
-        "drawdown": 69,
-        "deviation": 52,
-        "position": 86,
-        "volume": 37,
-        "volatility": 43
-      },
-      "indicators": {
-        "rsi": 54.2,
-        "mom20": -7.54,
-        "deviation": -0.43,
-        "pos60": 13.9,
-        "vol_ratio": 0.83,
-        "volatility": 1.93
-      },
-      "momentum_indicators": {
-        "mom20": -7.54,
-        "mom60": -14.58,
-        "rsi": 54.2,
-        "pos60": 13.9,
-        "vol_ratio": 0.83,
-        "volatility": 1.93
-      },
-      "ma_score": 38.3,
-      "ma_factors": {
-        "cross": 26,
-        "slope": 0,
-        "vol": 74,
-        "hold": 72
-      },
-      "ma_signal": "未金叉",
-      "shrink_score": 46.1,
-      "shrink_factors": {
-        "trend": 0,
-        "shrink": 39,
-        "pullback": 98,
-        "support": 74
-      },
-      "shrink_signal": "无",
-      "resonance": {
-        "count": 0,
-        "list": []
-      }
-    },
-    {
       "code": "600011",
       "name": "华能国际",
       "score": 41.6,
@@ -716,6 +661,114 @@
       }
     },
     {
+      "code": "600012",
+      "name": "皖通高速",
+      "score": 67.4,
+      "signal": "偏多",
+      "signal_key": "bullish",
+      "momentum_score": 14.1,
+      "momentum_signal": "偏弱",
+      "factors": {
+        "rsi": 60,
+        "drawdown": 70,
+        "deviation": 62,
+        "position": 90,
+        "volume": 60,
+        "volatility": 60
+      },
+      "indicators": {
+        "rsi": 43.0,
+        "mom20": -7.87,
+        "deviation": -2.43,
+        "pos60": 10.2,
+        "vol_ratio": 0.6,
+        "volatility": 1.49
+      },
+      "momentum_indicators": {
+        "mom20": -7.87,
+        "mom60": -4.18,
+        "rsi": 43.0,
+        "pos60": 10.2,
+        "vol_ratio": 0.6,
+        "volatility": 1.49
+      },
+      "ma_score": 28.2,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 56,
+        "hold": 85
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 56.4,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 66,
+        "pullback": 88,
+        "support": 95
+      },
+      "shrink_signal": "接近",
+      "resonance": {
+        "count": 1,
+        "list": [
+          "缩量"
+        ]
+      }
+    },
+    {
+      "code": "000959",
+      "name": "首钢股份",
+      "score": 62.7,
+      "signal": "偏多",
+      "signal_key": "bullish",
+      "momentum_score": 18.1,
+      "momentum_signal": "偏弱",
+      "factors": {
+        "rsi": 75,
+        "drawdown": 67,
+        "deviation": 58,
+        "position": 69,
+        "volume": 27,
+        "volatility": 51
+      },
+      "indicators": {
+        "rsi": 30.2,
+        "mom20": -6.65,
+        "deviation": -1.63,
+        "pos60": 30.8,
+        "vol_ratio": 0.93,
+        "volatility": 1.72
+      },
+      "momentum_indicators": {
+        "mom20": -6.65,
+        "mom60": 1.74,
+        "rsi": 30.2,
+        "pos60": 30.8,
+        "vol_ratio": 0.93,
+        "volatility": 1.72
+      },
+      "ma_score": 24.2,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 0,
+        "vol": 77,
+        "hold": 44
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 47.7,
+      "shrink_factors": {
+        "trend": 0,
+        "shrink": 35,
+        "pullback": 92,
+        "support": 94
+      },
+      "shrink_signal": "无",
+      "resonance": {
+        "count": 0,
+        "list": []
+      }
+    },
+    {
       "code": "600584",
       "name": "长电科技",
       "score": 70.7,
@@ -767,6 +820,61 @@
         "count": 1,
         "list": [
           "超跌"
+        ]
+      }
+    },
+    {
+      "code": "002491",
+      "name": "通鼎互联",
+      "score": 61.2,
+      "signal": "中性",
+      "signal_key": "neutral",
+      "momentum_score": 26.6,
+      "momentum_signal": "偏弱",
+      "factors": {
+        "rsi": 60,
+        "drawdown": 63,
+        "deviation": 98,
+        "position": 45,
+        "volume": 41,
+        "volatility": 0
+      },
+      "indicators": {
+        "rsi": 41.8,
+        "mom20": -5.25,
+        "deviation": -9.53,
+        "pos60": 55.2,
+        "vol_ratio": 0.79,
+        "volatility": 4.74
+      },
+      "momentum_indicators": {
+        "mom20": -5.25,
+        "mom60": -13.47,
+        "rsi": 41.8,
+        "pos60": 55.2,
+        "vol_ratio": 0.79,
+        "volatility": 4.74
+      },
+      "ma_score": 38.8,
+      "ma_factors": {
+        "cross": 0,
+        "slope": 100,
+        "vol": 69,
+        "hold": 0
+      },
+      "ma_signal": "未金叉",
+      "shrink_score": 67.5,
+      "shrink_factors": {
+        "trend": 100,
+        "shrink": 47,
+        "pullback": 51,
+        "support": 66
+      },
+      "shrink_signal": "接近",
+      "resonance": {
+        "count": 1,
+        "list": [
+          "缩量"
         ]
       }
     },
@@ -826,59 +934,6 @@
       }
     },
     {
-      "code": "000959",
-      "name": "首钢股份",
-      "score": 62.7,
-      "signal": "偏多",
-      "signal_key": "bullish",
-      "momentum_score": 18.1,
-      "momentum_signal": "偏弱",
-      "factors": {
-        "rsi": 75,
-        "drawdown": 67,
-        "deviation": 58,
-        "position": 69,
-        "volume": 27,
-        "volatility": 51
-      },
-      "indicators": {
-        "rsi": 30.2,
-        "mom20": -6.65,
-        "deviation": -1.63,
-        "pos60": 30.8,
-        "vol_ratio": 0.93,
-        "volatility": 1.72
-      },
-      "momentum_indicators": {
-        "mom20": -6.65,
-        "mom60": 1.74,
-        "rsi": 30.2,
-        "pos60": 30.8,
-        "vol_ratio": 0.93,
-        "volatility": 1.72
-      },
-      "ma_score": 24.2,
-      "ma_factors": {
-        "cross": 0,
-        "slope": 0,
-        "vol": 77,
-        "hold": 44
-      },
-      "ma_signal": "未金叉",
-      "shrink_score": 47.7,
-      "shrink_factors": {
-        "trend": 0,
-        "shrink": 35,
-        "pullback": 92,
-        "support": 94
-      },
-      "shrink_signal": "无",
-      "resonance": {
-        "count": 0,
-        "list": []
-      }
-    },
-    {
       "code": "600721",
       "name": "百花医药",
       "score": 31.7,
@@ -931,61 +986,6 @@
         "list": [
           "动量",
           "金叉"
-        ]
-      }
-    },
-    {
-      "code": "002491",
-      "name": "通鼎互联",
-      "score": 61.2,
-      "signal": "中性",
-      "signal_key": "neutral",
-      "momentum_score": 26.6,
-      "momentum_signal": "偏弱",
-      "factors": {
-        "rsi": 60,
-        "drawdown": 63,
-        "deviation": 98,
-        "position": 45,
-        "volume": 41,
-        "volatility": 0
-      },
-      "indicators": {
-        "rsi": 41.8,
-        "mom20": -5.25,
-        "deviation": -9.53,
-        "pos60": 55.2,
-        "vol_ratio": 0.79,
-        "volatility": 4.74
-      },
-      "momentum_indicators": {
-        "mom20": -5.25,
-        "mom60": -13.47,
-        "rsi": 41.8,
-        "pos60": 55.2,
-        "vol_ratio": 0.79,
-        "volatility": 4.74
-      },
-      "ma_score": 38.8,
-      "ma_factors": {
-        "cross": 0,
-        "slope": 100,
-        "vol": 69,
-        "hold": 0
-      },
-      "ma_signal": "未金叉",
-      "shrink_score": 67.5,
-      "shrink_factors": {
-        "trend": 100,
-        "shrink": 47,
-        "pullback": 51,
-        "support": 66
-      },
-      "shrink_signal": "接近",
-      "resonance": {
-        "count": 1,
-        "list": [
-          "缩量"
         ]
       }
     }
