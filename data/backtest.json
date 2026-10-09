@@ -1,45 +1,45 @@
 {
   "forward_days": 10,
-  "total_samples": 1193,
+  "total_samples": 1204,
   "groups": [
     {
       "label": "<45",
-      "count": 531,
-      "avg_return": 0.91,
+      "count": 525,
+      "avg_return": 0.92,
       "win_rate": 51.6
     },
     {
       "label": "45-55",
-      "count": 209,
-      "avg_return": 1.76,
-      "win_rate": 49.3
+      "count": 230,
+      "avg_return": 0.89,
+      "win_rate": 48.3
     },
     {
       "label": "55-65",
-      "count": 215,
-      "avg_return": 1.24,
-      "win_rate": 51.2
+      "count": 202,
+      "avg_return": 1.39,
+      "win_rate": 52.0
     },
     {
       "label": "65-75",
-      "count": 140,
-      "avg_return": -0.23,
-      "win_rate": 42.9
+      "count": 150,
+      "avg_return": -0.02,
+      "win_rate": 48.7
     },
     {
       "label": "≥75",
-      "count": 98,
-      "avg_return": 1.27,
-      "win_rate": 46.9
+      "count": 97,
+      "avg_return": 1.86,
+      "win_rate": 48.5
     }
   ],
-  "ic": 0.001,
+  "ic": 0.006,
   "per_stock": [
     {
       "code": "600664",
       "name": "哈药股份",
       "samples": 69,
-      "avg_fwd_return": 1.47
+      "avg_fwd_return": 1.52
     },
     {
       "code": "001289",
@@ -50,101 +50,101 @@
     {
       "code": "601700",
       "name": "风范股份",
-      "samples": 65,
-      "avg_fwd_return": -0.3
+      "samples": 66,
+      "avg_fwd_return": -0.29
     },
     {
       "code": "002437",
       "name": "誉衡药业",
-      "samples": 66,
-      "avg_fwd_return": 0.92
+      "samples": 67,
+      "avg_fwd_return": 1.01
     },
     {
       "code": "159582",
       "name": "半导体ETF博时",
-      "samples": 51,
-      "avg_fwd_return": 3.28
+      "samples": 52,
+      "avg_fwd_return": 3.01
     },
     {
       "code": "600667",
       "name": "太极实业",
-      "samples": 66,
-      "avg_fwd_return": 2.61
+      "samples": 67,
+      "avg_fwd_return": 2.26
     },
     {
       "code": "000657",
       "name": "中钨高新",
-      "samples": 66,
-      "avg_fwd_return": 3.45
+      "samples": 67,
+      "avg_fwd_return": 3.16
     },
     {
       "code": "001258",
       "name": "立新能源",
-      "samples": 65,
-      "avg_fwd_return": 0.84
+      "samples": 66,
+      "avg_fwd_return": 0.7
     },
     {
       "code": "688036",
       "name": "传音控股",
-      "samples": 68,
-      "avg_fwd_return": -0.43
+      "samples": 69,
+      "avg_fwd_return": -0.52
     },
     {
       "code": "001965",
       "name": "招商公路",
       "samples": 69,
-      "avg_fwd_return": 0.14
+      "avg_fwd_return": 0.11
     },
     {
       "code": "600012",
       "name": "皖通高速",
       "samples": 69,
-      "avg_fwd_return": 0.79
+      "avg_fwd_return": 0.82
     },
     {
       "code": "600011",
       "name": "华能国际",
       "samples": 69,
-      "avg_fwd_return": 0.04
+      "avg_fwd_return": 0.08
     },
     {
       "code": "600350",
       "name": "山东高速",
-      "samples": 67,
-      "avg_fwd_return": 0.58
+      "samples": 68,
+      "avg_fwd_return": 0.64
     },
     {
       "code": "000959",
       "name": "首钢股份",
       "samples": 69,
-      "avg_fwd_return": -0.05
+      "avg_fwd_return": -0.07
     },
     {
       "code": "600584",
       "name": "长电科技",
-      "samples": 67,
-      "avg_fwd_return": 1.69
+      "samples": 66,
+      "avg_fwd_return": 1.82
     },
     {
       "code": "000725",
       "name": "京东方A",
-      "samples": 68,
-      "avg_fwd_return": 0.63
+      "samples": 69,
+      "avg_fwd_return": 0.55
     },
     {
       "code": "002491",
       "name": "通鼎互联",
-      "samples": 65,
-      "avg_fwd_return": 3.37
+      "samples": 66,
+      "avg_fwd_return": 3.01
     },
     {
       "code": "600721",
       "name": "百花医药",
-      "samples": 65,
-      "avg_fwd_return": 0.43
+      "samples": 67,
+      "avg_fwd_return": 0.38
     }
   ],
-  "conclusion": "各组收益差异不大（0.91% ~ 1.27%），评分区分度低；线性 IC=0.001",
-  "updated_at": "2026-10-08 22:06:10",
+  "conclusion": "超跌股（1.86%）跑赢强势股（0.92%），均值回归有效；线性 IC=0.006",
+  "updated_at": "2026-10-09 15:02:37",
   "methodology": "非重叠抽样(每10日1样本) · 双边成本0.25% · 剔除一字涨停买入/一字跌停卖出"
 }
