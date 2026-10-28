@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-10-28 14:28:13",
+  "updated_at": "2026-10-28 21:21:22",
   "stocks": [
     {
       "code": "159582",
       "name": "半导体ETF博时",
-      "price": 0.553,
+      "price": 0.555,
       "supports": [
         {
           "price": 0.54,
@@ -13,7 +13,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -1.82,
+          "distance_pct": -3.57,
           "held_rate": 50.0,
           "touch": 8,
           "confidence": "中"
@@ -26,7 +26,7 @@
             "60日低点"
           ],
           "volume": 0,
-          "distance_pct": -3.64,
+          "distance_pct": -5.36,
           "held_rate": 42.9,
           "touch": 7,
           "confidence": "中"
@@ -38,7 +38,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -7.27,
+          "distance_pct": -8.93,
           "held_rate": 69.2,
           "touch": 13,
           "confidence": "高"
@@ -46,51 +46,46 @@
       ],
       "resistances": [
         {
-          "price": 0.56,
-          "strength": "弱",
-          "sources": [
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": 1.82,
-          "held_rate": 0.0,
-          "touch": 1,
-          "confidence": "低"
-        },
-        {
-          "price": 0.57,
-          "strength": "弱",
-          "sources": [
-            "筹码密集"
-          ],
-          "volume": 6575734,
-          "distance_pct": 3.64,
-          "zone": {
-            "low": 0.55,
-            "high": 0.59,
-            "strength": 0.1547
-          },
-          "held_rate": 0.0,
-          "touch": 0,
-          "confidence": "低"
-        },
-        {
           "price": 0.62,
           "strength": "弱",
           "sources": [
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 12.73,
+          "distance_pct": 10.71,
           "held_rate": 66.7,
           "touch": 3,
           "confidence": "低"
+        },
+        {
+          "price": 0.63,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 12.5,
+          "held_rate": 50.0,
+          "touch": 2,
+          "confidence": "低"
+        },
+        {
+          "price": 0.64,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 14.29,
+          "held_rate": 20.0,
+          "touch": 5,
+          "confidence": "中"
         }
       ],
       "risk": {
         "score": 51,
         "level": "观望",
-        "summary": "距支撑1.82%、压力1.82%，攻守均衡"
+        "summary": "距支撑3.57%、压力10.71%，攻守均衡"
       },
       "alerts": [
         {
@@ -98,59 +93,33 @@
           "side": "supports",
           "kind": "支撑",
           "strength": "弱",
-          "distance_pct": 1.82,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 63,
-          "advice": "向支撑0.54靠近（守住率50.0%），准备观察入场时机",
+          "distance_pct": 3.57,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 28,
+          "advice": "距支撑0.54较远（守住率50.0%），等待回调",
           "held_rate": 50.0,
           "confidence": "中"
-        },
-        {
-          "price": 0.56,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 1.82,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 63,
-          "advice": "向压力0.56靠近（守住率0.0%），关注减仓时机",
-          "held_rate": 0.0,
-          "confidence": "低"
         },
         {
           "price": 0.53,
           "side": "supports",
           "kind": "支撑",
           "strength": "中",
-          "distance_pct": 3.64,
+          "distance_pct": 5.36,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
-          "progress": 27,
+          "progress": 0,
           "advice": "距支撑0.53较远（守住率42.9%），等待回调",
           "held_rate": 42.9,
           "confidence": "中"
-        },
-        {
-          "price": 0.57,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 3.64,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 27,
-          "advice": "距压力0.57较远（守住率0.0%），持仓观察",
-          "held_rate": 0.0,
-          "confidence": "低"
         },
         {
           "price": 0.51,
           "side": "supports",
           "kind": "支撑",
           "strength": "弱",
-          "distance_pct": 7.27,
+          "distance_pct": 8.93,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
@@ -163,188 +132,393 @@
           "side": "resistances",
           "kind": "压力",
           "strength": "弱",
-          "distance_pct": 12.73,
+          "distance_pct": 10.71,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
           "advice": "距压力0.62较远（守住率66.7%），持仓观察",
           "held_rate": 66.7,
           "confidence": "低"
+        },
+        {
+          "price": 0.63,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 12.5,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距压力0.63较远（守住率50.0%），持仓观察",
+          "held_rate": 50.0,
+          "confidence": "低"
+        },
+        {
+          "price": 0.64,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 14.29,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距压力0.64较远（守住率20.0%），持仓观察",
+          "held_rate": 20.0,
+          "confidence": "中"
         }
       ]
     },
     {
-      "code": "600667",
-      "name": "太极实业",
-      "price": 13.63,
+      "code": "002437",
+      "name": "誉衡药业",
+      "price": 2.95,
       "supports": [
         {
-          "price": 13.55,
-          "strength": "弱",
-          "sources": [
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -0.59,
-          "held_rate": 40.0,
-          "touch": 5,
-          "confidence": "中"
-        },
-        {
-          "price": 13.25,
-          "strength": "中",
-          "sources": [
-            "20日低点",
-            "60日低点"
-          ],
-          "volume": 0,
-          "distance_pct": -2.79,
-          "held_rate": 20.0,
-          "touch": 5,
-          "confidence": "中"
-        },
-        {
-          "price": 12.59,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -7.63,
-          "held_rate": 71.4,
-          "touch": 7,
-          "confidence": "中"
-        }
-      ],
-      "resistances": [
-        {
-          "price": 13.85,
+          "price": 2.94,
           "strength": "中",
           "sources": [
             "前高",
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 1.61,
-          "held_rate": 33.3,
-          "touch": 6,
-          "confidence": "中"
+          "distance_pct": -0.34,
+          "held_rate": 45.8,
+          "touch": 24,
+          "confidence": "高"
         },
         {
-          "price": 14.3,
+          "price": 2.9,
+          "strength": "强",
+          "sources": [
+            "前高",
+            "前低",
+            "20日低点"
+          ],
+          "volume": 0,
+          "distance_pct": -1.69,
+          "held_rate": 51.6,
+          "touch": 31,
+          "confidence": "高"
+        },
+        {
+          "price": 2.84,
+          "strength": "强",
+          "sources": [
+            "前低",
+            "前高",
+            "60日低点"
+          ],
+          "volume": 0,
+          "distance_pct": -3.73,
+          "held_rate": 61.8,
+          "touch": 34,
+          "confidence": "高"
+        }
+      ],
+      "resistances": [
+        {
+          "price": 2.97,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "筹码密集"
+          ],
+          "volume": 17638566,
+          "distance_pct": 0.68,
+          "zone": {
+            "low": 2.82,
+            "high": 3.14,
+            "strength": 0.1118
+          },
+          "held_rate": 48.4,
+          "touch": 31,
+          "confidence": "高"
+        },
+        {
+          "price": 3.02,
           "strength": "弱",
           "sources": [
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 4.92,
-          "held_rate": 0.0,
-          "touch": 2,
-          "confidence": "低"
+          "distance_pct": 2.37,
+          "held_rate": 66.7,
+          "touch": 15,
+          "confidence": "高"
         },
         {
-          "price": 14.52,
+          "price": 3.06,
+          "strength": "中",
+          "sources": [
+            "前低",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 3.73,
+          "held_rate": 61.1,
+          "touch": 18,
+          "confidence": "高"
+        }
+      ],
+      "risk": {
+        "score": 51,
+        "level": "观望",
+        "summary": "距支撑0.34%、压力0.68%，攻守均衡"
+      },
+      "alerts": [
+        {
+          "price": 2.94,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "中",
+          "distance_pct": 0.34,
+          "alert_level": "danger",
+          "alert_text": "⚡ 即将触及",
+          "progress": 93,
+          "advice": "接近支撑2.94（历史守住率45.8%/高），关注反弹信号",
+          "held_rate": 45.8,
+          "confidence": "高"
+        },
+        {
+          "price": 2.97,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "中",
+          "distance_pct": 0.68,
+          "alert_level": "danger",
+          "alert_text": "⚡ 即将触及",
+          "progress": 86,
+          "advice": "接近压力2.97（历史守住率48.4%），关注突破或减仓",
+          "held_rate": 48.4,
+          "confidence": "高"
+        },
+        {
+          "price": 2.9,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "强",
+          "distance_pct": 1.69,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 66,
+          "advice": "向支撑2.9靠近（守住率51.6%），准备观察入场时机",
+          "held_rate": 51.6,
+          "confidence": "高"
+        },
+        {
+          "price": 3.02,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 2.37,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 52,
+          "advice": "向压力3.02靠近（守住率66.7%），关注减仓时机",
+          "held_rate": 66.7,
+          "confidence": "高"
+        },
+        {
+          "price": 2.84,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "强",
+          "distance_pct": 3.73,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 25,
+          "advice": "距支撑2.84较远（守住率61.8%），等待回调",
+          "held_rate": 61.8,
+          "confidence": "高"
+        },
+        {
+          "price": 3.06,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "中",
+          "distance_pct": 3.73,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 25,
+          "advice": "距压力3.06较远（守住率61.1%），持仓观察",
+          "held_rate": 61.1,
+          "confidence": "高"
+        }
+      ]
+    },
+    {
+      "code": "601700",
+      "name": "风范股份",
+      "price": 5.54,
+      "supports": [
+        {
+          "price": 5.51,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -0.54,
+          "held_rate": 64.0,
+          "touch": 25,
+          "confidence": "高"
+        },
+        {
+          "price": 5.42,
+          "strength": "强",
+          "sources": [
+            "前低",
+            "前高",
+            "20日低点"
+          ],
+          "volume": 0,
+          "distance_pct": -2.17,
+          "held_rate": 31.6,
+          "touch": 19,
+          "confidence": "高"
+        },
+        {
+          "price": 5.35,
           "strength": "弱",
           "sources": [
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 6.53,
-          "held_rate": 0.0,
-          "touch": 4,
-          "confidence": "中"
+          "distance_pct": -3.43,
+          "held_rate": 52.4,
+          "touch": 21,
+          "confidence": "高"
+        }
+      ],
+      "resistances": [
+        {
+          "price": 5.56,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 0.36,
+          "held_rate": 40.9,
+          "touch": 22,
+          "confidence": "高"
+        },
+        {
+          "price": 5.7,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 2.89,
+          "held_rate": 57.1,
+          "touch": 21,
+          "confidence": "高"
+        },
+        {
+          "price": 5.82,
+          "strength": "弱",
+          "sources": [
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 5.05,
+          "held_rate": 78.9,
+          "touch": 19,
+          "confidence": "高"
         }
       ],
       "risk": {
-        "score": 68,
-        "level": "可关注",
-        "summary": "距支撑0.59%、压力1.61%，支撑守住率71.4%"
+        "score": 45,
+        "level": "观望",
+        "summary": "距支撑0.54%、压力0.36%，攻守均衡"
       },
       "alerts": [
         {
-          "price": 13.55,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 0.59,
+          "price": 5.56,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "中",
+          "distance_pct": 0.36,
           "alert_level": "danger",
           "alert_text": "⚡ 即将触及",
-          "progress": 88,
-          "advice": "接近支撑13.55（历史守住率40.0%/中），关注反弹信号",
-          "held_rate": 40.0,
-          "confidence": "中"
+          "progress": 92,
+          "advice": "接近压力5.56（历史守住率40.9%），关注突破或减仓",
+          "held_rate": 40.9,
+          "confidence": "高"
         },
         {
-          "price": 13.85,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "中",
-          "distance_pct": 1.61,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 67,
-          "advice": "向压力13.85靠近（守住率33.3%），关注减仓时机",
-          "held_rate": 33.3,
-          "confidence": "中"
-        },
-        {
-          "price": 13.25,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "中",
-          "distance_pct": 2.79,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 44,
-          "advice": "向支撑13.25靠近（守住率20.0%），准备观察入场时机",
-          "held_rate": 20.0,
-          "confidence": "中"
-        },
-        {
-          "price": 14.3,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 4.92,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 1,
-          "advice": "距压力14.3较远（守住率0.0%），持仓观察",
-          "held_rate": 0.0,
-          "confidence": "低"
-        },
-        {
-          "price": 14.52,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 6.53,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距压力14.52较远（守住率0.0%），持仓观察",
-          "held_rate": 0.0,
-          "confidence": "中"
-        },
-        {
-          "price": 12.59,
+          "price": 5.51,
           "side": "supports",
           "kind": "支撑",
           "strength": "弱",
-          "distance_pct": 7.63,
+          "distance_pct": 0.54,
+          "alert_level": "danger",
+          "alert_text": "⚡ 即将触及",
+          "progress": 89,
+          "advice": "接近支撑5.51（历史守住率64.0%/高），关注反弹信号",
+          "held_rate": 64.0,
+          "confidence": "高"
+        },
+        {
+          "price": 5.42,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "强",
+          "distance_pct": 2.17,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 56,
+          "advice": "向支撑5.42靠近（守住率31.6%），准备观察入场时机",
+          "held_rate": 31.6,
+          "confidence": "高"
+        },
+        {
+          "price": 5.7,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 2.89,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 42,
+          "advice": "向压力5.7靠近（守住率57.1%），关注减仓时机",
+          "held_rate": 57.1,
+          "confidence": "高"
+        },
+        {
+          "price": 5.35,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 3.43,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 31,
+          "advice": "距支撑5.35较远（守住率52.4%），等待回调",
+          "held_rate": 52.4,
+          "confidence": "高"
+        },
+        {
+          "price": 5.82,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 5.05,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
-          "advice": "距支撑12.59较远（守住率71.4%），等待回调",
-          "held_rate": 71.4,
-          "confidence": "中"
+          "advice": "距压力5.82较远（守住率78.9%），持仓观察",
+          "held_rate": 78.9,
+          "confidence": "高"
         }
       ]
     },
     {
       "code": "600664",
       "name": "哈药股份",
-      "price": 5.42,
+      "price": 5.45,
       "supports": [
         {
           "price": 5.18,
@@ -355,7 +529,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -4.43,
+          "distance_pct": -4.95,
           "held_rate": 100.0,
           "touch": 6,
           "confidence": "中"
@@ -367,7 +541,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -8.3,
+          "distance_pct": -8.81,
           "held_rate": 100.0,
           "touch": 3,
           "confidence": "低"
@@ -379,7 +553,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -9.96,
+          "distance_pct": -10.46,
           "held_rate": 100.0,
           "touch": 4,
           "confidence": "中"
@@ -393,7 +567,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 10.52,
+          "distance_pct": 9.91,
           "held_rate": 66.7,
           "touch": 6,
           "confidence": "中"
@@ -406,7 +580,7 @@
             "前高"
           ],
           "volume": 48464824,
-          "distance_pct": 16.97,
+          "distance_pct": 16.33,
           "zone": {
             "low": 5.92,
             "high": 6.76,
@@ -423,7 +597,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 24.91,
+          "distance_pct": 24.22,
           "held_rate": 33.3,
           "touch": 3,
           "confidence": "低"
@@ -432,7 +606,7 @@
       "risk": {
         "score": 55,
         "level": "观望",
-        "summary": "距支撑4.43%、压力10.52%，攻守均衡"
+        "summary": "距支撑4.95%、压力9.91%，攻守均衡"
       },
       "alerts": [
         {
@@ -440,10 +614,10 @@
           "side": "supports",
           "kind": "支撑",
           "strength": "强",
-          "distance_pct": 4.43,
+          "distance_pct": 4.95,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
-          "progress": 11,
+          "progress": 1,
           "advice": "距支撑5.18较远（守住率100.0%），等待回调",
           "held_rate": 100.0,
           "confidence": "中"
@@ -453,7 +627,7 @@
           "side": "supports",
           "kind": "支撑",
           "strength": "弱",
-          "distance_pct": 8.3,
+          "distance_pct": 8.81,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
@@ -462,24 +636,11 @@
           "confidence": "低"
         },
         {
-          "price": 4.88,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 9.96,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距支撑4.88较远（守住率100.0%），等待回调",
-          "held_rate": 100.0,
-          "confidence": "中"
-        },
-        {
           "price": 5.99,
           "side": "resistances",
           "kind": "压力",
           "strength": "弱",
-          "distance_pct": 10.52,
+          "distance_pct": 9.91,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
@@ -488,11 +649,24 @@
           "confidence": "中"
         },
         {
+          "price": 4.88,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 10.46,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距支撑4.88较远（守住率100.0%），等待回调",
+          "held_rate": 100.0,
+          "confidence": "中"
+        },
+        {
           "price": 6.34,
           "side": "resistances",
           "kind": "压力",
           "strength": "中",
-          "distance_pct": 16.97,
+          "distance_pct": 16.33,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
@@ -505,360 +679,13 @@
           "side": "resistances",
           "kind": "压力",
           "strength": "弱",
-          "distance_pct": 24.91,
+          "distance_pct": 24.22,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
           "advice": "距压力6.77较远（守住率33.3%），持仓观察",
           "held_rate": 33.3,
           "confidence": "低"
-        }
-      ]
-    },
-    {
-      "code": "002437",
-      "name": "誉衡药业",
-      "price": 2.94,
-      "supports": [
-        {
-          "price": 2.9,
-          "strength": "强",
-          "sources": [
-            "前高",
-            "前低",
-            "20日低点"
-          ],
-          "volume": 0,
-          "distance_pct": -1.02,
-          "held_rate": 51.6,
-          "touch": 31,
-          "confidence": "高"
-        },
-        {
-          "price": 2.84,
-          "strength": "强",
-          "sources": [
-            "前低",
-            "前高",
-            "60日低点"
-          ],
-          "volume": 0,
-          "distance_pct": -3.07,
-          "held_rate": 61.8,
-          "touch": 34,
-          "confidence": "高"
-        },
-        {
-          "price": 2.76,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -5.8,
-          "held_rate": 81.2,
-          "touch": 16,
-          "confidence": "高"
-        }
-      ],
-      "resistances": [
-        {
-          "price": 2.94,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 0.34,
-          "held_rate": 59.4,
-          "touch": 32,
-          "confidence": "高"
-        },
-        {
-          "price": 2.98,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "筹码密集"
-          ],
-          "volume": 17503909,
-          "distance_pct": 1.71,
-          "zone": {
-            "low": 2.82,
-            "high": 3.14,
-            "strength": 0.1109
-          },
-          "held_rate": 51.7,
-          "touch": 29,
-          "confidence": "高"
-        },
-        {
-          "price": 3.02,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 3.07,
-          "held_rate": 66.7,
-          "touch": 15,
-          "confidence": "高"
-        }
-      ],
-      "risk": {
-        "score": 48,
-        "level": "观望",
-        "summary": "距支撑1.02%、压力0.34%，攻守均衡"
-      },
-      "alerts": [
-        {
-          "price": 2.94,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "中",
-          "distance_pct": 0.34,
-          "alert_level": "danger",
-          "alert_text": "⚡ 即将触及",
-          "progress": 93,
-          "advice": "接近压力2.94（历史守住率59.4%），关注突破或减仓",
-          "held_rate": 59.4,
-          "confidence": "高"
-        },
-        {
-          "price": 2.9,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "强",
-          "distance_pct": 1.02,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 79,
-          "advice": "向支撑2.9靠近（守住率51.6%），准备观察入场时机",
-          "held_rate": 51.6,
-          "confidence": "高"
-        },
-        {
-          "price": 2.98,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "中",
-          "distance_pct": 1.71,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 65,
-          "advice": "向压力2.98靠近（守住率51.7%），关注减仓时机",
-          "held_rate": 51.7,
-          "confidence": "高"
-        },
-        {
-          "price": 2.84,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "强",
-          "distance_pct": 3.07,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 38,
-          "advice": "距支撑2.84较远（守住率61.8%），等待回调",
-          "held_rate": 61.8,
-          "confidence": "高"
-        },
-        {
-          "price": 3.02,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 3.07,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 38,
-          "advice": "距压力3.02较远（守住率66.7%），持仓观察",
-          "held_rate": 66.7,
-          "confidence": "高"
-        },
-        {
-          "price": 2.76,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "中",
-          "distance_pct": 5.8,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距支撑2.76较远（守住率81.2%），等待回调",
-          "held_rate": 81.2,
-          "confidence": "高"
-        }
-      ]
-    },
-    {
-      "code": "601700",
-      "name": "风范股份",
-      "price": 5.53,
-      "supports": [
-        {
-          "price": 5.51,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -0.36,
-          "held_rate": 64.0,
-          "touch": 25,
-          "confidence": "高"
-        },
-        {
-          "price": 5.42,
-          "strength": "强",
-          "sources": [
-            "前低",
-            "前高",
-            "20日低点"
-          ],
-          "volume": 0,
-          "distance_pct": -1.99,
-          "held_rate": 31.6,
-          "touch": 19,
-          "confidence": "高"
-        },
-        {
-          "price": 5.35,
-          "strength": "弱",
-          "sources": [
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -3.25,
-          "held_rate": 52.4,
-          "touch": 21,
-          "confidence": "高"
-        }
-      ],
-      "resistances": [
-        {
-          "price": 5.56,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 0.54,
-          "held_rate": 40.9,
-          "touch": 22,
-          "confidence": "高"
-        },
-        {
-          "price": 5.7,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 3.07,
-          "held_rate": 57.1,
-          "touch": 21,
-          "confidence": "高"
-        },
-        {
-          "price": 5.82,
-          "strength": "弱",
-          "sources": [
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": 5.24,
-          "held_rate": 78.9,
-          "touch": 19,
-          "confidence": "高"
-        }
-      ],
-      "risk": {
-        "score": 48,
-        "level": "观望",
-        "summary": "距支撑0.36%、压力0.54%，攻守均衡"
-      },
-      "alerts": [
-        {
-          "price": 5.51,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 0.36,
-          "alert_level": "danger",
-          "alert_text": "⚡ 即将触及",
-          "progress": 92,
-          "advice": "接近支撑5.51（历史守住率64.0%/高），关注反弹信号",
-          "held_rate": 64.0,
-          "confidence": "高"
-        },
-        {
-          "price": 5.56,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "中",
-          "distance_pct": 0.54,
-          "alert_level": "danger",
-          "alert_text": "⚡ 即将触及",
-          "progress": 89,
-          "advice": "接近压力5.56（历史守住率40.9%），关注突破或减仓",
-          "held_rate": 40.9,
-          "confidence": "高"
-        },
-        {
-          "price": 5.42,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "强",
-          "distance_pct": 1.99,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 60,
-          "advice": "向支撑5.42靠近（守住率31.6%），准备观察入场时机",
-          "held_rate": 31.6,
-          "confidence": "高"
-        },
-        {
-          "price": 5.7,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 3.07,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 38,
-          "advice": "距压力5.7较远（守住率57.1%），持仓观察",
-          "held_rate": 57.1,
-          "confidence": "高"
-        },
-        {
-          "price": 5.35,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 3.25,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 35,
-          "advice": "距支撑5.35较远（守住率52.4%），等待回调",
-          "held_rate": 52.4,
-          "confidence": "高"
-        },
-        {
-          "price": 5.82,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 5.24,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距压力5.82较远（守住率78.9%），持仓观察",
-          "held_rate": 78.9,
-          "confidence": "高"
         }
       ]
     },
@@ -1040,9 +867,876 @@
       ]
     },
     {
+      "code": "600667",
+      "name": "太极实业",
+      "price": 13.71,
+      "supports": [
+        {
+          "price": 13.63,
+          "strength": "中",
+          "sources": [
+            "前低",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": -0.58,
+          "held_rate": 50.0,
+          "touch": 4,
+          "confidence": "中"
+        },
+        {
+          "price": 13.25,
+          "strength": "中",
+          "sources": [
+            "20日低点",
+            "60日低点"
+          ],
+          "volume": 0,
+          "distance_pct": -3.36,
+          "held_rate": 20.0,
+          "touch": 5,
+          "confidence": "中"
+        },
+        {
+          "price": 12.59,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -8.17,
+          "held_rate": 71.4,
+          "touch": 7,
+          "confidence": "中"
+        }
+      ],
+      "resistances": [
+        {
+          "price": 13.85,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 1.02,
+          "held_rate": 33.3,
+          "touch": 6,
+          "confidence": "中"
+        },
+        {
+          "price": 14.3,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 4.3,
+          "held_rate": 0.0,
+          "touch": 2,
+          "confidence": "低"
+        },
+        {
+          "price": 14.52,
+          "strength": "弱",
+          "sources": [
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 5.91,
+          "held_rate": 0.0,
+          "touch": 4,
+          "confidence": "中"
+        }
+      ],
+      "risk": {
+        "score": 63,
+        "level": "观望",
+        "summary": "距支撑0.58%、压力1.02%，攻守均衡"
+      },
+      "alerts": [
+        {
+          "price": 13.63,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "中",
+          "distance_pct": 0.58,
+          "alert_level": "danger",
+          "alert_text": "⚡ 即将触及",
+          "progress": 88,
+          "advice": "接近支撑13.63（历史守住率50.0%/中），关注反弹信号",
+          "held_rate": 50.0,
+          "confidence": "中"
+        },
+        {
+          "price": 13.85,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "中",
+          "distance_pct": 1.02,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 79,
+          "advice": "向压力13.85靠近（守住率33.3%），关注减仓时机",
+          "held_rate": 33.3,
+          "confidence": "中"
+        },
+        {
+          "price": 13.25,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "中",
+          "distance_pct": 3.36,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 32,
+          "advice": "距支撑13.25较远（守住率20.0%），等待回调",
+          "held_rate": 20.0,
+          "confidence": "中"
+        },
+        {
+          "price": 14.3,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 4.3,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 14,
+          "advice": "距压力14.3较远（守住率0.0%），持仓观察",
+          "held_rate": 0.0,
+          "confidence": "低"
+        },
+        {
+          "price": 14.52,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 5.91,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距压力14.52较远（守住率0.0%），持仓观察",
+          "held_rate": 0.0,
+          "confidence": "中"
+        },
+        {
+          "price": 12.59,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 8.17,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距支撑12.59较远（守住率71.4%），等待回调",
+          "held_rate": 71.4,
+          "confidence": "中"
+        }
+      ]
+    },
+    {
+      "code": "000657",
+      "name": "中钨高新",
+      "price": 39.69,
+      "supports": [
+        {
+          "price": 38.58,
+          "strength": "强",
+          "sources": [
+            "20日低点",
+            "60日低点",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -2.8,
+          "held_rate": 50.0,
+          "touch": 2,
+          "confidence": "低"
+        },
+        {
+          "price": 31.95,
+          "strength": "弱",
+          "sources": [
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": -19.5,
+          "held_rate": 100.0,
+          "touch": 3,
+          "confidence": "低"
+        },
+        {
+          "price": 27.34,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -31.12,
+          "held_rate": 100.0,
+          "touch": 4,
+          "confidence": "中"
+        }
+      ],
+      "resistances": [
+        {
+          "price": 41.28,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 4.01,
+          "held_rate": 0.0,
+          "touch": 1,
+          "confidence": "低"
+        },
+        {
+          "price": 44.05,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 10.99,
+          "held_rate": 75.0,
+          "touch": 4,
+          "confidence": "中"
+        },
+        {
+          "price": 45.32,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 14.18,
+          "held_rate": 50.0,
+          "touch": 4,
+          "confidence": "中"
+        }
+      ],
+      "risk": {
+        "score": 58,
+        "level": "观望",
+        "summary": "距支撑2.8%、压力4.01%，攻守均衡"
+      },
+      "alerts": [
+        {
+          "price": 38.58,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "强",
+          "distance_pct": 2.8,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 44,
+          "advice": "向支撑38.58靠近（守住率50.0%），准备观察入场时机",
+          "held_rate": 50.0,
+          "confidence": "低"
+        },
+        {
+          "price": 41.28,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 4.01,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 19,
+          "advice": "距压力41.28较远（守住率0.0%），持仓观察",
+          "held_rate": 0.0,
+          "confidence": "低"
+        },
+        {
+          "price": 44.05,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 10.99,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距压力44.05较远（守住率75.0%），持仓观察",
+          "held_rate": 75.0,
+          "confidence": "中"
+        },
+        {
+          "price": 45.32,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 14.18,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距压力45.32较远（守住率50.0%），持仓观察",
+          "held_rate": 50.0,
+          "confidence": "中"
+        },
+        {
+          "price": 31.95,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 19.5,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距支撑31.95较远（守住率100.0%），等待回调",
+          "held_rate": 100.0,
+          "confidence": "低"
+        },
+        {
+          "price": 27.34,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 31.12,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距支撑27.34较远（守住率100.0%），等待回调",
+          "held_rate": 100.0,
+          "confidence": "中"
+        }
+      ]
+    },
+    {
+      "code": "001258",
+      "name": "立新能源",
+      "price": 8.25,
+      "supports": [
+        {
+          "price": 8.2,
+          "strength": "强",
+          "sources": [
+            "前高",
+            "20日低点",
+            "60日低点"
+          ],
+          "volume": 0,
+          "distance_pct": -0.61,
+          "held_rate": 47.1,
+          "touch": 17,
+          "confidence": "高"
+        },
+        {
+          "price": 8.03,
+          "strength": "弱",
+          "sources": [
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": -2.67,
+          "held_rate": 44.0,
+          "touch": 25,
+          "confidence": "高"
+        },
+        {
+          "price": 7.93,
+          "strength": "中",
+          "sources": [
+            "前低",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": -3.88,
+          "held_rate": 55.6,
+          "touch": 36,
+          "confidence": "高"
+        }
+      ],
+      "resistances": [
+        {
+          "price": 8.29,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 0.48,
+          "held_rate": 92.0,
+          "touch": 25,
+          "confidence": "高"
+        },
+        {
+          "price": 8.53,
+          "strength": "弱",
+          "sources": [
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 3.39,
+          "held_rate": 61.5,
+          "touch": 13,
+          "confidence": "高"
+        },
+        {
+          "price": 8.72,
+          "strength": "中",
+          "sources": [
+            "筹码密集",
+            "前低"
+          ],
+          "volume": 3179192,
+          "distance_pct": 5.7,
+          "zone": {
+            "low": 8.11,
+            "high": 9.51,
+            "strength": 0.0568
+          },
+          "held_rate": 62.5,
+          "touch": 8,
+          "confidence": "中"
+        }
+      ],
+      "risk": {
+        "score": 40,
+        "level": "观望",
+        "summary": "距支撑0.61%、压力0.48%，攻守均衡"
+      },
+      "alerts": [
+        {
+          "price": 8.29,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "中",
+          "distance_pct": 0.48,
+          "alert_level": "danger",
+          "alert_text": "⚡ 即将触及",
+          "progress": 90,
+          "advice": "接近压力8.29（历史守住率92.0%），关注突破或减仓",
+          "held_rate": 92.0,
+          "confidence": "高"
+        },
+        {
+          "price": 8.2,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "强",
+          "distance_pct": 0.61,
+          "alert_level": "danger",
+          "alert_text": "⚡ 即将触及",
+          "progress": 87,
+          "advice": "接近支撑8.2（历史守住率47.1%/高），关注反弹信号",
+          "held_rate": 47.1,
+          "confidence": "高"
+        },
+        {
+          "price": 8.03,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 2.67,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 46,
+          "advice": "向支撑8.03靠近（守住率44.0%），准备观察入场时机",
+          "held_rate": 44.0,
+          "confidence": "高"
+        },
+        {
+          "price": 8.53,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 3.39,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 32,
+          "advice": "距压力8.53较远（守住率61.5%），持仓观察",
+          "held_rate": 61.5,
+          "confidence": "高"
+        },
+        {
+          "price": 7.93,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "中",
+          "distance_pct": 3.88,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 22,
+          "advice": "距支撑7.93较远（守住率55.6%），等待回调",
+          "held_rate": 55.6,
+          "confidence": "高"
+        },
+        {
+          "price": 8.72,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "中",
+          "distance_pct": 5.7,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距压力8.72较远（守住率62.5%），持仓观察",
+          "held_rate": 62.5,
+          "confidence": "中"
+        }
+      ]
+    },
+    {
+      "code": "688036",
+      "name": "传音控股",
+      "price": 54.41,
+      "supports": [
+        {
+          "price": 54.32,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -0.17,
+          "held_rate": 63.6,
+          "touch": 22,
+          "confidence": "高"
+        },
+        {
+          "price": 53.1,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -2.41,
+          "held_rate": 73.7,
+          "touch": 19,
+          "confidence": "高"
+        },
+        {
+          "price": 52.37,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -3.75,
+          "held_rate": 88.5,
+          "touch": 26,
+          "confidence": "高"
+        }
+      ],
+      "resistances": [
+        {
+          "price": 55.37,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 1.76,
+          "held_rate": 66.7,
+          "touch": 24,
+          "confidence": "高"
+        },
+        {
+          "price": 56.22,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "筹码密集"
+          ],
+          "volume": 574466481,
+          "distance_pct": 3.33,
+          "zone": {
+            "low": 54.34,
+            "high": 58.23,
+            "strength": 1.0
+          },
+          "held_rate": 55.6,
+          "touch": 36,
+          "confidence": "高"
+        },
+        {
+          "price": 56.99,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 4.74,
+          "held_rate": 62.5,
+          "touch": 40,
+          "confidence": "高"
+        }
+      ],
+      "risk": {
+        "score": 68,
+        "level": "可关注",
+        "summary": "距支撑0.17%、压力1.76%，支撑守住率88.5%"
+      },
+      "alerts": [
+        {
+          "price": 54.32,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 0.17,
+          "alert_level": "danger",
+          "alert_text": "⚡ 即将触及",
+          "progress": 96,
+          "advice": "接近支撑54.32（历史守住率63.6%/高），关注反弹信号",
+          "held_rate": 63.6,
+          "confidence": "高"
+        },
+        {
+          "price": 55.37,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 1.76,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 64,
+          "advice": "向压力55.37靠近（守住率66.7%），关注减仓时机",
+          "held_rate": 66.7,
+          "confidence": "高"
+        },
+        {
+          "price": 53.1,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 2.41,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 51,
+          "advice": "向支撑53.1靠近（守住率73.7%），准备观察入场时机",
+          "held_rate": 73.7,
+          "confidence": "高"
+        },
+        {
+          "price": 56.22,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "中",
+          "distance_pct": 3.33,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 33,
+          "advice": "距压力56.22较远（守住率55.6%），持仓观察",
+          "held_rate": 55.6,
+          "confidence": "高"
+        },
+        {
+          "price": 52.37,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "中",
+          "distance_pct": 3.75,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 25,
+          "advice": "距支撑52.37较远（守住率88.5%），等待回调",
+          "held_rate": 88.5,
+          "confidence": "高"
+        },
+        {
+          "price": 56.99,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "中",
+          "distance_pct": 4.74,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 5,
+          "advice": "距压力56.99较远（守住率62.5%），持仓观察",
+          "held_rate": 62.5,
+          "confidence": "高"
+        }
+      ]
+    },
+    {
+      "code": "001965",
+      "name": "招商公路",
+      "price": 10.35,
+      "supports": [
+        {
+          "price": 10.34,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -0.1,
+          "held_rate": 76.7,
+          "touch": 30,
+          "confidence": "高"
+        },
+        {
+          "price": 10.2,
+          "strength": "强",
+          "sources": [
+            "筹码密集",
+            "前高",
+            "前低"
+          ],
+          "volume": 4169427,
+          "distance_pct": -1.45,
+          "zone": {
+            "low": 10.06,
+            "high": 10.36,
+            "strength": 0.9657
+          },
+          "held_rate": 69.2,
+          "touch": 26,
+          "confidence": "高"
+        },
+        {
+          "price": 10.04,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -3.0,
+          "held_rate": 66.7,
+          "touch": 48,
+          "confidence": "高"
+        }
+      ],
+      "resistances": [
+        {
+          "price": 10.41,
+          "strength": "强",
+          "sources": [
+            "前低",
+            "20日高点",
+            "60日高点",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 0.58,
+          "held_rate": 57.1,
+          "touch": 28,
+          "confidence": "高"
+        },
+        {
+          "price": 10.54,
+          "strength": "中",
+          "sources": [
+            "前低",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 1.84,
+          "held_rate": 56.0,
+          "touch": 25,
+          "confidence": "高"
+        },
+        {
+          "price": 10.68,
+          "strength": "中",
+          "sources": [
+            "前低",
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": 3.19,
+          "held_rate": 78.1,
+          "touch": 32,
+          "confidence": "高"
+        }
+      ],
+      "risk": {
+        "score": 53,
+        "level": "观望",
+        "summary": "距支撑0.1%、压力0.58%，攻守均衡"
+      },
+      "alerts": [
+        {
+          "price": 10.34,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "中",
+          "distance_pct": 0.1,
+          "alert_level": "danger",
+          "alert_text": "⚡ 即将触及",
+          "progress": 98,
+          "advice": "接近支撑10.34（历史守住率76.7%/高），关注反弹信号",
+          "held_rate": 76.7,
+          "confidence": "高"
+        },
+        {
+          "price": 10.41,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "强",
+          "distance_pct": 0.58,
+          "alert_level": "danger",
+          "alert_text": "⚡ 即将触及",
+          "progress": 88,
+          "advice": "接近压力10.41（历史守住率57.1%），关注突破或减仓",
+          "held_rate": 57.1,
+          "confidence": "高"
+        },
+        {
+          "price": 10.2,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "强",
+          "distance_pct": 1.45,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 71,
+          "advice": "向支撑10.2靠近（守住率69.2%），准备观察入场时机",
+          "held_rate": 69.2,
+          "confidence": "高"
+        },
+        {
+          "price": 10.54,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "中",
+          "distance_pct": 1.84,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 63,
+          "advice": "向压力10.54靠近（守住率56.0%），关注减仓时机",
+          "held_rate": 56.0,
+          "confidence": "高"
+        },
+        {
+          "price": 10.04,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "中",
+          "distance_pct": 3.0,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 40,
+          "advice": "向支撑10.04靠近（守住率66.7%），准备观察入场时机",
+          "held_rate": 66.7,
+          "confidence": "高"
+        },
+        {
+          "price": 10.68,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "中",
+          "distance_pct": 3.19,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 36,
+          "advice": "距压力10.68较远（守住率78.1%），持仓观察",
+          "held_rate": 78.1,
+          "confidence": "高"
+        }
+      ]
+    },
+    {
       "code": "600012",
       "name": "皖通高速",
-      "price": 17.6,
+      "price": 17.59,
       "supports": [
         {
           "price": 17.5,
@@ -1051,12 +1745,12 @@
             "筹码密集",
             "前高"
           ],
-          "volume": 1263332,
-          "distance_pct": -0.57,
+          "volume": 1273640,
+          "distance_pct": -0.51,
           "zone": {
             "low": 17.06,
             "high": 17.81,
-            "strength": 0.7052
+            "strength": 0.7115
           },
           "held_rate": 18.2,
           "touch": 11,
@@ -1069,7 +1763,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -2.05,
+          "distance_pct": -1.99,
           "held_rate": 64.3,
           "touch": 14,
           "confidence": "高"
@@ -1082,7 +1776,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -3.3,
+          "distance_pct": -3.24,
           "held_rate": 53.8,
           "touch": 13,
           "confidence": "高"
@@ -1097,7 +1791,7 @@
             "20日高点"
           ],
           "volume": 0,
-          "distance_pct": 2.9,
+          "distance_pct": 2.96,
           "held_rate": 100.0,
           "touch": 5,
           "confidence": "中"
@@ -1110,7 +1804,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 5.91,
+          "distance_pct": 5.97,
           "held_rate": 100.0,
           "touch": 2,
           "confidence": "低"
@@ -1122,16 +1816,16 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 7.44,
+          "distance_pct": 7.5,
           "held_rate": 100.0,
           "touch": 1,
           "confidence": "低"
         }
       ],
       "risk": {
-        "score": 60,
+        "score": 61,
         "level": "观望",
-        "summary": "距支撑0.57%、压力2.9%，攻守均衡"
+        "summary": "距支撑0.51%、压力2.96%，攻守均衡"
       },
       "alerts": [
         {
@@ -1139,10 +1833,10 @@
           "side": "supports",
           "kind": "支撑",
           "strength": "中",
-          "distance_pct": 0.57,
+          "distance_pct": 0.51,
           "alert_level": "danger",
           "alert_text": "⚡ 即将触及",
-          "progress": 88,
+          "progress": 89,
           "advice": "接近支撑17.5（历史守住率18.2%/高），关注反弹信号",
           "held_rate": 18.2,
           "confidence": "高"
@@ -1152,10 +1846,10 @@
           "side": "supports",
           "kind": "支撑",
           "strength": "弱",
-          "distance_pct": 2.05,
+          "distance_pct": 1.99,
           "alert_level": "warning",
           "alert_text": "🔶 正在接近",
-          "progress": 59,
+          "progress": 60,
           "advice": "向支撑17.24靠近（守住率64.3%），准备观察入场时机",
           "held_rate": 64.3,
           "confidence": "高"
@@ -1165,10 +1859,10 @@
           "side": "resistances",
           "kind": "压力",
           "strength": "中",
-          "distance_pct": 2.9,
+          "distance_pct": 2.96,
           "alert_level": "warning",
           "alert_text": "🔶 正在接近",
-          "progress": 42,
+          "progress": 40,
           "advice": "向压力18.11靠近（守住率100.0%），关注减仓时机",
           "held_rate": 100.0,
           "confidence": "中"
@@ -1178,10 +1872,10 @@
           "side": "supports",
           "kind": "支撑",
           "strength": "中",
-          "distance_pct": 3.3,
+          "distance_pct": 3.24,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
-          "progress": 34,
+          "progress": 35,
           "advice": "距支撑17.02较远（守住率53.8%），等待回调",
           "held_rate": 53.8,
           "confidence": "高"
@@ -1191,7 +1885,7 @@
           "side": "resistances",
           "kind": "压力",
           "strength": "中",
-          "distance_pct": 5.91,
+          "distance_pct": 5.97,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
@@ -1204,181 +1898,13 @@
           "side": "resistances",
           "kind": "压力",
           "strength": "弱",
-          "distance_pct": 7.44,
+          "distance_pct": 7.5,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
           "advice": "距压力18.91较远（守住率100.0%），持仓观察",
           "held_rate": 100.0,
           "confidence": "低"
-        }
-      ]
-    },
-    {
-      "code": "000657",
-      "name": "中钨高新",
-      "price": 39.55,
-      "supports": [
-        {
-          "price": 38.58,
-          "strength": "强",
-          "sources": [
-            "20日低点",
-            "60日低点",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -2.45,
-          "held_rate": 50.0,
-          "touch": 2,
-          "confidence": "低"
-        },
-        {
-          "price": 31.95,
-          "strength": "弱",
-          "sources": [
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -19.22,
-          "held_rate": 100.0,
-          "touch": 3,
-          "confidence": "低"
-        },
-        {
-          "price": 27.34,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -30.87,
-          "held_rate": 100.0,
-          "touch": 4,
-          "confidence": "中"
-        }
-      ],
-      "resistances": [
-        {
-          "price": 41.28,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 4.37,
-          "held_rate": 0.0,
-          "touch": 1,
-          "confidence": "低"
-        },
-        {
-          "price": 44.05,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 11.38,
-          "held_rate": 75.0,
-          "touch": 4,
-          "confidence": "中"
-        },
-        {
-          "price": 45.32,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 14.59,
-          "held_rate": 50.0,
-          "touch": 4,
-          "confidence": "中"
-        }
-      ],
-      "risk": {
-        "score": 61,
-        "level": "观望",
-        "summary": "距支撑2.45%、压力4.37%，攻守均衡"
-      },
-      "alerts": [
-        {
-          "price": 38.58,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "强",
-          "distance_pct": 2.45,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 51,
-          "advice": "向支撑38.58靠近（守住率50.0%），准备观察入场时机",
-          "held_rate": 50.0,
-          "confidence": "低"
-        },
-        {
-          "price": 41.28,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 4.37,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 12,
-          "advice": "距压力41.28较远（守住率0.0%），持仓观察",
-          "held_rate": 0.0,
-          "confidence": "低"
-        },
-        {
-          "price": 44.05,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 11.38,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距压力44.05较远（守住率75.0%），持仓观察",
-          "held_rate": 75.0,
-          "confidence": "中"
-        },
-        {
-          "price": 45.32,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 14.59,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距压力45.32较远（守住率50.0%），持仓观察",
-          "held_rate": 50.0,
-          "confidence": "中"
-        },
-        {
-          "price": 31.95,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 19.22,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距支撑31.95较远（守住率100.0%），等待回调",
-          "held_rate": 100.0,
-          "confidence": "低"
-        },
-        {
-          "price": 27.34,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 30.87,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距支撑27.34较远（守住率100.0%），等待回调",
-          "held_rate": 100.0,
-          "confidence": "中"
         }
       ]
     },
@@ -1408,7 +1934,7 @@
             "筹码密集",
             "前高"
           ],
-          "volume": 21151833,
+          "volume": 21304268,
           "distance_pct": -1.76,
           "zone": {
             "low": 7.16,
@@ -1560,562 +2086,38 @@
       ]
     },
     {
-      "code": "688036",
-      "name": "传音控股",
-      "price": 54.64,
+      "code": "600350",
+      "name": "山东高速",
+      "price": 11.18,
       "supports": [
         {
-          "price": 54.32,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -0.69,
-          "held_rate": 63.6,
-          "touch": 22,
-          "confidence": "高"
-        },
-        {
-          "price": 53.1,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -2.93,
-          "held_rate": 73.7,
-          "touch": 19,
-          "confidence": "高"
-        },
-        {
-          "price": 52.37,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -4.26,
-          "held_rate": 88.5,
-          "touch": 26,
-          "confidence": "高"
-        }
-      ],
-      "resistances": [
-        {
-          "price": 55.37,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 1.22,
-          "held_rate": 66.7,
-          "touch": 24,
-          "confidence": "高"
-        },
-        {
-          "price": 56.22,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "筹码密集"
-          ],
-          "volume": 572609737,
-          "distance_pct": 2.78,
-          "zone": {
-            "low": 54.34,
-            "high": 58.23,
-            "strength": 1.0
-          },
-          "held_rate": 55.6,
-          "touch": 36,
-          "confidence": "高"
-        },
-        {
-          "price": 56.99,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 4.19,
-          "held_rate": 62.5,
-          "touch": 40,
-          "confidence": "高"
-        }
-      ],
-      "risk": {
-        "score": 60,
-        "level": "观望",
-        "summary": "距支撑0.69%、压力1.22%，攻守均衡"
-      },
-      "alerts": [
-        {
-          "price": 54.32,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 0.69,
-          "alert_level": "danger",
-          "alert_text": "⚡ 即将触及",
-          "progress": 86,
-          "advice": "接近支撑54.32（历史守住率63.6%/高），关注反弹信号",
-          "held_rate": 63.6,
-          "confidence": "高"
-        },
-        {
-          "price": 55.37,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 1.22,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 75,
-          "advice": "向压力55.37靠近（守住率66.7%），关注减仓时机",
-          "held_rate": 66.7,
-          "confidence": "高"
-        },
-        {
-          "price": 56.22,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "中",
-          "distance_pct": 2.78,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 44,
-          "advice": "向压力56.22靠近（守住率55.6%），关注减仓时机",
-          "held_rate": 55.6,
-          "confidence": "高"
-        },
-        {
-          "price": 53.1,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 2.93,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 41,
-          "advice": "向支撑53.1靠近（守住率73.7%），准备观察入场时机",
-          "held_rate": 73.7,
-          "confidence": "高"
-        },
-        {
-          "price": 56.99,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "中",
-          "distance_pct": 4.19,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 16,
-          "advice": "距压力56.99较远（守住率62.5%），持仓观察",
-          "held_rate": 62.5,
-          "confidence": "高"
-        },
-        {
-          "price": 52.37,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "中",
-          "distance_pct": 4.26,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 14,
-          "advice": "距支撑52.37较远（守住率88.5%），等待回调",
-          "held_rate": 88.5,
-          "confidence": "高"
-        }
-      ]
-    },
-    {
-      "code": "001965",
-      "name": "招商公路",
-      "price": 10.34,
-      "supports": [
-        {
-          "price": 10.31,
-          "strength": "强",
-          "sources": [
-            "前高",
-            "前低",
-            "筹码密集"
-          ],
-          "volume": 4149221,
-          "distance_pct": -0.29,
-          "zone": {
-            "low": 10.06,
-            "high": 10.36,
-            "strength": 0.9657
-          },
-          "held_rate": 80.6,
-          "touch": 31,
-          "confidence": "高"
-        },
-        {
-          "price": 10.16,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -1.74,
-          "held_rate": 60.7,
-          "touch": 28,
-          "confidence": "高"
-        },
-        {
-          "price": 10.02,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -3.09,
-          "held_rate": 66.0,
-          "touch": 50,
-          "confidence": "高"
-        }
-      ],
-      "resistances": [
-        {
-          "price": 10.41,
-          "strength": "强",
-          "sources": [
-            "前低",
-            "20日高点",
-            "60日高点",
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": 0.68,
-          "held_rate": 57.1,
-          "touch": 28,
-          "confidence": "高"
-        },
-        {
-          "price": 10.54,
-          "strength": "中",
-          "sources": [
-            "前低",
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": 1.93,
-          "held_rate": 56.0,
-          "touch": 25,
-          "confidence": "高"
-        },
-        {
-          "price": 10.68,
-          "strength": "中",
-          "sources": [
-            "前低",
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": 3.29,
-          "held_rate": 78.1,
-          "touch": 32,
-          "confidence": "高"
-        }
-      ],
-      "risk": {
-        "score": 54,
-        "level": "观望",
-        "summary": "距支撑0.29%、压力0.68%，攻守均衡"
-      },
-      "alerts": [
-        {
-          "price": 10.31,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "强",
-          "distance_pct": 0.29,
-          "alert_level": "danger",
-          "alert_text": "⚡ 即将触及",
-          "progress": 94,
-          "advice": "接近支撑10.31（历史守住率80.6%/高），关注反弹信号",
-          "held_rate": 80.6,
-          "confidence": "高"
-        },
-        {
-          "price": 10.41,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "强",
-          "distance_pct": 0.68,
-          "alert_level": "danger",
-          "alert_text": "⚡ 即将触及",
-          "progress": 86,
-          "advice": "接近压力10.41（历史守住率57.1%），关注突破或减仓",
-          "held_rate": 57.1,
-          "confidence": "高"
-        },
-        {
-          "price": 10.16,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "中",
-          "distance_pct": 1.74,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 65,
-          "advice": "向支撑10.16靠近（守住率60.7%），准备观察入场时机",
-          "held_rate": 60.7,
-          "confidence": "高"
-        },
-        {
-          "price": 10.54,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "中",
-          "distance_pct": 1.93,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 61,
-          "advice": "向压力10.54靠近（守住率56.0%），关注减仓时机",
-          "held_rate": 56.0,
-          "confidence": "高"
-        },
-        {
-          "price": 10.02,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "中",
-          "distance_pct": 3.09,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 38,
-          "advice": "距支撑10.02较远（守住率66.0%），等待回调",
-          "held_rate": 66.0,
-          "confidence": "高"
-        },
-        {
-          "price": 10.68,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "中",
-          "distance_pct": 3.29,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 34,
-          "advice": "距压力10.68较远（守住率78.1%），持仓观察",
-          "held_rate": 78.1,
-          "confidence": "高"
-        }
-      ]
-    },
-    {
-      "code": "001258",
-      "name": "立新能源",
-      "price": 8.21,
-      "supports": [
-        {
-          "price": 8.2,
-          "strength": "强",
-          "sources": [
-            "前高",
-            "20日低点",
-            "60日低点"
-          ],
-          "volume": 0,
-          "distance_pct": -0.12,
-          "held_rate": 47.1,
-          "touch": 17,
-          "confidence": "高"
-        },
-        {
-          "price": 8.03,
+          "price": 11.12,
           "strength": "弱",
           "sources": [
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -2.19,
-          "held_rate": 44.0,
-          "touch": 25,
-          "confidence": "高"
-        },
-        {
-          "price": 7.93,
-          "strength": "中",
-          "sources": [
-            "前低",
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -3.41,
-          "held_rate": 55.6,
-          "touch": 36,
-          "confidence": "高"
-        }
-      ],
-      "resistances": [
-        {
-          "price": 8.29,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 0.97,
-          "held_rate": 92.0,
-          "touch": 25,
-          "confidence": "高"
-        },
-        {
-          "price": 8.53,
-          "strength": "弱",
-          "sources": [
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": 3.9,
-          "held_rate": 61.5,
+          "distance_pct": -0.54,
+          "held_rate": 38.5,
           "touch": 13,
           "confidence": "高"
         },
         {
-          "price": 8.75,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 6.58,
-          "held_rate": 71.4,
-          "touch": 7,
-          "confidence": "中"
-        }
-      ],
-      "risk": {
-        "score": 48,
-        "level": "观望",
-        "summary": "距支撑0.12%、压力0.97%，攻守均衡"
-      },
-      "alerts": [
-        {
-          "price": 8.2,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "强",
-          "distance_pct": 0.12,
-          "alert_level": "danger",
-          "alert_text": "⚡ 即将触及",
-          "progress": 97,
-          "advice": "接近支撑8.2（历史守住率47.1%/高），关注反弹信号",
-          "held_rate": 47.1,
-          "confidence": "高"
-        },
-        {
-          "price": 8.29,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "中",
-          "distance_pct": 0.97,
-          "alert_level": "danger",
-          "alert_text": "⚡ 即将触及",
-          "progress": 80,
-          "advice": "接近压力8.29（历史守住率92.0%），关注突破或减仓",
-          "held_rate": 92.0,
-          "confidence": "高"
-        },
-        {
-          "price": 8.03,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 2.19,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 56,
-          "advice": "向支撑8.03靠近（守住率44.0%），准备观察入场时机",
-          "held_rate": 44.0,
-          "confidence": "高"
-        },
-        {
-          "price": 7.93,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "中",
-          "distance_pct": 3.41,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 31,
-          "advice": "距支撑7.93较远（守住率55.6%），等待回调",
-          "held_rate": 55.6,
-          "confidence": "高"
-        },
-        {
-          "price": 8.53,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 3.9,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 21,
-          "advice": "距压力8.53较远（守住率61.5%），持仓观察",
-          "held_rate": 61.5,
-          "confidence": "高"
-        },
-        {
-          "price": 8.75,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 6.58,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距压力8.75较远（守住率71.4%），持仓观察",
-          "held_rate": 71.4,
-          "confidence": "中"
-        }
-      ]
-    },
-    {
-      "code": "600350",
-      "name": "山东高速",
-      "price": 11.1,
-      "supports": [
-        {
-          "price": 11.06,
-          "strength": "弱",
-          "sources": [
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -0.36,
-          "held_rate": 56.2,
-          "touch": 16,
-          "confidence": "高"
-        },
-        {
-          "price": 10.92,
+          "price": 10.95,
           "strength": "中",
           "sources": [
-            "筹码密集",
-            "前高"
+            "前高",
+            "筹码密集"
           ],
-          "volume": 4898972,
-          "distance_pct": -1.62,
+          "volume": 4920384,
+          "distance_pct": -2.06,
           "zone": {
             "low": 10.62,
             "high": 11.15,
             "strength": 1.0
           },
-          "held_rate": 61.1,
-          "touch": 18,
+          "held_rate": 56.2,
+          "touch": 16,
           "confidence": "高"
         },
         {
@@ -2125,7 +2127,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": -3.33,
+          "distance_pct": -4.03,
           "held_rate": 79.2,
           "touch": 24,
           "confidence": "高"
@@ -2133,16 +2135,15 @@
       ],
       "resistances": [
         {
-          "price": 11.12,
-          "strength": "中",
+          "price": 11.2,
+          "strength": "弱",
           "sources": [
-            "前高",
             "前低"
           ],
           "volume": 0,
           "distance_pct": 0.18,
-          "held_rate": 33.3,
-          "touch": 15,
+          "held_rate": 81.8,
+          "touch": 11,
           "confidence": "高"
         },
         {
@@ -2153,7 +2154,7 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 2.88,
+          "distance_pct": 2.15,
           "held_rate": 73.3,
           "touch": 15,
           "confidence": "高"
@@ -2166,55 +2167,55 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 4.68,
+          "distance_pct": 3.94,
           "held_rate": 90.0,
           "touch": 10,
           "confidence": "高"
         }
       ],
       "risk": {
-        "score": 46,
+        "score": 44,
         "level": "观望",
-        "summary": "距支撑0.36%、压力0.18%，攻守均衡"
+        "summary": "距支撑0.54%、压力0.18%，攻守均衡"
       },
       "alerts": [
         {
-          "price": 11.12,
+          "price": 11.2,
           "side": "resistances",
           "kind": "压力",
-          "strength": "中",
+          "strength": "弱",
           "distance_pct": 0.18,
           "alert_level": "danger",
           "alert_text": "⚡ 即将触及",
           "progress": 96,
-          "advice": "接近压力11.12（历史守住率33.3%），关注突破或减仓",
-          "held_rate": 33.3,
+          "advice": "接近压力11.2（历史守住率81.8%），关注突破或减仓",
+          "held_rate": 81.8,
           "confidence": "高"
         },
         {
-          "price": 11.06,
+          "price": 11.12,
           "side": "supports",
           "kind": "支撑",
           "strength": "弱",
-          "distance_pct": 0.36,
+          "distance_pct": 0.54,
           "alert_level": "danger",
           "alert_text": "⚡ 即将触及",
-          "progress": 92,
-          "advice": "接近支撑11.06（历史守住率56.2%/高），关注反弹信号",
-          "held_rate": 56.2,
+          "progress": 89,
+          "advice": "接近支撑11.12（历史守住率38.5%/高），关注反弹信号",
+          "held_rate": 38.5,
           "confidence": "高"
         },
         {
-          "price": 10.92,
+          "price": 10.95,
           "side": "supports",
           "kind": "支撑",
           "strength": "中",
-          "distance_pct": 1.62,
+          "distance_pct": 2.06,
           "alert_level": "warning",
           "alert_text": "🔶 正在接近",
-          "progress": 67,
-          "advice": "向支撑10.92靠近（守住率61.1%），准备观察入场时机",
-          "held_rate": 61.1,
+          "progress": 58,
+          "advice": "向支撑10.95靠近（守住率56.2%），准备观察入场时机",
+          "held_rate": 56.2,
           "confidence": "高"
         },
         {
@@ -2222,25 +2223,12 @@
           "side": "resistances",
           "kind": "压力",
           "strength": "中",
-          "distance_pct": 2.88,
+          "distance_pct": 2.15,
           "alert_level": "warning",
           "alert_text": "🔶 正在接近",
-          "progress": 42,
+          "progress": 57,
           "advice": "向压力11.42靠近（守住率73.3%），关注减仓时机",
           "held_rate": 73.3,
-          "confidence": "高"
-        },
-        {
-          "price": 10.73,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 3.33,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 33,
-          "advice": "距支撑10.73较远（守住率79.2%），等待回调",
-          "held_rate": 79.2,
           "confidence": "高"
         },
         {
@@ -2248,20 +2236,207 @@
           "side": "resistances",
           "kind": "压力",
           "strength": "中",
-          "distance_pct": 4.68,
+          "distance_pct": 3.94,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
-          "progress": 6,
+          "progress": 21,
           "advice": "距压力11.62较远（守住率90.0%），持仓观察",
           "held_rate": 90.0,
           "confidence": "高"
+        },
+        {
+          "price": 10.73,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 4.03,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 19,
+          "advice": "距支撑10.73较远（守住率79.2%），等待回调",
+          "held_rate": 79.2,
+          "confidence": "高"
+        }
+      ]
+    },
+    {
+      "code": "600584",
+      "name": "长电科技",
+      "price": 55.41,
+      "supports": [
+        {
+          "price": 54.48,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -1.68,
+          "held_rate": 100.0,
+          "touch": 5,
+          "confidence": "中"
+        },
+        {
+          "price": 53.25,
+          "strength": "中",
+          "sources": [
+            "20日低点",
+            "60日低点"
+          ],
+          "volume": 0,
+          "distance_pct": -3.9,
+          "held_rate": 100.0,
+          "touch": 2,
+          "confidence": "低"
+        },
+        {
+          "price": 51.25,
+          "strength": "弱",
+          "sources": [
+            "前高"
+          ],
+          "volume": 0,
+          "distance_pct": -7.51,
+          "held_rate": 0.0,
+          "touch": 1,
+          "confidence": "低"
+        }
+      ],
+      "resistances": [
+        {
+          "price": 57.7,
+          "strength": "弱",
+          "sources": [
+            "筹码密集"
+          ],
+          "volume": 8531048,
+          "distance_pct": 4.13,
+          "zone": {
+            "low": 55.3,
+            "high": 60.09,
+            "strength": 0.3364
+          },
+          "held_rate": 0.0,
+          "touch": 6,
+          "confidence": "中"
+        },
+        {
+          "price": 60.64,
+          "strength": "中",
+          "sources": [
+            "前高",
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 9.44,
+          "held_rate": 60.0,
+          "touch": 5,
+          "confidence": "中"
+        },
+        {
+          "price": 65.45,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": 18.12,
+          "held_rate": 50.0,
+          "touch": 8,
+          "confidence": "中"
+        }
+      ],
+      "risk": {
+        "score": 71,
+        "level": "可关注",
+        "summary": "距支撑1.68%、压力4.13%，支撑守住率100.0%"
+      },
+      "alerts": [
+        {
+          "price": 54.48,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "中",
+          "distance_pct": 1.68,
+          "alert_level": "warning",
+          "alert_text": "🔶 正在接近",
+          "progress": 66,
+          "advice": "向支撑54.48靠近（守住率100.0%），准备观察入场时机",
+          "held_rate": 100.0,
+          "confidence": "中"
+        },
+        {
+          "price": 53.25,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "中",
+          "distance_pct": 3.9,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 21,
+          "advice": "距支撑53.25较远（守住率100.0%），等待回调",
+          "held_rate": 100.0,
+          "confidence": "低"
+        },
+        {
+          "price": 57.7,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 4.13,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 17,
+          "advice": "距压力57.7较远（守住率0.0%），持仓观察",
+          "held_rate": 0.0,
+          "confidence": "中"
+        },
+        {
+          "price": 51.25,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 7.51,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距支撑51.25较远（守住率0.0%），等待回调",
+          "held_rate": 0.0,
+          "confidence": "低"
+        },
+        {
+          "price": 60.64,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "中",
+          "distance_pct": 9.44,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距压力60.64较远（守住率60.0%），持仓观察",
+          "held_rate": 60.0,
+          "confidence": "中"
+        },
+        {
+          "price": 65.45,
+          "side": "resistances",
+          "kind": "压力",
+          "strength": "弱",
+          "distance_pct": 18.12,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 0,
+          "advice": "距压力65.45较远（守住率50.0%），持仓观察",
+          "held_rate": 50.0,
+          "confidence": "中"
         }
       ]
     },
     {
       "code": "000959",
       "name": "首钢股份",
-      "price": 3.29,
+      "price": 3.3,
       "supports": [
         {
           "price": 3.29,
@@ -2484,12 +2659,12 @@
           "sources": [
             "筹码密集"
           ],
-          "volume": 71684418,
+          "volume": 72306107,
           "distance_pct": 0.83,
           "zone": {
             "low": 4.74,
             "high": 5.15,
-            "strength": 0.1084
+            "strength": 0.1097
           },
           "held_rate": 0.0,
           "touch": 0,
@@ -2607,184 +2782,22 @@
       ]
     },
     {
-      "code": "600584",
-      "name": "长电科技",
-      "price": 54.96,
-      "supports": [
-        {
-          "price": 54.48,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -0.89,
-          "held_rate": 100.0,
-          "touch": 5,
-          "confidence": "中"
-        },
-        {
-          "price": 53.25,
-          "strength": "中",
-          "sources": [
-            "20日低点",
-            "60日低点"
-          ],
-          "volume": 0,
-          "distance_pct": -3.13,
-          "held_rate": 100.0,
-          "touch": 2,
-          "confidence": "低"
-        },
-        {
-          "price": 51.25,
-          "strength": "弱",
-          "sources": [
-            "前高"
-          ],
-          "volume": 0,
-          "distance_pct": -6.77,
-          "held_rate": 0.0,
-          "touch": 1,
-          "confidence": "低"
-        }
-      ],
-      "resistances": [
-        {
-          "price": 57.7,
-          "strength": "弱",
-          "sources": [
-            "筹码密集"
-          ],
-          "volume": 8412564,
-          "distance_pct": 4.97,
-          "zone": {
-            "low": 55.3,
-            "high": 60.09,
-            "strength": 0.3361
-          },
-          "held_rate": 0.0,
-          "touch": 6,
-          "confidence": "中"
-        },
-        {
-          "price": 60.64,
-          "strength": "中",
-          "sources": [
-            "前高",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 10.31,
-          "held_rate": 60.0,
-          "touch": 5,
-          "confidence": "中"
-        },
-        {
-          "price": 65.45,
-          "strength": "弱",
-          "sources": [
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": 19.06,
-          "held_rate": 50.0,
-          "touch": 8,
-          "confidence": "中"
-        }
-      ],
-      "risk": {
-        "score": 77,
-        "level": "可关注",
-        "summary": "距支撑0.89%、压力4.97%，支撑守住率100.0%"
-      },
-      "alerts": [
-        {
-          "price": 54.48,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "中",
-          "distance_pct": 0.89,
-          "alert_level": "danger",
-          "alert_text": "⚡ 即将触及",
-          "progress": 82,
-          "advice": "接近支撑54.48（历史守住率100.0%/中），关注反弹信号",
-          "held_rate": 100.0,
-          "confidence": "中"
-        },
-        {
-          "price": 53.25,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "中",
-          "distance_pct": 3.13,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 37,
-          "advice": "距支撑53.25较远（守住率100.0%），等待回调",
-          "held_rate": 100.0,
-          "confidence": "低"
-        },
-        {
-          "price": 57.7,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 4.97,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距压力57.7较远（守住率0.0%），持仓观察",
-          "held_rate": 0.0,
-          "confidence": "中"
-        },
-        {
-          "price": 51.25,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 6.77,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距支撑51.25较远（守住率0.0%），等待回调",
-          "held_rate": 0.0,
-          "confidence": "低"
-        },
-        {
-          "price": 60.64,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "中",
-          "distance_pct": 10.31,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距压力60.64较远（守住率60.0%），持仓观察",
-          "held_rate": 60.0,
-          "confidence": "中"
-        },
-        {
-          "price": 65.45,
-          "side": "resistances",
-          "kind": "压力",
-          "strength": "弱",
-          "distance_pct": 19.06,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距压力65.45较远（守住率50.0%），持仓观察",
-          "held_rate": 50.0,
-          "confidence": "中"
-        }
-      ]
-    },
-    {
       "code": "002491",
       "name": "通鼎互联",
-      "price": 15.15,
+      "price": 15.28,
       "supports": [
+        {
+          "price": 15.27,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -0.07,
+          "held_rate": 62.5,
+          "touch": 8,
+          "confidence": "中"
+        },
         {
           "price": 14.69,
           "strength": "弱",
@@ -2792,7 +2805,7 @@
             "20日低点"
           ],
           "volume": 0,
-          "distance_pct": -2.97,
+          "distance_pct": -3.86,
           "held_rate": 28.6,
           "touch": 7,
           "confidence": "中"
@@ -2804,36 +2817,23 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -9.31,
+          "distance_pct": -10.14,
           "held_rate": 100.0,
           "touch": 4,
           "confidence": "中"
-        },
-        {
-          "price": 13.44,
-          "strength": "中",
-          "sources": [
-            "60日低点",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -11.23,
-          "held_rate": 100.0,
-          "touch": 3,
-          "confidence": "低"
         }
       ],
       "resistances": [
         {
-          "price": 15.18,
+          "price": 15.31,
           "strength": "弱",
           "sources": [
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 0.26,
+          "distance_pct": 0.2,
           "held_rate": 0.0,
-          "touch": 9,
+          "touch": 6,
           "confidence": "中"
         },
         {
@@ -2843,7 +2843,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 7.86,
+          "distance_pct": 6.87,
           "held_rate": 60.0,
           "touch": 5,
           "confidence": "中"
@@ -2856,28 +2856,41 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 10.04,
+          "distance_pct": 9.03,
           "held_rate": 45.5,
           "touch": 11,
           "confidence": "高"
         }
       ],
       "risk": {
-        "score": 38,
-        "level": "回避",
-        "summary": "上方压力0.26%较近（守住率60.0%），追高风险大"
+        "score": 61,
+        "level": "观望",
+        "summary": "距支撑0.07%、压力0.2%，攻守均衡"
       },
       "alerts": [
         {
-          "price": 15.18,
+          "price": 15.27,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 0.07,
+          "alert_level": "danger",
+          "alert_text": "⚡ 即将触及",
+          "progress": 98,
+          "advice": "接近支撑15.27（历史守住率62.5%/中），关注反弹信号",
+          "held_rate": 62.5,
+          "confidence": "中"
+        },
+        {
+          "price": 15.31,
           "side": "resistances",
           "kind": "压力",
           "strength": "弱",
-          "distance_pct": 0.26,
+          "distance_pct": 0.2,
           "alert_level": "danger",
           "alert_text": "⚡ 即将触及",
-          "progress": 94,
-          "advice": "接近压力15.18（历史守住率0.0%），关注突破或减仓",
+          "progress": 96,
+          "advice": "接近压力15.31（历史守住率0.0%），关注突破或减仓",
           "held_rate": 0.0,
           "confidence": "中"
         },
@@ -2886,11 +2899,11 @@
           "side": "supports",
           "kind": "支撑",
           "strength": "弱",
-          "distance_pct": 2.97,
-          "alert_level": "warning",
-          "alert_text": "🔶 正在接近",
-          "progress": 40,
-          "advice": "向支撑14.69靠近（守住率28.6%），准备观察入场时机",
+          "distance_pct": 3.86,
+          "alert_level": "normal",
+          "alert_text": "🔹 距离较远",
+          "progress": 22,
+          "advice": "距支撑14.69较远（守住率28.6%），等待回调",
           "held_rate": 28.6,
           "confidence": "中"
         },
@@ -2899,7 +2912,7 @@
           "side": "resistances",
           "kind": "压力",
           "strength": "弱",
-          "distance_pct": 7.86,
+          "distance_pct": 6.87,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
@@ -2908,24 +2921,11 @@
           "confidence": "中"
         },
         {
-          "price": 13.73,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 9.31,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 0,
-          "advice": "距支撑13.73较远（守住率100.0%），等待回调",
-          "held_rate": 100.0,
-          "confidence": "中"
-        },
-        {
           "price": 16.66,
           "side": "resistances",
           "kind": "压力",
           "strength": "中",
-          "distance_pct": 10.04,
+          "distance_pct": 9.03,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
@@ -2934,25 +2934,37 @@
           "confidence": "高"
         },
         {
-          "price": 13.44,
+          "price": 13.73,
           "side": "supports",
           "kind": "支撑",
-          "strength": "中",
-          "distance_pct": 11.23,
+          "strength": "弱",
+          "distance_pct": 10.14,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
           "progress": 0,
-          "advice": "距支撑13.44较远（守住率100.0%），等待回调",
+          "advice": "距支撑13.73较远（守住率100.0%），等待回调",
           "held_rate": 100.0,
-          "confidence": "低"
+          "confidence": "中"
         }
       ]
     },
     {
       "code": "600721",
       "name": "百花医药",
-      "price": 9.22,
+      "price": 9.23,
       "supports": [
+        {
+          "price": 9.22,
+          "strength": "弱",
+          "sources": [
+            "前低"
+          ],
+          "volume": 0,
+          "distance_pct": -0.11,
+          "held_rate": 54.5,
+          "touch": 33,
+          "confidence": "高"
+        },
         {
           "price": 9.08,
           "strength": "中",
@@ -2961,7 +2973,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -1.41,
+          "distance_pct": -1.63,
           "held_rate": 63.6,
           "touch": 44,
           "confidence": "高"
@@ -2973,44 +2985,30 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": -3.37,
+          "distance_pct": -3.58,
           "held_rate": 80.0,
           "touch": 30,
-          "confidence": "高"
-        },
-        {
-          "price": 8.76,
-          "strength": "强",
-          "sources": [
-            "前高",
-            "20日低点",
-            "前低"
-          ],
-          "volume": 0,
-          "distance_pct": -4.89,
-          "held_rate": 71.4,
-          "touch": 21,
           "confidence": "高"
         }
       ],
       "resistances": [
         {
-          "price": 9.22,
+          "price": 9.24,
           "strength": "强",
           "sources": [
-            "前低",
             "前高",
+            "前低",
             "筹码密集"
           ],
-          "volume": 4315626,
+          "volume": 4372138,
           "distance_pct": 0.11,
           "zone": {
             "low": 8.59,
             "high": 9.97,
-            "strength": 0.1201
+            "strength": 0.1217
           },
-          "held_rate": 64.4,
-          "touch": 45,
+          "held_rate": 59.1,
+          "touch": 44,
           "confidence": "高"
         },
         {
@@ -3021,7 +3019,7 @@
             "前低"
           ],
           "volume": 0,
-          "distance_pct": 2.06,
+          "distance_pct": 1.84,
           "held_rate": 57.1,
           "touch": 21,
           "confidence": "高"
@@ -3034,20 +3032,33 @@
             "前高"
           ],
           "volume": 0,
-          "distance_pct": 3.58,
+          "distance_pct": 3.36,
           "held_rate": 43.8,
           "touch": 16,
           "confidence": "高"
         }
       ],
       "risk": {
-        "score": 43,
+        "score": 55,
         "level": "观望",
-        "summary": "距支撑1.41%、压力0.11%，攻守均衡"
+        "summary": "距支撑0.11%、压力0.11%，攻守均衡"
       },
       "alerts": [
         {
           "price": 9.22,
+          "side": "supports",
+          "kind": "支撑",
+          "strength": "弱",
+          "distance_pct": 0.11,
+          "alert_level": "danger",
+          "alert_text": "⚡ 即将触及",
+          "progress": 97,
+          "advice": "接近支撑9.22（历史守住率54.5%/高），关注反弹信号",
+          "held_rate": 54.5,
+          "confidence": "高"
+        },
+        {
+          "price": 9.24,
           "side": "resistances",
           "kind": "压力",
           "strength": "强",
@@ -3055,8 +3066,8 @@
           "alert_level": "danger",
           "alert_text": "⚡ 即将触及",
           "progress": 97,
-          "advice": "接近压力9.22（历史守住率64.4%），关注突破或减仓",
-          "held_rate": 64.4,
+          "advice": "接近压力9.24（历史守住率59.1%），关注突破或减仓",
+          "held_rate": 59.1,
           "confidence": "高"
         },
         {
@@ -3064,10 +3075,10 @@
           "side": "supports",
           "kind": "支撑",
           "strength": "中",
-          "distance_pct": 1.41,
+          "distance_pct": 1.63,
           "alert_level": "warning",
           "alert_text": "🔶 正在接近",
-          "progress": 71,
+          "progress": 67,
           "advice": "向支撑9.08靠近（守住率63.6%），准备观察入场时机",
           "held_rate": 63.6,
           "confidence": "高"
@@ -3077,25 +3088,12 @@
           "side": "resistances",
           "kind": "压力",
           "strength": "中",
-          "distance_pct": 2.06,
+          "distance_pct": 1.84,
           "alert_level": "warning",
           "alert_text": "🔶 正在接近",
-          "progress": 58,
+          "progress": 63,
           "advice": "向压力9.4靠近（守住率57.1%），关注减仓时机",
           "held_rate": 57.1,
-          "confidence": "高"
-        },
-        {
-          "price": 8.9,
-          "side": "supports",
-          "kind": "支撑",
-          "strength": "弱",
-          "distance_pct": 3.37,
-          "alert_level": "normal",
-          "alert_text": "🔹 距离较远",
-          "progress": 32,
-          "advice": "距支撑8.9较远（守住率80.0%），等待回调",
-          "held_rate": 80.0,
           "confidence": "高"
         },
         {
@@ -3103,25 +3101,25 @@
           "side": "resistances",
           "kind": "压力",
           "strength": "中",
-          "distance_pct": 3.58,
+          "distance_pct": 3.36,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
-          "progress": 28,
+          "progress": 32,
           "advice": "距压力9.54较远（守住率43.8%），持仓观察",
           "held_rate": 43.8,
           "confidence": "高"
         },
         {
-          "price": 8.76,
+          "price": 8.9,
           "side": "supports",
           "kind": "支撑",
-          "strength": "强",
-          "distance_pct": 4.89,
+          "strength": "弱",
+          "distance_pct": 3.58,
           "alert_level": "normal",
           "alert_text": "🔹 距离较远",
-          "progress": 2,
-          "advice": "距支撑8.76较远（守住率71.4%），等待回调",
-          "held_rate": 71.4,
+          "progress": 28,
+          "advice": "距支撑8.9较远（守住率80.0%），等待回调",
+          "held_rate": 80.0,
           "confidence": "高"
         }
       ]
