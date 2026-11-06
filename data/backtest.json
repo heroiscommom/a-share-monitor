@@ -1,150 +1,150 @@
 {
   "forward_days": 10,
-  "total_samples": 1206,
+  "total_samples": 1193,
   "groups": [
     {
       "label": "<45",
-      "count": 521,
-      "avg_return": 0.95,
-      "win_rate": 52.2
+      "count": 544,
+      "avg_return": 1.23,
+      "win_rate": 50.0
     },
     {
       "label": "45-55",
-      "count": 225,
-      "avg_return": 0.82,
-      "win_rate": 49.3
+      "count": 208,
+      "avg_return": 0.17,
+      "win_rate": 48.6
     },
     {
       "label": "55-65",
-      "count": 198,
-      "avg_return": 1.31,
-      "win_rate": 51.0
+      "count": 190,
+      "avg_return": 0.82,
+      "win_rate": 52.6
     },
     {
       "label": "65-75",
-      "count": 155,
-      "avg_return": -0.23,
-      "win_rate": 47.1
+      "count": 141,
+      "avg_return": -1.16,
+      "win_rate": 46.1
     },
     {
       "label": "≥75",
-      "count": 107,
-      "avg_return": 0.74,
-      "win_rate": 44.9
+      "count": 110,
+      "avg_return": 1.26,
+      "win_rate": 45.5
     }
   ],
-  "ic": -0.015,
+  "ic": -0.022,
   "per_stock": [
     {
       "code": "600664",
       "name": "哈药股份",
-      "samples": 69,
-      "avg_fwd_return": 1.25
+      "samples": 64,
+      "avg_fwd_return": -0.12
     },
     {
       "code": "001289",
       "name": "龙源电力",
-      "samples": 69,
-      "avg_fwd_return": -0.43
+      "samples": 67,
+      "avg_fwd_return": -0.32
     },
     {
       "code": "601700",
       "name": "风范股份",
-      "samples": 66,
-      "avg_fwd_return": -0.42
+      "samples": 67,
+      "avg_fwd_return": -0.16
     },
     {
       "code": "002437",
       "name": "誉衡药业",
       "samples": 67,
-      "avg_fwd_return": 0.79
+      "avg_fwd_return": -0.15
     },
     {
       "code": "159582",
       "name": "半导体ETF博时",
       "samples": 54,
-      "avg_fwd_return": 2.61
+      "avg_fwd_return": 2.6
     },
     {
       "code": "600667",
       "name": "太极实业",
-      "samples": 67,
-      "avg_fwd_return": 2.12
+      "samples": 66,
+      "avg_fwd_return": 0.93
     },
     {
       "code": "000657",
       "name": "中钨高新",
-      "samples": 67,
-      "avg_fwd_return": 2.89
+      "samples": 65,
+      "avg_fwd_return": 3.4
     },
     {
       "code": "001258",
       "name": "立新能源",
-      "samples": 66,
-      "avg_fwd_return": 0.65
+      "samples": 67,
+      "avg_fwd_return": 0.48
     },
     {
       "code": "688036",
       "name": "传音控股",
-      "samples": 69,
-      "avg_fwd_return": -0.34
+      "samples": 68,
+      "avg_fwd_return": -0.57
     },
     {
       "code": "001965",
       "name": "招商公路",
-      "samples": 69,
-      "avg_fwd_return": 0.12
+      "samples": 68,
+      "avg_fwd_return": 0.15
     },
     {
       "code": "600012",
       "name": "皖通高速",
-      "samples": 69,
-      "avg_fwd_return": 0.85
+      "samples": 68,
+      "avg_fwd_return": 0.95
     },
     {
       "code": "600011",
       "name": "华能国际",
-      "samples": 69,
-      "avg_fwd_return": 0.01
+      "samples": 68,
+      "avg_fwd_return": -0.03
     },
     {
       "code": "600350",
       "name": "山东高速",
       "samples": 68,
-      "avg_fwd_return": 0.61
+      "avg_fwd_return": 0.84
     },
     {
       "code": "000959",
       "name": "首钢股份",
-      "samples": 69,
-      "avg_fwd_return": -0.21
+      "samples": 68,
+      "avg_fwd_return": -0.05
     },
     {
       "code": "600584",
       "name": "长电科技",
-      "samples": 66,
-      "avg_fwd_return": 1.7
+      "samples": 68,
+      "avg_fwd_return": 1.4
     },
     {
       "code": "000725",
       "name": "京东方A",
-      "samples": 69,
-      "avg_fwd_return": 0.31
+      "samples": 68,
+      "avg_fwd_return": 0.46
     },
     {
       "code": "002491",
       "name": "通鼎互联",
       "samples": 66,
-      "avg_fwd_return": 2.68
+      "avg_fwd_return": 3.07
     },
     {
       "code": "600721",
       "name": "百花医药",
-      "samples": 67,
-      "avg_fwd_return": 0.01
+      "samples": 66,
+      "avg_fwd_return": 0.13
     }
   ],
-  "conclusion": "各组收益差异不大（0.95% ~ 0.74%），评分区分度低；线性 IC=-0.015",
-  "updated_at": "2026-11-06 15:34:42",
+  "conclusion": "各组收益差异不大（1.23% ~ 1.26%），评分区分度低；线性 IC=-0.022",
+  "updated_at": "2026-11-06 23:19:59",
   "methodology": "非重叠抽样(每10日1样本) · 双边成本0.25% · 剔除一字涨停买入/一字跌停卖出"
 }
