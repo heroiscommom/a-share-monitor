@@ -1,251 +1,251 @@
 {
   "pool_size": 300,
-  "valid_stocks": 162,
+  "valid_stocks": 125,
   "forward_days": 10,
-  "total_samples": 10383,
+  "total_samples": 7949,
   "groups": [
     {
       "label": "<45",
-      "count": 4774,
-      "avg_return": 1.58,
-      "win_rate": 50.4
+      "count": 3912,
+      "avg_return": 1.61,
+      "win_rate": 52.1
     },
     {
       "label": "45-55",
-      "count": 1695,
-      "avg_return": 0.74,
-      "win_rate": 50.1
+      "count": 1375,
+      "avg_return": 0.52,
+      "win_rate": 48.9
     },
     {
       "label": "55-65",
-      "count": 1665,
-      "avg_return": 0.51,
-      "win_rate": 47.8
+      "count": 1259,
+      "avg_return": 0.17,
+      "win_rate": 48.6
     },
     {
       "label": "65-75",
-      "count": 1392,
-      "avg_return": 0.71,
-      "win_rate": 46.3
+      "count": 903,
+      "avg_return": 0.85,
+      "win_rate": 52.9
     },
     {
       "label": "≥75",
-      "count": 857,
-      "avg_return": 2.86,
-      "win_rate": 53.6
+      "count": 500,
+      "avg_return": 1.7,
+      "win_rate": 60.2
     }
   ],
-  "ic": -0.0278,
+  "ic": -0.0534,
   "thresholds": [
     {
       "threshold": 50,
-      "count": 4844,
-      "win_rate": 49.2,
-      "avg_return": 1.07
+      "count": 3378,
+      "win_rate": 51.7,
+      "avg_return": 0.69
     },
     {
       "threshold": 55,
-      "count": 3914,
-      "win_rate": 48.5,
-      "avg_return": 1.09
+      "count": 2662,
+      "win_rate": 52.3,
+      "avg_return": 0.69
     },
     {
       "threshold": 60,
-      "count": 3062,
-      "win_rate": 48.3,
-      "avg_return": 1.18
+      "count": 1994,
+      "win_rate": 53.7,
+      "avg_return": 0.85
     },
     {
       "threshold": 65,
-      "count": 2249,
-      "win_rate": 49.1,
-      "avg_return": 1.53
+      "count": 1403,
+      "win_rate": 55.5,
+      "avg_return": 1.16
     },
     {
       "threshold": 70,
-      "count": 1468,
-      "win_rate": 51.3,
-      "avg_return": 2.11
+      "count": 896,
+      "win_rate": 56.9,
+      "avg_return": 1.27
     },
     {
       "threshold": 75,
-      "count": 857,
-      "win_rate": 53.6,
-      "avg_return": 2.86
+      "count": 500,
+      "win_rate": 60.2,
+      "avg_return": 1.7
     },
     {
       "threshold": 78,
-      "count": 546,
-      "win_rate": 55.7,
-      "avg_return": 3.76
+      "count": 318,
+      "win_rate": 61.6,
+      "avg_return": 1.68
     },
     {
       "threshold": 80,
-      "count": 392,
-      "win_rate": 58.2,
-      "avg_return": 4.57
+      "count": 211,
+      "win_rate": 64.0,
+      "avg_return": 2.07
     },
     {
       "threshold": 82,
-      "count": 221,
-      "win_rate": 55.2,
-      "avg_return": 4.56
+      "count": 129,
+      "win_rate": 58.9,
+      "avg_return": 1.78
     },
     {
       "threshold": 85,
-      "count": 67,
-      "win_rate": 52.2,
-      "avg_return": 4.28
+      "count": 26,
+      "win_rate": 38.5,
+      "avg_return": -0.21
     },
     {
       "threshold": 88,
-      "count": 6,
-      "win_rate": 50.0,
-      "avg_return": -0.03
+      "count": 3,
+      "win_rate": 33.3,
+      "avg_return": -0.41
     }
   ],
   "momentum_thresholds": [
     {
       "threshold": 50,
-      "count": 4513,
-      "win_rate": 49.6,
-      "avg_return": 1.45
+      "count": 3598,
+      "win_rate": 51.5,
+      "avg_return": 1.7
     },
     {
       "threshold": 55,
-      "count": 4057,
-      "win_rate": 49.8,
-      "avg_return": 1.59
+      "count": 3177,
+      "win_rate": 51.6,
+      "avg_return": 1.74
     },
     {
       "threshold": 60,
-      "count": 3582,
-      "win_rate": 49.5,
-      "avg_return": 1.62
+      "count": 2796,
+      "win_rate": 51.8,
+      "avg_return": 1.91
     },
     {
       "threshold": 65,
-      "count": 3115,
-      "win_rate": 49.6,
-      "avg_return": 1.8
+      "count": 2444,
+      "win_rate": 51.9,
+      "avg_return": 2.1
     },
     {
       "threshold": 70,
-      "count": 2672,
-      "win_rate": 50.2,
-      "avg_return": 1.99
+      "count": 2103,
+      "win_rate": 51.5,
+      "avg_return": 2.1
     },
     {
       "threshold": 75,
-      "count": 2261,
-      "win_rate": 50.0,
-      "avg_return": 2.02
+      "count": 1785,
+      "win_rate": 52.3,
+      "avg_return": 2.28
     },
     {
       "threshold": 80,
-      "count": 1859,
-      "win_rate": 51.4,
-      "avg_return": 2.28
+      "count": 1491,
+      "win_rate": 52.4,
+      "avg_return": 2.23
     }
   ],
-  "conclusion": "U型关系：超跌股（2.86%）和强势股（1.58%）都跑赢中间档（0.51%）；其中「超跌」信号最强、胜率最高；线性 IC=-0.028；网格阈值≥81: 样本外胜率54.9% vs 基准44.0%（10.9pp）；10日平均4.49% vs -0.43%（超额4.92%）；分位数阈值≥72: 样本外胜率48.2% vs 基准44.0%（4.2pp）；10日平均1.72% vs -0.43%（超额2.15%）；市场状态分层：震荡市: 超跌组胜率50.3%/收益2.71% vs 全体48.6%/0.68%；震荡市: 强势组胜率50.9%/收益1.68%；上涨市: 超跌组胜率40.9%/收益-0.21% vs 全体47.3%/1.24%；上涨市: 强势组胜率50.7%/收益2.48%；下跌市: 超跌组胜率57.1%/收益3.25% vs 全体54.3%/2.39%；下跌市: 强势组胜率46.0%/收益1.27%",
+  "conclusion": "U型关系：超跌股（1.70%）和强势股（1.61%）都跑赢中间档（0.17%）；其中「超跌」信号最强、胜率最高；线性 IC=-0.053；网格阈值≥80: 样本外胜率56.5% vs 基准32.0%（24.5pp）；10日平均-0.47% vs -0.62%（超额0.15%）；分位数阈值≥70: 样本外胜率51.6% vs 基准32.0%（19.6pp）；10日平均-0.37% vs -0.62%（超额0.25%）；市场状态分层：震荡市: 超跌组胜率55.2%/收益0.32% vs 全体49.3%/0.14%；震荡市: 强势组胜率45.9%/收益0.28%；上涨市: 超跌组胜率31.8%/收益0.16% vs 全体50.9%/2.3%；上涨市: 强势组胜率56.3%/收益4.06%；下跌市: 超跌组胜率66.5%/收益2.93% vs 全体58.3%/2.15%；下跌市: 强势组胜率56.5%/收益2.26%",
   "methodology": "非重叠抽样(每10日1样本) · 双边成本0.25% · 剔除一字涨停买入/一字跌停卖出 · 历史750天",
   "regimes": {
     "method": "按样本日期对应沪深300 20日状态分层（震荡/上涨/下跌）",
     "states": {
       "震荡": {
         "all": {
-          "n": 5008,
-          "win_rate": 48.6,
-          "avg_return": 0.68
+          "n": 4258,
+          "win_rate": 49.3,
+          "avg_return": 0.14
         },
         "超跌组(评分≥75)": {
-          "n": 340,
-          "win_rate": 50.3,
-          "avg_return": 2.71
+          "n": 212,
+          "win_rate": 55.2,
+          "avg_return": 0.32
         },
         "强势组(动量≥70)": {
-          "n": 1136,
-          "win_rate": 50.9,
-          "avg_return": 1.68
+          "n": 975,
+          "win_rate": 45.9,
+          "avg_return": 0.28
         }
       },
       "上涨": {
         "all": {
-          "n": 2747,
-          "win_rate": 47.3,
-          "avg_return": 1.24
+          "n": 2021,
+          "win_rate": 50.9,
+          "avg_return": 2.3
         },
         "超跌组(评分≥75)": {
-          "n": 44,
-          "win_rate": 40.9,
-          "avg_return": -0.21
+          "n": 22,
+          "win_rate": 31.8,
+          "avg_return": 0.16
         },
         "强势组(动量≥70)": {
-          "n": 1208,
-          "win_rate": 50.7,
-          "avg_return": 2.48
+          "n": 882,
+          "win_rate": 56.3,
+          "avg_return": 4.06
         }
       },
       "下跌": {
         "all": {
-          "n": 2628,
-          "win_rate": 54.3,
-          "avg_return": 2.39
+          "n": 1670,
+          "win_rate": 58.3,
+          "avg_return": 2.15
         },
         "超跌组(评分≥75)": {
-          "n": 473,
-          "win_rate": 57.1,
-          "avg_return": 3.25
+          "n": 266,
+          "win_rate": 66.5,
+          "avg_return": 2.93
         },
         "强势组(动量≥70)": {
-          "n": 328,
-          "win_rate": 46.0,
-          "avg_return": 1.27
+          "n": 246,
+          "win_rate": 56.5,
+          "avg_return": 2.26
         }
       }
     },
-    "conclusion": "震荡市: 超跌组胜率50.3%/收益2.71% vs 全体48.6%/0.68%；震荡市: 强势组胜率50.9%/收益1.68%；上涨市: 超跌组胜率40.9%/收益-0.21% vs 全体47.3%/1.24%；上涨市: 强势组胜率50.7%/收益2.48%；下跌市: 超跌组胜率57.1%/收益3.25% vs 全体54.3%/2.39%；下跌市: 强势组胜率46.0%/收益1.27%"
+    "conclusion": "震荡市: 超跌组胜率55.2%/收益0.32% vs 全体49.3%/0.14%；震荡市: 强势组胜率45.9%/收益0.28%；上涨市: 超跌组胜率31.8%/收益0.16% vs 全体50.9%/2.3%；上涨市: 强势组胜率56.3%/收益4.06%；下跌市: 超跌组胜率66.5%/收益2.93% vs 全体58.3%/2.15%；下跌市: 强势组胜率56.5%/收益2.26%"
   },
   "oos": {
     "method": "walk-forward：前60%训练选阈值 → 后40%测试评估",
-    "train_n": 5792,
-    "test_n": 3491,
+    "train_n": 4420,
+    "test_n": 2685,
     "benchmark": {
-      "avg_return": -0.43,
-      "win_rate": 44.0,
+      "avg_return": -0.62,
+      "win_rate": 32.0,
       "samples": 25
     },
     "grid": {
       "train": {
-        "threshold": 81,
-        "n": 165,
-        "win_rate": 61.2,
-        "avg_return": 5.5
+        "threshold": 80,
+        "n": 114,
+        "win_rate": 71.1,
+        "avg_return": 4.49
       },
       "test": {
-        "threshold": 81,
-        "n": 142,
-        "win_rate": 54.9,
-        "avg_return": 4.49
+        "threshold": 80,
+        "n": 85,
+        "win_rate": 56.5,
+        "avg_return": -0.47
       }
     },
     "quantile": {
       "pct": 90,
       "train": {
-        "threshold": 72,
-        "n": 630,
-        "win_rate": 56.7,
-        "avg_return": 3.41
+        "threshold": 70,
+        "n": 468,
+        "win_rate": 61.3,
+        "avg_return": 2.8
       },
       "test": {
-        "threshold": 72,
-        "n": 506,
-        "win_rate": 48.2,
-        "avg_return": 1.72
+        "threshold": 70,
+        "n": 372,
+        "win_rate": 51.6,
+        "avg_return": -0.37
       }
     },
-    "conclusion": "网格阈值≥81: 样本外胜率54.9% vs 基准44.0%（10.9pp）；10日平均4.49% vs -0.43%（超额4.92%）；分位数阈值≥72: 样本外胜率48.2% vs 基准44.0%（4.2pp）；10日平均1.72% vs -0.43%（超额2.15%）"
+    "conclusion": "网格阈值≥80: 样本外胜率56.5% vs 基准32.0%（24.5pp）；10日平均-0.47% vs -0.62%（超额0.15%）；分位数阈值≥70: 样本外胜率51.6% vs 基准32.0%（19.6pp）；10日平均-0.37% vs -0.62%（超额0.25%）"
   },
-  "updated_at": "2026-11-02 23:18:27"
+  "updated_at": "2026-11-09 23:51:42"
 }
