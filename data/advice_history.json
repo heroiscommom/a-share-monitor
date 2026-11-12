@@ -981,7 +981,13 @@
           "support": 5.18
         }
       ],
-      "verdicts": {}
+      "verdicts": {
+        "600664": {
+          "result": "应验",
+          "detail": "上涨+7.4%",
+          "eval_date": "2026-11-13"
+        }
+      }
     },
     {
       "date": "2026-10-30",
@@ -998,7 +1004,13 @@
           "support": 5.14
         }
       ],
-      "verdicts": {}
+      "verdicts": {
+        "600664": {
+          "result": "持平",
+          "detail": "+2.3%",
+          "eval_date": "2026-11-13"
+        }
+      }
     },
     {
       "date": "2026-11-03",
@@ -1095,6 +1107,23 @@
           "level": "hold",
           "reason": "上方压力5.82约1.4%",
           "price": 5.74,
+          "stop": 5.56,
+          "target": 5.82,
+          "support": 5.67
+        }
+      ],
+      "verdicts": {}
+    },
+    {
+      "date": "2026-11-13",
+      "items": [
+        {
+          "code": "600664",
+          "name": "哈药股份",
+          "advice": "持有",
+          "level": "hold",
+          "reason": "风险评分73偏多；贴近支撑5.67（守住率20.0%）",
+          "price": 5.68,
           "stop": 5.56,
           "target": 5.82,
           "support": 5.67
